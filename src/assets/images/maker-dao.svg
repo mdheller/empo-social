@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="28" height="19.325" viewBox="0 0 28 19.325">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #1bbc9a;
+      }
+
+      .cls-2 {
+        fill: #54697a;
+      }
+    </style>
+  </defs>
+  <g id="maker-seeklogo.com" transform="translate(0 -0.042)">
+    <g id="Group_15" data-name="Group 15" transform="translate(0 0.042)">
+      <path id="path0_fill" class="cls-1" d="M-293.647,144.5a.642.642,0,0,1,.671.06l11.2,8.416a.65.65,0,0,1,.259.512v9.624a.643.643,0,0,1-.641.641.643.643,0,0,1-.641-.641v-9.3l-9.922-7.456v16.757a.643.643,0,0,1-.641.641.635.635,0,0,1-.641-.636V145.074A.638.638,0,0,1-293.647,144.5Z" transform="translate(294 -144.435)"/>
+    </g>
+    <g id="Group_16" data-name="Group 16" transform="translate(15.518 0.042)">
+      <path id="path1_fill" class="cls-2" d="M13.029,144.5a.64.64,0,0,1,.353.572v18.044a.641.641,0,1,1-1.282,0V146.357l-9.917,7.456v9.305a.641.641,0,1,1-1.282,0v-9.624a.629.629,0,0,1,.258-.512l11.194-8.421a.65.65,0,0,1,.676-.06Z" transform="translate(-0.9 -144.435)"/>
+    </g>
+  </g>
+</svg>
