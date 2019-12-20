@@ -46,7 +46,7 @@ class HomeController extends Component {
             sharePostInfo: false,
             statusShare: '',
             showError: false,
-            success: false,
+            showSuccess: false,
         };
     };
 
@@ -183,9 +183,10 @@ class HomeController extends Component {
         })
 
         handler.on("success", (res) => {
+            console.log(res)
             this.resetContent()
             this.setState({
-                success: true
+                showSuccess: res.toString()
             })
         })
     }
@@ -385,6 +386,19 @@ class HomeController extends Component {
         )
     }
 
+    renderSuccess() {
+        return (
+            <div className="overlay">
+                <div className="waper">
+                    <div className="dark-range" onClick={() => { this.setState({ showSuccess: false }) }}></div>
+                    <div className="error">
+                        <p>{this.state.showSuccess}</p>
+                    </div>
+                </div>
+            </div>
+        )
+    }
+
     renderStatus() {
         return (
             <div className="post" style={{ backgroundColor: this.state.color ? this.state.color : '' }}>
@@ -454,7 +468,6 @@ class HomeController extends Component {
                             </div>
 
                             <div className="content">
-                                {/* <p>{value.content}</p> */}
                                 <img src={value.content.data} alt="photos"></img>
                             </div>
 
@@ -501,6 +514,7 @@ class HomeController extends Component {
                             </div>
                             <ul className="coment scroll">
                                 {comment.map((detail, indexx) => {
+                                    var addressComment = detail.comment || [];
                                     return (
                                         <li>
                                             <div className="info">
@@ -509,12 +523,11 @@ class HomeController extends Component {
                                                         <img src={Avatar} alt="photos"></img>
                                                     </div>
                                                     <div>
-                                                        <p style={{ fontWeight: 'bold' }}>Name</p>
+                                                        <p style={{ fontWeight: 'bold' }}>{addressComment.address}</p>
                                                         <div className="title">
-                                                            <p style={{ color: '#dd3468' }}>$ Money</p>
-                                                            <p>Cấp độ: level</p>
+                                                            <p>Cấp độ: {addressComment.level}</p>
                                                             <img src={Offline} alt="photos"></img>
-                                                            <p>Time hour</p>
+                                                            <p>{Utils.convertDate(detail.time)}</p>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -524,18 +537,8 @@ class HomeController extends Component {
 
                                             <div className="reaction">
                                                 <div>
-                                                    <img src={Heart} alt="photos"></img>
-                                                    <p>totalLike</p>
-                                                </div>
-
-                                                <div>
                                                     <img src={Coment} alt="photos"></img>
                                                     <p>{detail.totalReply}</p>
-                                                </div>
-
-                                                <div>
-                                                    <img src={Upload} alt="photos"></img>
-                                                    <p>share</p>
                                                 </div>
                                             </div>
 
@@ -581,6 +584,7 @@ class HomeController extends Component {
                         {this.renderPost()}
                         {(this.state.showShare && this.state.sharePostInfo) && this.renderSharePost()}
                         {this.state.showError && this.renderError()}
+                        {this.state.showSuccess && this.renderSuccess()}
                     </div>
                     <RightNavbar></RightNavbar>
                 </div>
