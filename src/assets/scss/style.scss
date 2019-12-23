@@ -929,6 +929,14 @@ a {
         right: 20px;
     };
 
+    .waper-avatar {
+        img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+    }
+
     .waper-more-status {
         width: 100%;
         margin-top: 10px;
@@ -1291,15 +1299,36 @@ a {
         right: 20px;
     };
 
+    .waper-avatar {
+        img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+    }
+
     .waper-info {
+        .waper-cover {
+            cursor: pointer;
+            img {
+                width: 100%;
+                height: 206px;
+            }
+        }
         .group1 {
             display: flex;
             justify-content: space-between;
             height: 80px;
             .avatar {
+                cursor: pointer;
                 position: relative;
                 top: -50px;
                 margin-left: 10px;
+                img {
+                    width: 120px;
+                    height: 120px;
+                    border-radius: 50%;
+                }
             }
 
             .child {

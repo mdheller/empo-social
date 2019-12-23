@@ -12,14 +12,10 @@ import Icon from '../assets/images/Group 7447.svg'
 import Elip from '../assets/images/Ellipse 318.svg'
 import Plus from '../assets/images/Group 605.svg'
 import RightNavbar from '../components/RightNavbar';
-import Avatar1 from '../assets/images/avatar2.svg'
-import Avatar2 from '../assets/images/21.svg'
 import Heart from '../assets/images/Heart.svg'
-import Dislike from '../assets/images/like (1).svg'
 import Delete from '../assets/images/Union 28.svg'
 import Coment from '../assets/images/Path 1968.svg'
 import Upload from '../assets/images/Group 613.svg'
-import PhotoPost from '../assets/images/Group 7449.svg'
 import Offline from '../assets/images/Ellipse 311.svg'
 import Pre from '../assets/images/Group 678.svg'
 import Pluss from '../assets/images/Group 7448.svg'
@@ -28,8 +24,8 @@ import EmojiPicker from 'emoji-picker-react';
 import ServerAPI from '../ServerAPI';
 import Utils from '../utils'
 import Buffer from 'buffer'
-
 import ipfsAPI from 'ipfs-http-client'
+
 class HomeController extends Component {
 
     constructor(props) {
@@ -140,7 +136,6 @@ class HomeController extends Component {
 
     handleKeyDownReply = (e, comment) => {
         if (e.key === 'Enter') {
-            console.log(comment)
             const tx = window.empow.callABI("social.empow", "comment", [this.state.myAddress, comment.postId, "reply", comment.commentId.toString(), comment.replyText])
             this.action(tx);
         }
@@ -197,9 +192,9 @@ class HomeController extends Component {
     }
 
     onPostStatus = async () => {
-        const {myAddress, status, country } = this.state
+        const { myAddress, status, country } = this.state
         const _self = this;
-        
+
         const reader = new FileReader();
         reader.onloadend = async function () {
             const ipfs = ipfsAPI({ host: 'ipfs.infura.io', port: '5001', protocol: 'https' })
@@ -214,7 +209,7 @@ class HomeController extends Component {
                 }
                 let url = `https://ipfs.io/ipfs/${result[0].hash}`
                 console.log(`Url --> ${url}`)
-               
+
                 const content = {
                     type: "photo",
                     data: url,
@@ -224,7 +219,7 @@ class HomeController extends Component {
 
                 const tx = window.empow.callABI("social.empow", "post", [myAddress, status, content, []])
                 _self.action(tx)
-               
+
 
             })
         }
@@ -468,6 +463,7 @@ class HomeController extends Component {
                             </div>
 
                             <div className="content">
+                                <p>{value.title}</p>
                                 <img src={value.content.data} alt="photos"></img>
                             </div>
 
@@ -514,13 +510,13 @@ class HomeController extends Component {
                             </div>
                             <ul className="coment scroll">
                                 {comment.map((detail, indexx) => {
-                                    var addressComment = detail.comment || [];
+                                    var addressComment = detail.address || [];
                                     return (
                                         <li>
                                             <div className="info">
                                                 <div className="group">
-                                                    <div style={{ marginRight: '10px' }}>
-                                                        <img src={Avatar} alt="photos"></img>
+                                                    <div className="waper-avatar" style={{ marginRight: '10px' }}>
+                                                        <img src={addressComment.profile && addressComment.profile.avatar && addressComment.profile.avatar !== "" ? addressComment.profile.avatar : Avatar} alt="photos"></img>
                                                     </div>
                                                     <div>
                                                         <p style={{ fontWeight: 'bold' }}>{addressComment.address}</p>
