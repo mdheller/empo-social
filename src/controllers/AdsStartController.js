@@ -1,7 +1,4 @@
 import React, { Component } from 'react'
-import { Link } from 'react-router-dom';
-import $ from "jquery"
-import { API_ENDPOINT } from '../constants/index'
 import { connect } from 'react-redux';
 
 import Photos from '../assets/images/Group 7443.svg'

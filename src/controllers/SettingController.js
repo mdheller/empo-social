@@ -1,13 +1,8 @@
 import React, { Component } from 'react'
 import Headers from '../components/Header';
-import { Link } from 'react-router-dom';
-import $ from "jquery"
-import { API_ENDPOINT } from '../constants/index'
 import { connect } from 'react-redux';
 
 import Navbar from '../components/Navbar';
-import RightNavbar from '../components/RightNavbar';
-import PhotoPost from '../assets/images/Group 7449.svg'
 import Facebook from '../assets/images/facebook.svg'
 import Twitt from '../assets/images/twitt.svg'
 import IconAva from '../assets/images/avatar.svg'

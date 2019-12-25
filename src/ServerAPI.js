@@ -49,6 +49,30 @@ const ServerAPI = {
             .catch(error => (reject(error.response.data)))
         })
     },
+
+    getAddressByKey(key, page = 1, pageSize = 20) {
+        return new Promise ( (resolve,reject) => {
+            Axios.get(`${API_ENDPOINT}/getAddressByKey/${key}?page=${page}&pageSize=${pageSize}`)
+            .then(res => (resolve(res.data)))
+            .catch(error => (reject(error.response.data)))
+        })
+    },
+
+    getPostByKey(key, page = 1, pageSize = 20) {
+        return new Promise ( (resolve,reject) => {
+            Axios.get(`${API_ENDPOINT}/getPostByKey/${key}?page=${page}&pageSize=${pageSize}`)
+            .then(res => (resolve(res.data)))
+            .catch(error => (reject(error.response.data)))
+        })
+    },
+
+    getTagTrending(limit = 10) {
+        return new Promise ( (resolve,reject) => {
+            Axios.get(`${API_ENDPOINT}/getTagTrending?limit=${limit}`)
+            .then(res => (resolve(res.data)))
+            .catch(error => (reject(error.response.data)))
+        })
+    },
 }
 
 export default ServerAPI;

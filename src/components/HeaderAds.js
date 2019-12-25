@@ -3,12 +3,7 @@ import Logo from '../assets/images/Group 561.svg'
 import IconAva from '../assets/images/avatar.svg'
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
-import Button from './Button';
-import List from '../assets/images/list.svg';
-import Mess from '../assets/images/message-circle.svg'
-import Noti from '../assets/images/notifications-button.svg'
 import Setting from '../assets/images/XMLID_22_.svg'
-import Search from '../assets/images/Search.svg'
 
 class HeaderAds extends Component {
     constructor(props) {

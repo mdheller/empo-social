@@ -1,49 +1,29 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
-import Search from '../assets/images/Search.svg'
-import Avatar from '../assets/images/avatar.svg'
-import Mess from '../assets/images/message-circle.svg'
-import Noti from '../assets/images/notifications-button.svg'
-import Setting from '../assets/images/XMLID_22_.svg'
+import ServerAPI from '../ServerAPI';
 
 class Navbar extends Component {
     constructor(props) {
         super(props);
 
         this.state = {
-            trend: [
-                {
-                    title: '#Empow ICO',
-                    content: '523,125 repost - 50,000$'
-                },
-                {
-                    title: 'TronVegas',
-                    content: '307,012 repost'
-                },
-                {
-                    title: '#Dragon7',
-                    content: '157,984 repost'
-                },
-                {
-                    title: '#Dragon7',
-                    content: '157,984 repost'
-                },
-                {
-                    title: '#Dragon7',
-                    content: '157,984 repost'
-                },
-            ],
+            trend: [],
             showNoti: false
         }
     };
 
-    componentDidMount() {
+    async componentDidMount() {
         if (window.location.pathname === '/account') {
             this.setState({
                 showNoti: true
             })
         }
+
+        var trend = await ServerAPI.getTagTrending();
+
+        this.setState({
+            trend
+        })
     }
 
     renderNoti() {
@@ -74,8 +54,8 @@ class Navbar extends Component {
                         if ((index > 2 && showMore) || index < 3) {
                             return (
                                 <li>
-                                    <p>{value.title}</p>
-                                    <p>{value.content}</p>
+                                    <p>{value.tag}</p>
+                                    <p>{value.like} like</p>
                                 </li>
                             )
                         }

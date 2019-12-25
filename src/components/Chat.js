@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
 import Gif from '../assets/images/Group 695.svg'
 import Avatar from '../assets/images/avatar.svg'
 import Emoji from '../assets/images/Group 697.svg'

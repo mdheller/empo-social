@@ -956,32 +956,40 @@ a {
         }
         .waper-hastag {
             margin-top: 10px;
-            display: flex;
             width: 100%;
-            button {
-                margin-right: 10px;
-                border-radius: 12px;
-                background-color: #dd3468;
-                display: flex;
-                align-items: center;
-                padding: 5px 10px;
-                color: white;
-                div {
-                    cursor: pointer;
-                    margin-left: 10px;
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    width: 10px;
-                    height: 10px;
-                    border-radius: 50%;
-                    background-color: white;
-                    p {
-                        font-size: 10px;
-                        color: #dd3468
-                    }
-                }
+            input {
+                display: inline-block;
+                padding: 2px;
+                background: #FFF;
+                border: 1px solid #CCC;
+                font: inherit;
+                border-radius: 2px;
+                box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+                width: 100px;
+            }
+            input:focus {
+                border-color: #59F;
+                outline: none;
+            }
 
+            .tags-input {
+                display: block;
+                border: 1px solid #CCC;
+                padding: 5px;
+                width: 100%;
+                border-radius: 2px;
+                input {
+                    width: 100px;
+                }
+            }
+            .tag {
+                color: white;
+                background-color: #dd3468;
+                border-radius: 12px;
+                padding: 5px 10px;
+                margin: 5px;
+                display: inline-block;
+                cursor: pointer;
             }
         }
     }
@@ -1026,6 +1034,12 @@ a {
                     }
                 }
             }
+
+            .waper-content-photo {
+                img {
+                    width: 100%;
+                }
+            }
         }
     }
 
@@ -1059,6 +1073,10 @@ a {
                     font-size: 20px;
                     font-weight: bold;
                     margin-bottom: 10px;
+                }
+
+                img {
+                    width: 100%;
                 }
             }
 
@@ -1745,72 +1763,6 @@ a {
                 margin-bottom: 20px;
             }
         }
-    }
-}
-
-#login {
-    background-image:  url('../images/Subtraction 3.svg');
-    height: 100vh;
-    .waper-login {
-        float: right;
-        width: 405px;
-        height: 100vh;
-        opacity: 0.8;
-        background-color: #eeeeee;
-        padding: 50px;
-        
-        .title {
-            margin-top: 150px;
-            display: flex;
-            margin-bottom: 30px;
-            p {
-                margin-left: 10px;
-                font-size: 24px;
-                font-weight: bold;
-            }
-        }
-
-        button {
-            margin-top: 20px;
-            height: 37px;
-        }
-
-        .waper-input {
-            .one-input {
-                border-radius: 8px;
-                background-color: white;
-                width: 100%;
-                height: 67px;
-                text-align: left;
-                margin-top: 8px;
-                padding: {
-                    top: 12px;
-                    left: 18px;
-                    right: 18px;
-                }
-                p {
-                    font-size: 12px;
-                    color: #8f90a2;
-                   
-                }
-                input {
-                    background-color: white;
-                    text-align: left;
-                    width: 90%;
-                }
-                img {
-                    cursor: pointer;
-                }
-            }
-            .forgot {
-                cursor: pointer;
-                margin-top: 5px;
-                font-size: 11px;
-                color: #ff6a7e;
-                float: right;
-            }
-        }
-
     }
 }
 

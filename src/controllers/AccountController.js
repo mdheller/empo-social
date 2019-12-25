@@ -8,10 +8,8 @@ import Mail from '../assets/images/Group 7451.svg'
 import Fb from '../assets/images/Group 7450.svg'
 import Noti from '../assets/images/Group 704.svg'
 import CoverPhoto from '../assets/images/Rectangle 3121.svg'
-import Calendar from '../assets/images/Group 676.svg'
 import Offline from '../assets/images/Ellipse 311.svg'
 import Heart from '../assets/images/Heart.svg'
-import Dislike from '../assets/images/like (1).svg'
 import Coment from '../assets/images/Path 1968.svg'
 import Upload from '../assets/images/Group 613.svg'
 import Gif from '../assets/images/Group 601.svg'
@@ -45,7 +43,6 @@ class AccountController extends Component {
         var follower = await ServerAPI.getMyFollower(myAddress);
 
         var totalMoney = 0
-console.log(accountInfo)
         data.forEach(post => {
             if (post.like && post.like.amount) {
                 totalMoney += parseFloat(post.like.amount)
@@ -189,7 +186,7 @@ console.log(accountInfo)
                     </div>
                 </div>
                 <div className="group2">
-                    <span>{myAddress ? myAddress.substr(0, 10) + '...' : ''}</span>
+                    <span>{myAddress ? myAddress.substr(0, 20) + '...' : ''}</span>
                     <p style={{ color: '#676f75', marginLeft: '20px' }}>Cấp độ: {accountInfo ? accountInfo.level : 1}</p>
                 </div>
                 <div className="group2">

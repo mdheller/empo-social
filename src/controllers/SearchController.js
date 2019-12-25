@@ -1,14 +1,11 @@
 import React, { Component } from 'react'
 import Headers from '../components/Header';
-import { Link } from 'react-router-dom';
-import $ from "jquery"
-import { API_ENDPOINT } from '../constants/index'
 import { connect } from 'react-redux';
 
 import Navbar from '../components/Navbar';
 import RightNavbar from '../components/RightNavbar';
-import PhotoPost from '../assets/images/Group 7449.svg'
-import Avatar from '../assets/images/avatar4.svg'
+import ServerAPI from '../ServerAPI';
+import Utils from '../utils'
 
 class SearchController extends Component {
 
@@ -18,22 +15,26 @@ class SearchController extends Component {
         this.state = {
             key: this.getKey(),
             index: 0,
-            people: [
-                {
-                    ava: Avatar,
-                    name: '今野杏南'
-                },
-                {
-                    ava: Avatar,
-                    name: '今野杏南'
-                },
-                {
-                    ava: Avatar,
-                    name: '今野杏南'
-                },
-            ]
+            posts: [],
+            addresses: []
         };
     };
+
+    async componentDidMount() {
+        var { key } = this.state
+
+        if (!key || key === "" || key === null) {
+            return;
+        }
+
+        var addresses = await ServerAPI.getAddressByKey(key)
+        var posts = await ServerAPI.getPostByKey(key)
+
+        this.setState({
+            addresses,
+            posts
+        })
+    }
 
     getKey() {
         if (this.props.match && this.props.match.params) {
@@ -44,17 +45,15 @@ class SearchController extends Component {
     }
 
     renderPeople() {
-        var { people } = this.state
+        var { addresses } = this.state
         return (
             <ul className="people">
-                {people.map((value, index) => {
+                {addresses.map((value, index) => {
                     return (
                         <li>
-                            <div style={{display: 'flex', alignItems: 'center'}}>
-                                <img src={value.ava} alt="photos"></img>
-                                <p>{value.name}</p>
+                            <div className="content">
+                                <p>{value.address.substr(0, 20) + '...'}</p>
                             </div>
-                            <button className="btn-general-2">Follow</button>
                         </li>
                     )
                 })}
@@ -62,12 +61,23 @@ class SearchController extends Component {
         )
     }
 
-    renderTop() {
+    renderPost() {
+        var { posts } = this.state
         return (
-            <div className="top">
-                <p>Wow! Just amazing. I love your profile content. Look forward to see more.  Well done!</p>
-                <img src={PhotoPost} alt="photos"></img>
-            </div>
+            <ul className="people">
+                {posts.map((value, index) => {
+                    return (
+                        <li>
+                            <div className="content">
+                                <p>{value.author.substr(0, 20) + '...'}</p>
+                                <p style={{ color: '#676f75', fontSize: '16px', fontWeight: 'normal' }}>{Utils.convertDate(value.time)}</p>
+                                <p>{value.title}</p>
+                                <img src={value.content.data} alt="photos"></img>
+                            </div>
+                        </li>
+                    )
+                })}
+            </ul>
         )
     }
 
@@ -85,23 +95,14 @@ class SearchController extends Component {
 
                         <div className="menu">
                             <div className={index === 0 ? "child active" : "child"}>
-                                <p onClick={() => this.setState({ index: 0 })}>Top</p>
+                                <p onClick={() => this.setState({ index: 0 })}>People</p>
                             </div>
                             <div className={index === 1 ? "child active" : "child"}>
-                                <p onClick={() => this.setState({ index: 1 })}>New</p>
-                            </div>
-                            <div className={index === 2 ? "child active" : "child"}>
-                                <p onClick={() => this.setState({ index: 2 })}>People</p>
-                            </div>
-                            <div className={index === 3 ? "child active" : "child"}>
-                                <p onClick={() => this.setState({ index: 3 })}>Photo</p>
-                            </div>
-                            <div className={index === 4 ? "child active" : "child"}>
-                                <p onClick={() => this.setState({ index: 4 })}>Video</p>
+                                <p onClick={() => this.setState({ index: 1 })}>Post</p>
                             </div>
                         </div>
-                        {index === 0 && this.renderTop()}
-                        {index === 2 && this.renderPeople()}
+                        {index === 0 && this.renderPeople()}
+                        {index === 1 && this.renderPost()}
 
                     </div>
                     <RightNavbar></RightNavbar>

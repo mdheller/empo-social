@@ -1,7 +1,5 @@
 import React, { Component, useState } from 'react'
 import Headers from '../components/Header';
-import Online from '../assets/images/online.svg'
-//import Offline from '../assets/images/offline.svg'
 import { connect } from 'react-redux';
 import Navbar from '../components/Navbar';
 import Avatar from '../assets/images/avatar.svg'
@@ -25,6 +23,8 @@ import ServerAPI from '../ServerAPI';
 import Utils from '../utils'
 import Buffer from 'buffer'
 import ipfsAPI from 'ipfs-http-client'
+import tagsInput from 'tags-input'
+import $ from "jquery";
 
 class HomeController extends Component {
 
@@ -34,7 +34,7 @@ class HomeController extends Component {
         this.state = {
             data: [],
             showMoreStatus: false,
-            file: [],
+            file: false,
             color: false,
             status: '',
             showEmoji: false,
@@ -43,6 +43,7 @@ class HomeController extends Component {
             statusShare: '',
             showError: false,
             showSuccess: false,
+            tags: []
         };
     };
 
@@ -55,7 +56,10 @@ class HomeController extends Component {
             myAddress,
             country
         })
+    }
 
+    log(e) {
+        $('#out')[0].textContent = `${e.type}: ${this.value.replace(/,/g, ', ')}`;
     }
 
     onChangeBgColor = (color) => {
@@ -66,17 +70,12 @@ class HomeController extends Component {
 
 
     upLoadPhoto = () => {
-        if (this.state.file.length === 5) {
-            return;
-        }
         this.refs.fileUploader.click();
     }
 
     handleChange = (event) => {
         if (event.target.files[0]) {
-            var img = URL.createObjectURL(event.target.files[0]);
-            var file = this.state.file;
-            file.push(img)
+            var file = URL.createObjectURL(event.target.files[0]);
             this.setState({
                 file
             })
@@ -109,6 +108,12 @@ class HomeController extends Component {
         });
     }
 
+    handleChangeTextShare = (event) => {
+        this.setState({
+            statusShare: event.target.value
+        });
+    }
+
     handleChangeTextComment = (event, index) => {
         var data = this.state.data;
         data[index].commentText = event.target.value
@@ -116,7 +121,6 @@ class HomeController extends Component {
             data
         });
     }
-
 
     handleChangeTextReply = (event, indexx, index) => {
         var data = this.state.data;
@@ -191,9 +195,24 @@ class HomeController extends Component {
         this.action(tx);
     }
 
+
+    onSharePost = async () => {
+        var { myAddress, sharePostInfo, statusShare } = this.state
+        const tx = window.empow.callABI("social.empow", "share", [myAddress, sharePostInfo.postId, statusShare])
+        this.action(tx);
+    }
+
     onPostStatus = async () => {
         const { myAddress, status, country } = this.state
         const _self = this;
+
+        var tagContent = $('input[type="tags"]')[0].value;
+        tagContent = tagContent.split(",")
+
+        var tag = []
+        for (let j = 0; j < tagContent.length; j++) {
+            tag.push(tagContent[j].trim())
+        }
 
         const reader = new FileReader();
         reader.onloadend = async function () {
@@ -217,7 +236,7 @@ class HomeController extends Component {
                     city: country.city
                 }
 
-                const tx = window.empow.callABI("social.empow", "post", [myAddress, status, content, []])
+                const tx = window.empow.callABI("social.empow", "post", [myAddress, status, content, tag])
                 _self.action(tx)
 
 
@@ -230,11 +249,28 @@ class HomeController extends Component {
     resetContent = () => {
         this.setState({
             status: '',
-            file: []
+            file: false,
+            sharePostInfo: false,
+            statusShare: ''
         })
     }
 
+    onChangeTagsInput = (e) => {
+        if (e.key === 'Enter') {
+            let $ = s => [].slice.call(document.querySelectorAll(s));
+            $('input[type="tags"]').forEach(tagsInput);
+        }
+    }
+
+    onClickTag = () => {
+        $('.tag').click(function () {
+            $(this).remove()
+        });
+    }
+
     renderMoreStatus() {
+       
+
         return (
             <div className="waper-more-status">
                 <div className="waper-color">
@@ -253,27 +289,8 @@ class HomeController extends Component {
                     <img src={Pluss} alt="photos"></img>
                 </div>
 
-                <div className="waper-hastag">
-                    <button>
-                        #dsaewqewqe
-                        <div>
-                            <p>x</p>
-                        </div>
-                    </button>
-
-                    <button>
-                        #dsaewqewqe
-                        <div>
-                            <p>x</p>
-                        </div>
-                    </button>
-
-                    <button>
-                        #dsaewqewqe
-                        <div>
-                            <p>x</p>
-                        </div>
-                    </button>
+                <div className="waper-hastag" onClick={() => this.onClickTag()}>
+                    <input type="tags" placeholder="hashtag" id="tags" onKeyDown={this.onChangeTagsInput} />
                 </div>
             </div>
         )
@@ -281,18 +298,15 @@ class HomeController extends Component {
 
     renderPhotos() {
         return (
-            <div>
-                {this.state.file.map((value, index) => {
-                    return (
-                        <img style={{ marginRight: '10px' }} src={value} alt="photos" onClick={() => this.onDeletePhoto(index)}></img>
-                    )
-                })}
+            <div className="waper-content-photo">
+                <img style={{ marginRight: '10px' }} src={this.state.file} alt="photos"></img>
             </div>
         )
     }
 
     renderSharePost() {
         var value = this.state.sharePostInfo
+        var address = value.address || {}
         return (
             <div className="overlay">
                 <div className="waper">
@@ -307,7 +321,7 @@ class HomeController extends Component {
                             <textarea
                                 value={this.state.statusShare}
                                 onClick={() => { this.setState({ showMoreStatus: true }) }}
-                                onChange={this.handleChangeText}
+                                onChange={this.handleChangeTextShare}
                                 placeholder="Add comment"
                                 style={{ backgroundColor: this.state.color ? this.state.color : '' }}></textarea>
                         </div>
@@ -316,16 +330,14 @@ class HomeController extends Component {
                             <div className="info">
                                 <div className="group">
                                     <div style={{ marginRight: '10px' }}>
-                                        <img src={value.ava} alt="photos"></img>
+                                        <img src={Avatar} alt="photos"></img>
                                     </div>
                                     <div>
-                                        <p style={{ fontWeight: 'bold', fontSize: '20px' }}>{value.name}</p>
+                                        <p style={{ fontWeight: 'bold', fontSize: '20px' }}>{value.author.substr(0, 20) + '...'}</p>
                                         <div className="title">
-                                            <p>Cấp độ: {value.level}</p>
+                                            <p>Cấp độ: {address.level}</p>
                                             <img src={Offline} alt="photos"></img>
-                                            <p>{value.time}</p>
-                                            <img src={Offline} alt="photos"></img>
-                                            <p>{value.date}</p>
+                                            <p>{Utils.convertDate(value.time)}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -335,11 +347,10 @@ class HomeController extends Component {
                             </div>
 
                             <div className="content">
-                                <p>{value.content}</p>
-                                <img src={value.image} alt="photos"></img>
+                                <p>{value.title}</p>
+                                <img src={value.content.data} alt="photos"></img>
                             </div>
                         </div>
-                        {this.renderMoreStatus()}
                         <div className="waper-button">
                             <div style={{ display: 'flex', alignItems: 'center' }}>
                                 <div onClick={() => this.upLoadPhoto()} style={{ display: 'flex', alignItems: 'center' }}>
@@ -358,7 +369,7 @@ class HomeController extends Component {
                             <div style={{ justifyContent: 'center', display: 'flex' }}>
                                 <img src={Elip} alt="photos"></img>
                                 <img src={Plus} alt="photos"></img>
-                                <button className="btn-general-1">Post</button>
+                                <button className="btn-general-1" onClick={() => this.onSharePost()}>Post</button>
                             </div>
                         </div>
 
@@ -407,7 +418,7 @@ class HomeController extends Component {
                         onChange={this.handleChangeText}
                         placeholder="What are you thinking?"
                         style={{ backgroundColor: this.state.color ? this.state.color : '' }}></textarea>
-                    {this.renderPhotos()}
+                    {this.state.file && this.renderPhotos()}
                     {this.state.showMoreStatus && this.renderMoreStatus()}
                     <div className="waper-button">
                         <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -450,7 +461,7 @@ class HomeController extends Component {
                                         <img src={Avatar} alt="photos"></img>
                                     </div>
                                     <div>
-                                        <p style={{ fontWeight: 'bold', fontSize: '20px' }}>{value.author.substr(0, 5) + '...'}</p>
+                                        <p style={{ fontWeight: 'bold', fontSize: '20px' }}>{value.author.substr(0, 20) + '...'}</p>
                                         <div className="title">
                                             <p style={{ color: '#dd3468' }}>$ {like.amount}</p>
                                             <p>Cấp độ: {address.level}</p>

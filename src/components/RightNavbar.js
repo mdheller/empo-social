@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
 import Avatar from '../assets/images/avatar2.svg'
 import Avatar2 from '../assets/images/21.svg'
 import Offline from '../assets/images/Ellipse 311.svg'
