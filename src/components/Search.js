@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import { connect } from 'react-redux';
 import Select from 'react-select'
 import IconSearch from '../assets/images/icon-search.svg'
 
@@ -70,6 +69,4 @@ class Search extends Component {
     }
 };
 
-export default connect(state => ({
-}), ({
-}))(Search)
+export default Search

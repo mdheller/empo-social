@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import Logo from '../assets/images/Group 561.svg'
 import IconAva from '../assets/images/avatar.svg'
-import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import Mess from '../assets/images/message-circle.svg'
 import Noti from '../assets/images/notifications-button.svg'
@@ -9,22 +8,36 @@ import Setting from '../assets/images/XMLID_22_.svg'
 import Search from '../assets/images/Search.svg'
 
 import io from 'socket.io-client';
+import ServerAPI from '../ServerAPI';
+//import Alert from '../components/Alert'
+
+import Alert from 'react-s-alert';
+import 'react-s-alert/dist/s-alert-default.css';
+import 'react-s-alert/dist/s-alert-css-effects/slide.css';
+
 const socket = io('http://localhost:8000');
 
 class Header extends Component {
+
     constructor(props) {
         super(props);
 
         this.state = {
             index: 0,
             textSearch: '',
-            listNoti: []
+            listNoti: [],
+            showNoti: false,
+            newNoti: []
         }
     };
 
     async componentDidMount() {
+
         var myAddress = await window.empow.enable()
 
+        this.setState({
+            myAddress
+        })
         socket.emit("get_new_like", myAddress)
         socket.on("res_new_like", (data) => {
             this.convertNoti(data)
@@ -36,19 +49,18 @@ class Header extends Component {
         });
     }
 
-    convertNoti = (data) => {
-        var obj = {
-            target: data.target,
-            action: data.action,
-            text: `${data.target} đã ${data.action} bài viết của bạn`
-        }
-
-        var listNoti = this.state.listNoti;
-        listNoti.push(obj)
-
+    getNoti = async () => {
+        var listNoti = await ServerAPI.getNotification(this.state.myAddress);
         this.setState({
             listNoti
         })
+    }
+
+    convertNoti = (data) => {
+        Alert.info(`<a href="/post-detail/${data.postId}">${data.target} đã ${data.action} bài viết của bạn</a>`, {
+            position: 'bottom-left',
+            effect: 'slide',
+        });
     }
 
     onSearch = () => {
@@ -63,9 +75,47 @@ class Header extends Component {
         }
     }
 
+    onShowNoti = async () => {
+        if (!this.state.showNoti) {
+            await this.getNoti();
+        }
+
+        this.setState({
+            showNoti: !this.state.showNoti
+        })
+    }
+
+    onClickNoti = async (noti) => {
+        window.location = '/post-detail/' + noti.postId
+    }
+
+    renderNoti() {
+        var { listNoti } = this.state
+
+        if (listNoti.length === 0) {
+            return (
+                <ul className="waper-noti scroll">
+                    <p>Không có thông báo</p>
+                </ul>
+            )
+        }
+        return (
+            <ul className="waper-noti scroll">
+                {listNoti.map((value, index) => {
+                    return (
+                        <li onClick={() => this.onClickNoti(value)}>
+                            <p>{value.target} đã {value.action} bài viết của bạn</p>
+                        </li>
+                    )
+                })}
+            </ul>
+        )
+    }
+
     render() {
         return (
             <div className="header">
+                <Alert stack={{ limit: 3 }} timeout={5000} html={true}></Alert>
                 <div className="container">
                     <Link className="waper-logo" to="/">
                         <img src={Logo} alt="photos"></img>
@@ -86,7 +136,7 @@ class Header extends Component {
                         <a href="/account"><img src={IconAva} alt="photos"></img></a>
                         <div className="waper-icon">
                             <img src={Mess} alt="photos"></img>
-                            <img src={Noti} alt="photos"></img>
+                            <img src={Noti} alt="photos" onClick={() => this.onShowNoti()}></img>
                             <a href="/setting"><img src={Setting} alt="photos"></img></a>
                         </div>
                     </div>}
@@ -94,13 +144,12 @@ class Header extends Component {
                     {!window.empow && <div className="waper-account">
                         <a href="https://chrome.google.com/webstore/detail/empow-wallet/nlgnepoeokdfodgjkjiblkadkjbdfmgd" target="_blank" rel="noopener noreferrer">Install Empow Wallet</a>
                     </div>}
+
+                    {this.state.showNoti && this.renderNoti()}
                 </div>
             </div>
         );
     }
 };
 
-export default connect(state => ({
-    // loggedIn: state.app.loggedIn,
-}), ({
-}))(Header)
+export default Header

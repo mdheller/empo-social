@@ -1,6 +1,5 @@
 import React, { Component, useState } from 'react'
 import Headers from '../components/Header';
-import { connect } from 'react-redux';
 import Navbar from '../components/Navbar';
 import Avatar from '../assets/images/avatar.svg'
 import Photo from '../assets/images/Path 953.svg'
@@ -448,13 +447,13 @@ class HomeController extends Component {
 
     renderPost() {
         return (
-            <ul className="waper-data">
+            <ul>
                 {this.state.data.map((value, index) => {
                     var like = value.like || {};
                     var comment = value.comment || []
                     var address = value.address || {}
                     return (
-                        <li style={{ marginBottom: '50px' }}>
+                        <li className="post-detail" style={{ marginBottom: '50px' }}>
                             <div className="info">
                                 <div className="group">
                                     <div style={{ marginRight: '10px' }}>
@@ -600,6 +599,4 @@ class HomeController extends Component {
     }
 }
 
-export default connect(state => ({
-}), ({
-}))(HomeController)
+export default HomeController

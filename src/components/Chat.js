@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import { connect } from 'react-redux';
 import Gif from '../assets/images/Group 695.svg'
 import Avatar from '../assets/images/avatar.svg'
 import Emoji from '../assets/images/Group 697.svg'
@@ -223,7 +222,4 @@ class Chat extends Component {
     }
 };
 
-export default connect(state => ({
-    // loggedIn: state.app.loggedIn,
-}), ({
-}))(Chat)
+export default Chat

@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
 import Headers from '../components/Header';
-import { connect } from 'react-redux';
 
 import Navbar from '../components/Navbar';
 import RightNavbar from '../components/RightNavbar';
@@ -114,6 +113,4 @@ class SearchController extends Component {
     }
 }
 
-export default connect(state => ({
-}), ({
-}))(SearchController)
+export default SearchController

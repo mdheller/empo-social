@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import { connect } from 'react-redux';
 import ServerAPI from '../ServerAPI';
 
 class Navbar extends Component {
@@ -94,7 +93,4 @@ class Navbar extends Component {
     }
 };
 
-export default connect(state => ({
-    // loggedIn: state.app.loggedIn,
-}), ({
-}))(Navbar)
+export default Navbar

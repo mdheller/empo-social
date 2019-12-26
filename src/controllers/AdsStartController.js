@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import { connect } from 'react-redux';
 
 import Photos from '../assets/images/Group 7443.svg'
 import HeaderAds from '../components/HeaderAds';
@@ -35,6 +34,4 @@ class AdsStartController extends Component {
     }
 }
 
-export default connect(state => ({
-}), ({
-}))(AdsStartController)
+export default AdsStartController

@@ -227,6 +227,30 @@ a {
                 cursor: pointer;
             }
         }
+        .waper-noti {
+            height: 500px;
+            overflow: auto;
+            background-color: white;
+            border: 1px solid #f5f5f5;
+            box-shadow: 0 3px 6px 0 rgba(0, 0, 0, 0.16);
+            position: absolute;
+            top: 80px;
+            right: 50px;
+            z-index: 20;
+            width: 500px;
+            li {
+                padding: 20px;
+                border-bottom: 1px solid #f5f5f5;
+            }
+            p {
+                padding: 20px;
+            }
+        }
+    }
+
+    .s-alert-info {
+        background: #9ed1e0;
+        box-shadow: 0 3px 6px 0 rgba(0, 0, 0, 0.16);
     }
 }
 
@@ -922,7 +946,7 @@ a {
 }
 
 /*#endregion */
-#home {
+#home, #post-detail {
     flex: 1;
     padding: {
         left: 20px;
@@ -1043,122 +1067,120 @@ a {
         }
     }
 
-    .waper-data {
-        li {
-            margin-top: 20px;
-            .info {
-                justify-content: space-between;
+    .post-detail {
+        margin-top: 20px;
+        .info {
+            justify-content: space-between;
+            display: flex;
+            .btn-general-2 {
+                width: 54px;
+                height: 19px;
+            }
+            .title {
                 display: flex;
-                .btn-general-2 {
-                    width: 54px;
-                    height: 19px;
+                margin-top: 5px;
+                p{
+                    color: #676f75;
+                    margin-right: 10px;
                 }
+            }
+
+            .group {
+                display: flex;
+            }
+        }
+
+        .content {
+            margin-top: 10px;
+            p {
+                font-size: 20px;
+                font-weight: bold;
+                margin-bottom: 10px;
+            }
+
+            img {
+                width: 100%;
+            }
+        }
+
+        .time {
+            display: flex;
+            margin: 10px;
+            img {
+                margin-left: 5px;
+                margin-right: 5px;
+            }
+        }
+
+        .reaction {
+            padding: 10px;
+            margin-top: 10px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            border-top: 1px solid #e6e6e6;
+            border-bottom: 1px solid #e6e6e6;
+            div {
+                display: flex;
+            }
+            p{
+                color: #676f75;
+                font-size: 14px;
+            }
+            img {
+                margin-right: 5px;
+                cursor: pointer;
+            }
+        }
+
+        .coment {
+            height: 300px;
+            overflow: auto;
+            border-radius: 4px;
+            padding: 10px;
+            .info {
+                margin-bottom: 10px;
                 .title {
-                    display: flex;
-                    margin-top: 5px;
-                    p{
-                        color: #676f75;
-                        margin-right: 10px;
+                    margin-top: 0px;
+                    p {
+                        font-size: 13px;
                     }
                 }
-
-                .group {
-                    display: flex;
-                }
             }
 
-            .content {
-                margin-top: 10px;
-                p {
-                    font-size: 20px;
-                    font-weight: bold;
-                    margin-bottom: 10px;
-                }
-
-                img {
-                    width: 100%;
-                }
+            li {
+                padding: 10px;
+                border-bottom: 1px solid #e6e6e6;
             }
-
-            .time {
-                display: flex;
-                margin: 10px;
-                img {
-                    margin-left: 5px;
-                    margin-right: 5px;
-                }
+            img {
+                cursor: pointer;
             }
 
             .reaction {
-                padding: 10px;
-                margin-top: 10px;
-                margin-bottom: 15px;
-                display: flex;
-                justify-content: space-between;
-                border-top: 1px solid #e6e6e6;
-                border-bottom: 1px solid #e6e6e6;
-                div {
-                    display: flex;
-                }
-                p{
-                    color: #676f75;
-                    font-size: 14px;
-                }
-                img {
-                    margin-right: 5px;
-                    cursor: pointer;
-                }
+                padding-left: 45px;
+                padding-right: 45px;
+                border-top:0;
+                border-bottom: 0;
             }
+        }
 
-            .coment {
-                height: 300px;
-                overflow: auto;
-                border-radius: 4px;
-                padding: 10px;
-                .info {
-                    margin-bottom: 10px;
-                    .title {
-                        margin-top: 0px;
-                        p {
-                            font-size: 13px;
-                        }
-                    }
-                }
-
-                li {
-                    padding: 10px;
-                    border-bottom: 1px solid #e6e6e6;
-                }
-                img {
-                    cursor: pointer;
-                }
-
-                .reaction {
-                    padding-left: 45px;
-                    padding-right: 45px;
-                    border-top:0;
-                    border-bottom: 0;
-                }
+        .waper-cmt {
+            margin-left: 10px;
+            width: 100%;
+            border-radius: 16px;
+            box-shadow: 0 3px 6px 0 rgba(0, 0, 0, 0.16);
+            background-color: #eeeeee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            input {
+                flex: 1;
+                background-color: transparent;
             }
-
-            .waper-cmt {
+            img {
                 margin-left: 10px;
-                width: 100%;
-                border-radius: 16px;
-                box-shadow: 0 3px 6px 0 rgba(0, 0, 0, 0.16);
-                background-color: #eeeeee;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                padding: 10px;
-                input {
-                    flex: 1;
-                    background-color: transparent;
-                }
-                img {
-                    margin-left: 10px;
-                    cursor: pointer;
-                }
+                cursor: pointer;
             }
         }
     }
@@ -1396,6 +1418,10 @@ a {
                     font-size: 20px;
                     font-weight: bold;
                     margin-bottom: 10px;
+                }
+
+                .waper-img {
+                    width: 100%;
                 }
             }
     
@@ -2185,6 +2211,14 @@ a {
             }
         }
     }
+}
+
+#post-detail {
+    flex: 1;
+    padding: {
+        left: 20px;
+        right: 20px;
+    };
 }
 @media screen and (max-width: 1270px) {
     .container{

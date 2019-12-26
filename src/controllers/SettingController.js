@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
 import Headers from '../components/Header';
-import { connect } from 'react-redux';
 
 import Navbar from '../components/Navbar';
 import Facebook from '../assets/images/facebook.svg'
@@ -270,6 +269,4 @@ class SettingController extends Component {
     }
 }
 
-export default connect(state => ({
-}), ({
-}))(SettingController)
+export default SettingController

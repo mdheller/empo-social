@@ -2,22 +2,11 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
-import { configureStore, getDefaultMiddleware } from 'redux-starter-kit';
-import reducer from './reducers/index'
 import { Provider } from 'react-redux';
 
-var store = configureStore({
-    middleware: [
-        ...getDefaultMiddleware(),
-        // reduxLogger
-    ],
-    reducer
-});
 
 ReactDOM.render(
-    <Provider store={ store }>
-        <App />
-    </Provider>,
+        <App></App>,
     document.getElementById('root')
 );
 

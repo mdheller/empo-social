@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import { connect } from 'react-redux';
 import Calendar from 'react-calendar'
 
 import HeaderAds from '../components/HeaderAds';
@@ -656,6 +655,4 @@ class AdsController extends Component {
     }
 }
 
-export default connect(state => ({
-}), ({
-}))(AdsController)
+export default AdsController

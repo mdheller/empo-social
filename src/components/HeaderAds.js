@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import Logo from '../assets/images/Group 561.svg'
 import IconAva from '../assets/images/avatar.svg'
-import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import Setting from '../assets/images/XMLID_22_.svg'
 
@@ -34,7 +33,4 @@ class HeaderAds extends Component {
     }
 };
 
-export default connect(state => ({
-    // loggedIn: state.app.loggedIn,
-}), ({
-}))(HeaderAds)
+export default HeaderAds

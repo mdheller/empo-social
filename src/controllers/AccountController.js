@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
 import Headers from '../components/Header';
-import { connect } from 'react-redux';
 import Navbar from '../components/Navbar';
 import RightNavbar from '../components/RightNavbar';
 import Avatar from '../assets/images/avatar-big.svg'
@@ -219,7 +218,7 @@ class AccountController extends Component {
                                         <img src={Offline} alt="photos"></img>
                                     </div>
                                 </div>
-                                <img src={value.content.data} alt="photos"></img>
+                                <img className="waper-img" src={value.content.data} alt="photos"></img>
                             </div>
 
                             <div className="reaction">
@@ -339,6 +338,4 @@ class AccountController extends Component {
     }
 }
 
-export default connect(state => ({
-}), ({
-}))(AccountController)
+export default AccountController

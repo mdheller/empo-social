@@ -1,19 +1,20 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import HomeController from './controllers/HomeController';
 import { BrowserRouter as Router, Route } from "react-router-dom";
-import { connect } from 'react-redux';
-import {
-    setLoggedIn
-} from './reducers/appReducer'
-
 import './assets/scss/style.scss';
 import AccountController from './controllers/AccountController'
 import SearchController from './controllers/SearchController'
 import SettingController from './controllers/SettingController'
 import AdsStartController from './controllers/AdsStartController'
 import AdsController from './controllers/AdsController'
+import PostDetailController from './controllers/PostDetailController'
 
 const routes = [
+    {
+        path: '/post-detail/:postId?',
+        exact: false,
+        main: ({ location, match }) => <PostDetailController location={location} match={match} />
+    },
     {
         path: '/ads',
         exact: false,
@@ -47,28 +48,22 @@ const routes = [
 ];
 
 class App extends React.Component {
-    async loginCallback(user) {
-        if (user) {
-            this.props.setLoggedIn(true);
-        } else {
-            this.props.setLoggedIn(false);
-        }
-    }
-
     render() {
-        return <Router>
-            {routes.map((route, index) => {
-                return <Route key={index}
-                    path={route.path}
-                    exact={route.exact}
-                    component={route.main} />
-            })}
-        </Router>
+        return (
+            <Fragment>
+                <Router>
+                    {routes.map((route, index) => {
+                        return <Route key={index}
+                            path={route.path}
+                            exact={route.exact}
+                            component={route.main} />
+                    })}
+                </Router>
+                {/* <Alert timeout={5000} stack={{limit: 3}} /> */}
+            </Fragment>
+        )
     }
 }
 
 
-export default connect(state => ({
-}), ({
-    setLoggedIn
-}))(App)
+export default App

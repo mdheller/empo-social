@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import { connect } from 'react-redux';
 import Avatar from '../assets/images/avatar2.svg'
 import Avatar2 from '../assets/images/21.svg'
 import Offline from '../assets/images/Ellipse 311.svg'
@@ -333,7 +332,4 @@ class RightNavbar extends Component {
     }
 };
 
-export default connect(state => ({
-    // loggedIn: state.app.loggedIn,
-}), ({
-}))(RightNavbar)
+export default RightNavbar

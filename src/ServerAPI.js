@@ -73,6 +73,22 @@ const ServerAPI = {
             .catch(error => (reject(error.response.data)))
         })
     },
+
+    getNotification(address, page = 1, pageSize = 20) {
+        return new Promise ( (resolve,reject) => {
+            Axios.get(`${API_ENDPOINT}/getNotification/${address}?page=${page}&pageSize=${pageSize}`)
+            .then(res => (resolve(res.data)))
+            .catch(error => (reject(error.response.data)))
+        })
+    },
+
+    getPostDetailByPostId(postId) {
+        return new Promise ( (resolve,reject) => {
+            Axios.get(`${API_ENDPOINT}/getPostDetailByPostId/${postId}`)
+            .then(res => (resolve(res.data)))
+            .catch(error => (reject(error.response.data)))
+        })
+    },
 }
 
 export default ServerAPI;
