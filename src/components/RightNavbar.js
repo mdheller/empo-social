@@ -156,7 +156,7 @@ class RightNavbar extends Component {
 
 
     async componentDidMount() {
-        if (window.location.pathname === '/account') {
+        if (window.location.pathname === '/my-account') {
             this.setState({
                 showSugget: true
             })

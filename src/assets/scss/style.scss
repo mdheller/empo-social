@@ -1587,6 +1587,10 @@ a {
             &:last-child {
                 border-bottom: 0px;
             }
+
+            img {
+                width: 100%;
+            }
         }
     }
 }

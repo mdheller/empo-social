@@ -22,7 +22,7 @@ class HeaderAds extends Component {
                         <p style={{ color: 'white' }}>EmAds</p>
                     </Link>
                     <div className="waper-account">
-                        <a href="/account"><img src={IconAva} alt="photos"></img></a>
+                        <a href="/my-account"><img src={IconAva} alt="photos"></img></a>
                         <div className="waper-icon">
                             <a href="/setting"><img src={Setting} alt="photos"></img></a>
                         </div>

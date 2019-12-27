@@ -21,7 +21,7 @@ import Buffer from 'buffer'
 import ipfsAPI from 'ipfs-http-client'
 import ServerAPI from '../ServerAPI';
 
-class AccountController extends Component {
+class MyAccountController extends Component {
 
     constructor(props) {
         super(props);
@@ -34,9 +34,10 @@ class AccountController extends Component {
     };
 
     async componentDidMount() {
-        var myAddress = this.props.match.params.address
-
+        var myAddress = await window.empow.enable()
+        console.log(myAddress)
         var accountInfo = await ServerAPI.getAddress(myAddress)
+        console.log(accountInfo)
         var data = await ServerAPI.getMyPost(myAddress);
 
         var follow = await ServerAPI.getMyFollow(myAddress);
@@ -137,7 +138,6 @@ class AccountController extends Component {
         window.location = '/account/' + address
     }
 
-
     handleChangeTextComment = (event, index) => {
         var data = this.state.data;
         data[index].commentText = event.target.value
@@ -174,12 +174,12 @@ class AccountController extends Component {
         return (
             <div className="waper-info">
                 <div className="waper-cover" onClick={() => this.onClickImg(2)}>
-                    <img src={profile && profile.cover ? profile.cover : CoverPhoto} alt="photos"></img>
+                    <img src={profile.cover ? profile.cover : CoverPhoto} alt="photos"></img>
                     <input type="file" id="filee" ref="fileUploaderr" name="photo" style={{ display: "none" }} onChange={(event) => this.handleChange(event)} />
                 </div>
                 <div className="group1">
                     <div onClick={() => this.onClickImg(1)} className="avatar">
-                        <img src={profile && profile.avatar && profile.avatar !== "" ? profile.avatar : Avatar} alt="photos"></img>
+                        <img src={profile.avatar ? profile.avatar : Avatar} alt="photos"></img>
                         <input type="file" id="file" ref="fileUploader" name="photo" style={{ display: "none" }} onChange={(event) => this.handleChange(event)} />
                     </div>
 
@@ -270,7 +270,7 @@ class AccountController extends Component {
                                         <li>
                                             <div className="info">
                                                 <div className="group">
-                                                    <div className="waper-avatar" style={{ marginRight: '10px', cursor: 'pointer' }} onClick={() => this.onClickAddress(addressComment.address)}>
+                                                    <div onClick={() => this.onClickAddress(addressComment.address)} className="waper-avatar" style={{ marginRight: '10px', cursor: 'pointer' }}>
                                                         <img src={addressComment.profile && addressComment.profile.avatar && addressComment.profile.avatar !== "" ? addressComment.profile.avatar : Avatar3} alt="photos"></img>
                                                     </div>
 
@@ -344,4 +344,4 @@ class AccountController extends Component {
     }
 }
 
-export default AccountController
+export default MyAccountController

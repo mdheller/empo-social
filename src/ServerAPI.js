@@ -66,6 +66,14 @@ const ServerAPI = {
         })
     },
 
+    getPostByTag(tag, page = 1, pageSize = 20) {
+        return new Promise ( (resolve,reject) => {
+            Axios.get(`${API_ENDPOINT}/getPostByTag/${tag}?page=${page}&pageSize=${pageSize}`)
+            .then(res => (resolve(res.data)))
+            .catch(error => (reject(error.response.data)))
+        })
+    },
+
     getTagTrending(limit = 10) {
         return new Promise ( (resolve,reject) => {
             Axios.get(`${API_ENDPOINT}/getTagTrending?limit=${limit}`)

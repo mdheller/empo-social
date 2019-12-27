@@ -133,7 +133,7 @@ class Header extends Component {
                         <li><a href="/follow">Follow</a></li>
                     </ul>
                     {window.empow && <div className="waper-account">
-                        <a href="/account"><img src={IconAva} alt="photos"></img></a>
+                        <a href="/my-account"><img src={IconAva} alt="photos"></img></a>
                         <div className="waper-icon">
                             <img src={Mess} alt="photos"></img>
                             <img src={Noti} alt="photos" onClick={() => this.onShowNoti()}></img>
