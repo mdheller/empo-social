@@ -168,12 +168,12 @@ class AccountController extends Component {
         return (
             <div className="waper-info">
                 <div className="waper-cover" onClick={() => this.onClickImg(2)}>
-                    <img src={profile.cover && profile.cover !== "" ? profile.cover : CoverPhoto} alt="photos"></img>
+                    <img src={profile && profile.cover ? profile.cover : CoverPhoto} alt="photos"></img>
                     <input type="file" id="filee" ref="fileUploaderr" name="photo" style={{ display: "none" }} onChange={(event) => this.handleChange(event)} />
                 </div>
                 <div className="group1">
                     <div onClick={() => this.onClickImg(1)} className="avatar">
-                        <img src={profile.avatar && profile.avatar !== "" ? profile.avatar : Avatar} alt="photos"></img>
+                        <img src={profile && profile.avatar && profile.avatar !== "" ? profile.avatar : Avatar} alt="photos"></img>
                         <input type="file" id="file" ref="fileUploader" name="photo" style={{ display: "none" }} onChange={(event) => this.handleChange(event)} />
                     </div>
 
