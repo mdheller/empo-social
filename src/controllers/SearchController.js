@@ -15,7 +15,8 @@ class SearchController extends Component {
             key: this.getKey(),
             index: 0,
             posts: [],
-            addresses: []
+            addresses: [],
+            postsOfTag: []
         };
     };
 
@@ -28,10 +29,12 @@ class SearchController extends Component {
 
         var addresses = await ServerAPI.getAddressByKey(key)
         var posts = await ServerAPI.getPostByKey(key)
+        var postsOfTag = await ServerAPI.getPostByTag(key)
 
         this.setState({
             addresses,
-            posts
+            posts,
+            postsOfTag
         })
     }
 
@@ -80,6 +83,26 @@ class SearchController extends Component {
         )
     }
 
+    renderTag() {
+        var { postsOfTag } = this.state
+        return (
+            <ul className="people">
+                {postsOfTag.map((value, index) => {
+                    return (
+                        <li>
+                            <div className="content">
+                                <p>{value.author.substr(0, 20) + '...'}</p>
+                                <p style={{ color: '#676f75', fontSize: '16px', fontWeight: 'normal' }}>{Utils.convertDate(value.time)}</p>
+                                <p>{value.title}</p>
+                                <img src={value.content.data} alt="photos"></img>
+                            </div>
+                        </li>
+                    )
+                })}
+            </ul>
+        )
+    }
+
     render() {
         var { index, key } = this.state
         return (
@@ -99,9 +122,13 @@ class SearchController extends Component {
                             <div className={index === 1 ? "child active" : "child"}>
                                 <p onClick={() => this.setState({ index: 1 })}>Post</p>
                             </div>
+                            <div className={index === 2 ? "child active" : "child"}>
+                                <p onClick={() => this.setState({ index: 2 })}>Tag</p>
+                            </div>
                         </div>
                         {index === 0 && this.renderPeople()}
                         {index === 1 && this.renderPost()}
+                        {index === 2 && this.renderTag()}
 
                     </div>
                     <RightNavbar></RightNavbar>

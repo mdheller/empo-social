@@ -107,6 +107,10 @@ class PostDetailController extends Component {
         })
     }
 
+    onClickAddress = (address) => {
+        window.location = '/account/' + address
+    }
+
     renderPostDetail() {
         var { postDetail } = this.state
 
@@ -118,11 +122,11 @@ class PostDetailController extends Component {
             <div className="post-detail">
                 <div className="info">
                     <div className="group">
-                        <div style={{ marginRight: '10px' }}>
+                        <div onClick={() => this.onClickAddress(postDetail.author)} style={{ marginRight: '10px', cursor: 'pointer' }}>
                             <img src={Avatar} alt="photos"></img>
                         </div>
                         <div>
-                            <p style={{ fontWeight: 'bold', fontSize: '20px' }}>{postDetail && postDetail.author ? postDetail.author.substr(0, 20) + '...' : ''}</p>
+                            <p onClick={() => this.onClickAddress(postDetail.author)} style={{ fontWeight: 'bold', fontSize: '20px', cursor: 'pointer' }}>{postDetail && postDetail.author ? postDetail.author.substr(0, 20) + '...' : ''}</p>
                             <div className="title">
                                 <p style={{ color: '#dd3468' }}>$ {like.amount}</p>
                                 <p>Cấp độ: {address.level}</p>
@@ -187,11 +191,11 @@ class PostDetailController extends Component {
                             <li>
                                 <div className="info">
                                     <div className="group">
-                                        <div className="waper-avatar" style={{ marginRight: '10px' }}>
+                                        <div onClick={() => this.onClickAddress(addressComment.address)} className="waper-avatar" style={{ marginRight: '10px', cursor: 'pointer' }}>
                                             <img src={addressComment.profile && addressComment.profile.avatar && addressComment.profile.avatar !== "" ? addressComment.profile.avatar : Avatar} alt="photos"></img>
                                         </div>
                                         <div>
-                                            <p style={{ fontWeight: 'bold' }}>{addressComment.address}</p>
+                                            <p onClick={() => this.onClickAddress(addressComment.address)} style={{ fontWeight: 'bold', cursor: 'pointer' }}>{addressComment.address}</p>
                                             <div className="title">
                                                 <p>Cấp độ: {addressComment.level}</p>
                                                 <img src={Offline} alt="photos"></img>

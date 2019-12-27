@@ -8,8 +8,14 @@ import SettingController from './controllers/SettingController'
 import AdsStartController from './controllers/AdsStartController'
 import AdsController from './controllers/AdsController'
 import PostDetailController from './controllers/PostDetailController'
+import MyAccountController from './controllers/MyAccountController'
 
 const routes = [
+    {
+        path: '/my-account',
+        exact: false,
+        main: ({ location, match }) => <MyAccountController location={location} match={match} />
+    },
     {
         path: '/post-detail/:postId?',
         exact: false,
@@ -36,9 +42,9 @@ const routes = [
         main: ({ location, match }) => <SearchController location={location} match={match} />
     },
     {
-        path: '/account',
+        path: '/account/:address?',
         exact: false,
-        main: ({ location, match }) => <AccountController location={location} />
+        main: ({ location, match }) => <AccountController location={location} match={match} />
     },
     {
         path: '/',

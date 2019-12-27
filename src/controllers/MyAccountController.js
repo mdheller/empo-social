@@ -21,7 +21,7 @@ import Buffer from 'buffer'
 import ipfsAPI from 'ipfs-http-client'
 import ServerAPI from '../ServerAPI';
 
-class AccountController extends Component {
+class MyAccountController extends Component {
 
     constructor(props) {
         super(props);
@@ -34,9 +34,10 @@ class AccountController extends Component {
     };
 
     async componentDidMount() {
-        var myAddress = this.props.match.params.address
-
+        var myAddress = await window.empow.enable()
+        console.log(myAddress)
         var accountInfo = await ServerAPI.getAddress(myAddress)
+        console.log(accountInfo)
         var data = await ServerAPI.getMyPost(myAddress);
 
         var follow = await ServerAPI.getMyFollow(myAddress);
@@ -136,7 +137,6 @@ class AccountController extends Component {
     onClickAddress = (address) => {
         window.location = '/account/' + address
     }
-
 
     handleChangeTextComment = (event, index) => {
         var data = this.state.data;
@@ -270,7 +270,7 @@ class AccountController extends Component {
                                         <li>
                                             <div className="info">
                                                 <div className="group">
-                                                    <div className="waper-avatar" style={{ marginRight: '10px', cursor: 'pointer' }} onClick={() => this.onClickAddress(addressComment.address)}>
+                                                    <div onClick={() => this.onClickAddress(addressComment.address)} className="waper-avatar" style={{ marginRight: '10px', cursor: 'pointer' }}>
                                                         <img src={addressComment.profile && addressComment.profile.avatar && addressComment.profile.avatar !== "" ? addressComment.profile.avatar : Avatar3} alt="photos"></img>
                                                     </div>
 
@@ -344,4 +344,4 @@ class AccountController extends Component {
     }
 }
 
-export default AccountController
+export default MyAccountController

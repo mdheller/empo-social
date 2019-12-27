@@ -267,8 +267,12 @@ class HomeController extends Component {
         });
     }
 
+    onClickAddress = (address) => {
+        window.location = '/account/' + address
+    }
+
     renderMoreStatus() {
-       
+
 
         return (
             <div className="waper-more-status">
@@ -456,11 +460,11 @@ class HomeController extends Component {
                         <li className="post-detail" style={{ marginBottom: '50px' }}>
                             <div className="info">
                                 <div className="group">
-                                    <div style={{ marginRight: '10px' }}>
+                                    <div onClick={() => this.onClickAddress(value.author)} style={{ marginRight: '10px', cursor: 'pointer' }}>
                                         <img src={Avatar} alt="photos"></img>
                                     </div>
                                     <div>
-                                        <p style={{ fontWeight: 'bold', fontSize: '20px' }}>{value.author.substr(0, 20) + '...'}</p>
+                                        <p onClick={() => this.onClickAddress(value.author)} style={{ fontWeight: 'bold', fontSize: '20px', cursor: 'pointer' }}>{value.author.substr(0, 20) + '...'}</p>
                                         <div className="title">
                                             <p style={{ color: '#dd3468' }}>$ {like.amount}</p>
                                             <p>Cấp độ: {address.level}</p>
@@ -525,11 +529,11 @@ class HomeController extends Component {
                                         <li>
                                             <div className="info">
                                                 <div className="group">
-                                                    <div className="waper-avatar" style={{ marginRight: '10px' }}>
+                                                    <div onClick={() => this.onClickAddress(addressComment.address)} className="waper-avatar" style={{ marginRight: '10px', cursor: 'pointer' }}>
                                                         <img src={addressComment.profile && addressComment.profile.avatar && addressComment.profile.avatar !== "" ? addressComment.profile.avatar : Avatar} alt="photos"></img>
                                                     </div>
                                                     <div>
-                                                        <p style={{ fontWeight: 'bold' }}>{addressComment.address}</p>
+                                                        <p onClick={() => this.onClickAddress(addressComment.address)} style={{ fontWeight: 'bold', cursor: 'pointer' }}>{addressComment.address}</p>
                                                         <div className="title">
                                                             <p>Cấp độ: {addressComment.level}</p>
                                                             <img src={Offline} alt="photos"></img>
