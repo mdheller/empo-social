@@ -1218,6 +1218,10 @@ a {
                     border-bottom: 1px solid #e6e6e6;
                     padding-bottom: 20px;
                     margin-bottom: 20px;
+
+                    img {
+                        cursor: pointer;
+                    }
                 }
 
                 textarea {
@@ -1254,6 +1258,11 @@ a {
         
                         .group {
                             display: flex;
+                            .waper-ava {
+                                width: 28px;
+                                height: 28px;
+                                border-radius: 50%;
+                            }
                         }
                     }
                     .content {

@@ -114,7 +114,6 @@ class MyAccountController extends Component {
         reader.readAsArrayBuffer(photo.files[0]); // Read Provided File
     }
 
-
     handleChange = (event) => {
         if (event.target.files[0]) {
             this.onUpdateProfile(this.state.index);
@@ -187,7 +186,6 @@ class MyAccountController extends Component {
                         <img src={Mail} alt="photos"></img>
                         <img src={Fb} alt="photos"></img>
                         <img src={Noti} alt="photos"></img>
-                        <button className="btn-general-2">Follow</button>
                     </div>
                 </div>
                 <div className="group2">

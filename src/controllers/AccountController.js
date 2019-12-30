@@ -34,13 +34,16 @@ class AccountController extends Component {
     };
 
     async componentDidMount() {
-        var myAddress = this.props.match.params.address
+        var addressAccount = this.props.match.params.address
+        var myAddress = await window.empow.enable()
 
-        var accountInfo = await ServerAPI.getAddress(myAddress)
-        var data = await ServerAPI.getMyPost(myAddress);
+        var accountInfo = await ServerAPI.getAddress(addressAccount)
+        var myAccountInfo = await ServerAPI.getAddress(myAddress)
 
-        var follow = await ServerAPI.getMyFollow(myAddress);
-        var follower = await ServerAPI.getMyFollower(myAddress);
+        var data = await ServerAPI.getMyPost(addressAccount);
+
+        var follow = await ServerAPI.getMyFollow(addressAccount);
+        var follower = await ServerAPI.getMyFollower(addressAccount);
 
         var totalMoney = 0
         data.forEach(post => {
@@ -50,12 +53,14 @@ class AccountController extends Component {
         });
 
         this.setState({
-            myAddress,
+            addressAccount,
             accountInfo,
             data,
             totalMoney,
             follow,
-            follower
+            follower,
+            myAddress,
+            myAccountInfo
         })
     }
 
@@ -79,64 +84,16 @@ class AccountController extends Component {
         })
     }
 
-    onUpdateProfile = async (index) => {
-        const { myAddress, accountInfo } = this.state
-        const _self = this;
-
-        const reader = new FileReader();
-        reader.onloadend = async function () {
-            const ipfs = ipfsAPI({ host: 'ipfs.infura.io', port: '5001', protocol: 'https' })
-            const buf = Buffer.Buffer(reader.result) // Convert data into buffer
-            let progressPercent = (data) => {
-                console.log(data);
-            }
-            ipfs.add(buf, (err, result) => {
-                if (err) {
-                    console.error(err)
-                    return
-                }
-                let url = `https://ipfs.io/ipfs/${result[0].hash}`
-                console.log(`Url --> ${url}`)
-
-                var info = {
-                    avatar: index === 1 ? url : accountInfo.profile.avatar,
-                    cover: index === 2 ? url : accountInfo.profile.cover
-                }
-
-                const tx = window.empow.callABI("social.empow", "updateProfile", [myAddress, info])
-                _self.action(tx)
-
-            })
-        }
-
-        const photo = index === 1 ? document.getElementById("file") : document.getElementById("filee");
-        reader.readAsArrayBuffer(photo.files[0]); // Read Provided File
-    }
-
-
-    handleChange = (event) => {
-        if (event.target.files[0]) {
-            this.onUpdateProfile(this.state.index);
-        }
-    }
-
-    onClickImg = (index) => {
-        this.setState({
-            index
-        })
-
-        if (index === 1) {
-            this.refs.fileUploader.click();
-        } else {
-            this.refs.fileUploaderr.click();
-        }
-
-    }
 
     onClickAddress = (address) => {
         window.location = '/account/' + address
     }
 
+
+    onFollow = (address) => {
+        const tx = window.empow.callABI("social.empow", "follow", [this.state.myAddress, address])
+        this.action(tx)
+    }
 
     handleChangeTextComment = (event, index) => {
         var data = this.state.data;
@@ -169,29 +126,27 @@ class AccountController extends Component {
     }
 
     renderInfo() {
-        var { myAddress, follow, follower, accountInfo, totalMoney } = this.state
+        var { addressAccount, follow, follower, accountInfo, totalMoney } = this.state
         var profile = accountInfo && accountInfo.profile ? accountInfo.profile : []
         return (
             <div className="waper-info">
-                <div className="waper-cover" onClick={() => this.onClickImg(2)}>
+                <div className="waper-cover">
                     <img src={profile.cover ? profile.cover : CoverPhoto} alt="photos"></img>
-                    <input type="file" id="filee" ref="fileUploaderr" name="photo" style={{ display: "none" }} onChange={(event) => this.handleChange(event)} />
                 </div>
                 <div className="group1">
-                    <div onClick={() => this.onClickImg(1)} className="avatar">
+                    <div className="avatar">
                         <img src={profile.avatar ? profile.avatar : Avatar} alt="photos"></img>
-                        <input type="file" id="file" ref="fileUploader" name="photo" style={{ display: "none" }} onChange={(event) => this.handleChange(event)} />
                     </div>
 
                     <div className="child">
                         <img src={Mail} alt="photos"></img>
                         <img src={Fb} alt="photos"></img>
                         <img src={Noti} alt="photos"></img>
-                        <button className="btn-general-2">Follow</button>
+                        <button className="btn-general-2" onClick={() => this.onFollow(addressAccount)}>Follow</button>
                     </div>
                 </div>
                 <div className="group2">
-                    <span>{myAddress ? myAddress.substr(0, 20) + '...' : ''}</span>
+                    <span>{addressAccount ? addressAccount.substr(0, 20) + '...' : ''}</span>
                     <p style={{ color: '#676f75', marginLeft: '20px' }}>Cấp độ: {accountInfo ? accountInfo.level : 1}</p>
                 </div>
                 <div className="group2">
@@ -206,8 +161,9 @@ class AccountController extends Component {
     }
 
     renderPost() {
-        var { accountInfo, data } = this.state
-        var profile = accountInfo ? accountInfo.profile : []
+        var { data, myAccountInfo } = this.state
+        var myProfile = myAccountInfo ? myAccountInfo.profile : []
+
         return (
             <ul className="waper-data">
                 {data.map((value, index) => {
@@ -246,7 +202,7 @@ class AccountController extends Component {
 
                             <div style={{ display: 'flex', paddingLeft: '20px', paddingRight: '20px' }}>
                                 <div className="waper-avatar">
-                                    <img src={profile.avatar && profile.avatar !== "" ? profile.avatar : Avatar3} alt="photos"></img>
+                                    <img src={myProfile.avatar && myProfile.avatar !== "" ? myProfile.avatar : Avatar3} alt="photos"></img>
                                 </div>
 
                                 <div className="waper-cmt">
@@ -296,7 +252,7 @@ class AccountController extends Component {
 
                                             <div style={{ display: 'flex', paddingLeft: '20px', paddingRight: '20px' }}>
                                                 <div className="waper-avatar">
-                                                    <img src={profile.avatar && profile.avatar !== "" ? profile.avatar : Avatar3} alt="photos"></img>
+                                                    <img src={myProfile.avatar && myProfile.avatar !== "" ? myProfile.avatar : Avatar3} alt="photos"></img>
                                                 </div>
                                                 <div className="waper-cmt">
                                                     <input value={detail.replyText}

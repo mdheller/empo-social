@@ -42,7 +42,8 @@ class HomeController extends Component {
             statusShare: '',
             showError: false,
             showSuccess: false,
-            tags: []
+            tags: [],
+            accountInfoSharePost: false
         };
     };
 
@@ -144,12 +145,15 @@ class HomeController extends Component {
         }
     }
 
-    togglePopup = (post) => {
+    togglePopup = async (post) => {
         if (!this.state.showShare) {
+            var accountInfoSharePost = await ServerAPI.getAddress(post.author)
+
             this.setState({
                 showShare: true,
                 sharePostInfo: post,
-                statusShare: ''
+                statusShare: '',
+                accountInfoSharePost
             })
         } else {
             this.setState({
@@ -158,7 +162,8 @@ class HomeController extends Component {
                 showEmoji: false,
                 color: false,
                 file: [],
-                status: ''
+                status: '',
+                accountInfoSharePost: false
             })
         }
 
@@ -271,6 +276,11 @@ class HomeController extends Component {
         window.location = '/account/' + address
     }
 
+    onFollow = (address) => {
+        const tx = window.empow.callABI("social.empow", "follow", [this.state.myAddress, address])
+        this.action(tx)
+    }
+
     renderMoreStatus() {
 
 
@@ -309,7 +319,9 @@ class HomeController extends Component {
 
     renderSharePost() {
         var value = this.state.sharePostInfo
+        var accountInfoSharePost = this.state.accountInfoSharePost
         var address = value.address || {}
+        var profile = accountInfoSharePost && accountInfoSharePost.profile ? accountInfoSharePost.profile : []
         return (
             <div className="overlay">
                 <div className="waper">
@@ -317,7 +329,7 @@ class HomeController extends Component {
                     <div className="share-post">
                         <div className="group1">
                             <p>Repost lại thông tin này</p>
-                            <img src={Delete} alt="photos"></img>
+                            <img onClick={() => this.togglePopup('showSend')} src={Delete} alt="photos"></img>
                         </div>
 
                         <div>
@@ -332,11 +344,11 @@ class HomeController extends Component {
                         <div className="group2 scroll">
                             <div className="info">
                                 <div className="group">
-                                    <div style={{ marginRight: '10px' }}>
-                                        <img src={Avatar} alt="photos"></img>
+                                    <div style={{ marginRight: '10px' }} onClick={() => this.onClickAddress(value.author)} >
+                                        <img className="waper-ava" src={profile.avatar ? profile.avatar : Avatar} alt="photos"></img>
                                     </div>
                                     <div>
-                                        <p style={{ fontWeight: 'bold', fontSize: '20px' }}>{value.author.substr(0, 20) + '...'}</p>
+                                        <p onClick={() => this.onClickAddress(value.author)} style={{ fontWeight: 'bold', fontSize: '20px' }}>{value.author.substr(0, 20) + '...'}</p>
                                         <div className="title">
                                             <p>Cấp độ: {address.level}</p>
                                             <img src={Offline} alt="photos"></img>
@@ -345,7 +357,7 @@ class HomeController extends Component {
                                     </div>
                                 </div>
                                 <div>
-                                    <button className="btn-general-2">Follow</button>
+                                    <button className="btn-general-2" onClick={() => this.onFollow(value.author)}>Follow</button>
                                 </div>
                             </div>
 
@@ -472,7 +484,7 @@ class HomeController extends Component {
                                     </div>
                                 </div>
                                 <div>
-                                    <button className="btn-general-2">Follow</button>
+                                    <button className="btn-general-2" onClick={() => this.onFollow(value.author)}>Follow</button>
                                 </div>
                             </div>
 

@@ -111,6 +111,11 @@ class PostDetailController extends Component {
         window.location = '/account/' + address
     }
 
+    onFollow = (address) => {
+        const tx = window.empow.callABI("social.empow", "follow", [this.state.myAddress, address])
+        this.action(tx)
+    }
+
     renderPostDetail() {
         var { postDetail } = this.state
 
