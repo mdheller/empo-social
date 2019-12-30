@@ -24,6 +24,7 @@ import Buffer from 'buffer'
 import ipfsAPI from 'ipfs-http-client'
 import tagsInput from 'tags-input'
 import $ from "jquery";
+import { connect } from 'react-redux';
 
 class HomeController extends Component {
 
@@ -48,12 +49,10 @@ class HomeController extends Component {
     };
 
     async componentDidMount() {
-        var myAddress = await window.empow.enable()
         var data = await ServerAPI.getNewFeed();
         var country = await ServerAPI.getCountry()
         this.setState({
             data,
-            myAddress,
             country
         })
     }
@@ -133,14 +132,14 @@ class HomeController extends Component {
 
     handleKeyDownComment = (e, post) => {
         if (e.key === 'Enter') {
-            const tx = window.empow.callABI("social.empow", "comment", [this.state.myAddress, post.postId.toString(), "comment", "0", post.commentText])
+            const tx = window.empow.callABI("social.empow", "comment", [this.props.myAddress, post.postId.toString(), "comment", "0", post.commentText])
             this.action(tx);
         }
     }
 
     handleKeyDownReply = (e, comment) => {
         if (e.key === 'Enter') {
-            const tx = window.empow.callABI("social.empow", "comment", [this.state.myAddress, comment.postId, "reply", comment.commentId.toString(), comment.replyText])
+            const tx = window.empow.callABI("social.empow", "comment", [this.props.myAddress, comment.postId, "reply", comment.commentId.toString(), comment.replyText])
             this.action(tx);
         }
     }
@@ -195,19 +194,19 @@ class HomeController extends Component {
     }
 
     onLikePost = async (post) => {
-        const tx = window.empow.callABI("social.empow", "like", [this.state.myAddress, post.postId])
+        const tx = window.empow.callABI("social.empow", "like", [this.props.myAddress, post.postId])
         this.action(tx);
     }
 
 
     onSharePost = async () => {
-        var { myAddress, sharePostInfo, statusShare } = this.state
-        const tx = window.empow.callABI("social.empow", "share", [myAddress, sharePostInfo.postId, statusShare])
+        var { sharePostInfo, statusShare } = this.state
+        const tx = window.empow.callABI("social.empow", "share", [this.props.myAddress, sharePostInfo.postId, statusShare])
         this.action(tx);
     }
 
     onPostStatus = async () => {
-        const { myAddress, status, country } = this.state
+        const { status, country } = this.state
         const _self = this;
 
         var tagContent = $('input[type="tags"]')[0].value;
@@ -240,7 +239,7 @@ class HomeController extends Component {
                     city: country.city
                 }
 
-                const tx = window.empow.callABI("social.empow", "post", [myAddress, status, content, tag])
+                const tx = window.empow.callABI("social.empow", "post", [this.props.myAddress, status, content, tag])
                 _self.action(tx)
 
 
@@ -277,7 +276,7 @@ class HomeController extends Component {
     }
 
     onFollow = (address) => {
-        const tx = window.empow.callABI("social.empow", "follow", [this.state.myAddress, address])
+        const tx = window.empow.callABI("social.empow", "follow", [this.props.myAddress, address])
         this.action(tx)
     }
 
@@ -421,10 +420,12 @@ class HomeController extends Component {
     }
 
     renderStatus() {
+        var { myAccountInfo } = this.props;
+        var profile = myAccountInfo.profile || {}
         return (
             <div className="post" style={{ backgroundColor: this.state.color ? this.state.color : '' }}>
                 <div style={{ flex: 0.1 }}>
-                    <img src={Avatar} alt="photos"></img>
+                    <img src={Utils.testImage(profile.avatar) ? profile.profile : Avatar} alt="photos" style={{ width: '36px', height: '36px', borderRadius: '50%' }}></img>
                 </div>
                 <div className="waper-content">
                     <textarea
@@ -462,6 +463,8 @@ class HomeController extends Component {
     }
 
     renderPost() {
+        var { myAccountInfo } = this.props;
+        var profile = myAccountInfo.profile || {}
         return (
             <ul>
                 {this.state.data.map((value, index) => {
@@ -519,7 +522,7 @@ class HomeController extends Component {
 
                             <div style={{ display: 'flex', paddingLeft: '20px', paddingRight: '20px' }}>
                                 <div>
-                                    <img src={Avatar} alt="photos"></img>
+                                    <img src={Utils.testImage(profile.avatar) ? profile.avatar : Avatar} alt="photos"></img>
                                 </div>
                                 <div className="waper-cmt">
                                     <input value={value.commentText}
@@ -537,12 +540,13 @@ class HomeController extends Component {
                             <ul className="coment scroll">
                                 {comment.map((detail, indexx) => {
                                     var addressComment = detail.address || [];
+                                    var pro5 = addressComment.profile || {}
                                     return (
                                         <li>
                                             <div className="info">
                                                 <div className="group">
                                                     <div onClick={() => this.onClickAddress(addressComment.address)} className="waper-avatar" style={{ marginRight: '10px', cursor: 'pointer' }}>
-                                                        <img src={addressComment.profile && addressComment.profile.avatar && addressComment.profile.avatar !== "" ? addressComment.profile.avatar : Avatar} alt="photos"></img>
+                                                        <img src={Utils.testImage(pro5.avatar) ? pro5.avatar : Avatar} alt="photos"></img>
                                                     </div>
                                                     <div>
                                                         <p onClick={() => this.onClickAddress(addressComment.address)} style={{ fontWeight: 'bold', cursor: 'pointer' }}>{addressComment.address}</p>
@@ -615,4 +619,8 @@ class HomeController extends Component {
     }
 }
 
-export default HomeController
+export default connect(state => ({
+    myAddress: state.app.myAddress,
+    myAccountInfo: state.app.myAccountInfo
+}), ({
+}))(HomeController)

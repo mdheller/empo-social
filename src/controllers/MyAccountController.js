@@ -20,6 +20,7 @@ import Utils from '../utils'
 import Buffer from 'buffer'
 import ipfsAPI from 'ipfs-http-client'
 import ServerAPI from '../ServerAPI';
+import { connect } from 'react-redux';
 
 class MyAccountController extends Component {
 
@@ -34,14 +35,10 @@ class MyAccountController extends Component {
     };
 
     async componentDidMount() {
-        var myAddress = await window.empow.enable()
-        console.log(myAddress)
-        var accountInfo = await ServerAPI.getAddress(myAddress)
-        console.log(accountInfo)
-        var data = await ServerAPI.getMyPost(myAddress);
+        var data = await ServerAPI.getMyPost(this.props.myAddress);
 
-        var follow = await ServerAPI.getMyFollow(myAddress);
-        var follower = await ServerAPI.getMyFollower(myAddress);
+        var follow = await ServerAPI.getMyFollow(this.props.myAddress);
+        var follower = await ServerAPI.getMyFollower(this.props.myAddress);
 
         var totalMoney = 0
         data.forEach(post => {
@@ -51,8 +48,6 @@ class MyAccountController extends Component {
         });
 
         this.setState({
-            myAddress,
-            accountInfo,
             data,
             totalMoney,
             follow,
@@ -81,7 +76,7 @@ class MyAccountController extends Component {
     }
 
     onUpdateProfile = async (index) => {
-        const { myAddress, accountInfo } = this.state
+        const { accountInfo } = this.state
         const _self = this;
 
         const reader = new FileReader();
@@ -104,7 +99,7 @@ class MyAccountController extends Component {
                     cover: index === 2 ? url : accountInfo.profile.cover
                 }
 
-                const tx = window.empow.callABI("social.empow", "updateProfile", [myAddress, info])
+                const tx = window.empow.callABI("social.empow", "updateProfile", [this.props.myAddress, info])
                 _self.action(tx)
 
             })
@@ -147,7 +142,7 @@ class MyAccountController extends Component {
 
     handleKeyDownComment = (e, post) => {
         if (e.key === 'Enter') {
-            const tx = window.empow.callABI("social.empow", "comment", [this.state.myAddress, post.postId.toString(), "comment", "0", post.commentText])
+            const tx = window.empow.callABI("social.empow", "comment", [this.props.myAddress, post.postId.toString(), "comment", "0", post.commentText])
             this.action(tx);
         }
     }
@@ -162,23 +157,24 @@ class MyAccountController extends Component {
 
     handleKeyDownReply = (e, comment) => {
         if (e.key === 'Enter') {
-            const tx = window.empow.callABI("social.empow", "comment", [this.state.myAddress, comment.postId, "reply", comment.commentId.toString(), comment.replyText])
+            const tx = window.empow.callABI("social.empow", "comment", [this.props.myAddress, comment.postId, "reply", comment.commentId.toString(), comment.replyText])
             this.action(tx);
         }
     }
 
     renderInfo() {
-        var { myAddress, follow, follower, accountInfo, totalMoney } = this.state
-        var profile = accountInfo && accountInfo.profile ? accountInfo.profile : []
+        var { follow, follower, totalMoney } = this.state
+        var {myAccountInfo} = this.props
+        var profile = myAccountInfo.profile || {}
         return (
             <div className="waper-info">
                 <div className="waper-cover" onClick={() => this.onClickImg(2)}>
-                    <img src={profile.cover ? profile.cover : CoverPhoto} alt="photos"></img>
+                    <img src={Utils.testImage(profile.cover) ? profile.cover : CoverPhoto} alt="photos"></img>
                     <input type="file" id="filee" ref="fileUploaderr" name="photo" style={{ display: "none" }} onChange={(event) => this.handleChange(event)} />
                 </div>
                 <div className="group1">
                     <div onClick={() => this.onClickImg(1)} className="avatar">
-                        <img src={profile.avatar ? profile.avatar : Avatar} alt="photos"></img>
+                        <img src={Utils.testImage(profile.avatar) ? profile.avatar : Avatar} alt="photos"></img>
                         <input type="file" id="file" ref="fileUploader" name="photo" style={{ display: "none" }} onChange={(event) => this.handleChange(event)} />
                     </div>
 
@@ -189,8 +185,8 @@ class MyAccountController extends Component {
                     </div>
                 </div>
                 <div className="group2">
-                    <span>{myAddress ? myAddress.substr(0, 20) + '...' : ''}</span>
-                    <p style={{ color: '#676f75', marginLeft: '20px' }}>Cấp độ: {accountInfo ? accountInfo.level : 1}</p>
+                    <span>{this.props.myAddress ? this.props.myAddress.substr(0, 20) + '...' : ''}</span>
+                    <p style={{ color: '#676f75', marginLeft: '20px' }}>Cấp độ: {myAccountInfo.level || 1}</p>
                 </div>
                 <div className="group2">
                     <p style={{ color: '#dd3468' }}>$ {totalMoney}</p>
@@ -204,8 +200,9 @@ class MyAccountController extends Component {
     }
 
     renderPost() {
-        var { accountInfo, data } = this.state
-        var profile = accountInfo ? accountInfo.profile : []
+        var { data } = this.state
+        var { myAccountInfo} = this.props
+        var profile = myAccountInfo.profile || {}
         return (
             <ul className="waper-data">
                 {data.map((value, index) => {
@@ -244,7 +241,7 @@ class MyAccountController extends Component {
 
                             <div style={{ display: 'flex', paddingLeft: '20px', paddingRight: '20px' }}>
                                 <div className="waper-avatar">
-                                    <img src={profile.avatar && profile.avatar !== "" ? profile.avatar : Avatar3} alt="photos"></img>
+                                    <img src={Utils.testImage(profile.avatar) ? profile.avatar : Avatar3} alt="photos"></img>
                                 </div>
 
                                 <div className="waper-cmt">
@@ -264,12 +261,13 @@ class MyAccountController extends Component {
                             <ul className="coment scroll">
                                 {comment.map((detail, indexx) => {
                                     var addressComment = detail.address || [];
+                                    var pro5 = addressComment.profile || {}
                                     return (
                                         <li>
                                             <div className="info">
                                                 <div className="group">
                                                     <div onClick={() => this.onClickAddress(addressComment.address)} className="waper-avatar" style={{ marginRight: '10px', cursor: 'pointer' }}>
-                                                        <img src={addressComment.profile && addressComment.profile.avatar && addressComment.profile.avatar !== "" ? addressComment.profile.avatar : Avatar3} alt="photos"></img>
+                                                        <img src={Utils.testImage(pro5.avatar)  ? pro5.avatar : Avatar3} alt="photos"></img>
                                                     </div>
 
                                                     <div>
@@ -294,7 +292,7 @@ class MyAccountController extends Component {
 
                                             <div style={{ display: 'flex', paddingLeft: '20px', paddingRight: '20px' }}>
                                                 <div className="waper-avatar">
-                                                    <img src={profile.avatar && profile.avatar !== "" ? profile.avatar : Avatar3} alt="photos"></img>
+                                                    <img src={Utils.testImage(profile.avatar) ? profile.avatar : Avatar3} alt="photos"></img>
                                                 </div>
                                                 <div className="waper-cmt">
                                                     <input value={detail.replyText}
@@ -342,4 +340,8 @@ class MyAccountController extends Component {
     }
 }
 
-export default MyAccountController
+export default connect(state => ({
+    myAddress: state.app.myAddress,
+    myAccountInfo: state.app.myAccountInfo
+}), ({
+}))(MyAccountController)

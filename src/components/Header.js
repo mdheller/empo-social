@@ -9,11 +9,16 @@ import Search from '../assets/images/Search.svg'
 
 import io from 'socket.io-client';
 import ServerAPI from '../ServerAPI';
-//import Alert from '../components/Alert'
+import { connect } from 'react-redux';
+import {
+    setMyAddress,
+    setMyAccountInfo
+} from '../reducers/appReducer'
 
 import Alert from 'react-s-alert';
 import 'react-s-alert/dist/s-alert-default.css';
 import 'react-s-alert/dist/s-alert-css-effects/slide.css';
+import Utils from '../utils';
 
 const socket = io('http://localhost:8000');
 
@@ -27,16 +32,22 @@ class Header extends Component {
             textSearch: '',
             listNoti: [],
             showNoti: false,
-            newNoti: []
+            newNoti: [],
+            myAccountInfo: {}
         }
     };
 
     async componentDidMount() {
 
         var myAddress = await window.empow.enable()
+        var myAccountInfo = await ServerAPI.getAddress(myAddress)
+
+        this.props.setMyAddress(myAddress);
+        this.props.setMyAccountInfo(myAccountInfo);
 
         this.setState({
-            myAddress
+            myAddress,
+            myAccountInfo
         })
         socket.emit("get_new_like", myAddress)
         socket.on("res_new_like", (data) => {
@@ -113,6 +124,9 @@ class Header extends Component {
     }
 
     render() {
+        var { myAccountInfo } = this.state
+        var profile = myAccountInfo.profile || {}
+
         return (
             <div className="header">
                 <Alert stack={{ limit: 3 }} timeout={5000} html={true}></Alert>
@@ -133,7 +147,7 @@ class Header extends Component {
                         <li><a href="/follow">Follow</a></li>
                     </ul>
                     {window.empow && <div className="waper-account">
-                        <a href="/my-account"><img src={IconAva} alt="photos"></img></a>
+                        <a href="/my-account"><img src={Utils.testImage(profile.avatar) ? profile.avatar : IconAva} alt="photos" className="waper-ava"></img></a>
                         <div className="waper-icon">
                             <img src={Mess} alt="photos"></img>
                             <img src={Noti} alt="photos" onClick={() => this.onShowNoti()}></img>
@@ -152,4 +166,9 @@ class Header extends Component {
     }
 };
 
-export default Header
+
+export default connect(state => ({
+}), ({
+    setMyAddress,
+    setMyAccountInfo
+}))(Header)

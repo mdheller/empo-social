@@ -17,9 +17,8 @@ import Photo from '../assets/images/Path 953.svg'
 import Avatar3 from '../assets/images/avatar.svg'
 
 import Utils from '../utils'
-import Buffer from 'buffer'
-import ipfsAPI from 'ipfs-http-client'
 import ServerAPI from '../ServerAPI';
+import { connect } from 'react-redux';
 
 class AccountController extends Component {
 
@@ -30,15 +29,16 @@ class AccountController extends Component {
             level: 'S',
             date: '30 thg 11, 2019',
             data: [],
+            accountInfo: {},
+            // myAccountInfo: {}
         };
     };
 
     async componentDidMount() {
         var addressAccount = this.props.match.params.address
-        var myAddress = await window.empow.enable()
 
         var accountInfo = await ServerAPI.getAddress(addressAccount)
-        var myAccountInfo = await ServerAPI.getAddress(myAddress)
+        // var myAccountInfo = await ServerAPI.getAddress(this.props.myAddress)
 
         var data = await ServerAPI.getMyPost(addressAccount);
 
@@ -59,8 +59,7 @@ class AccountController extends Component {
             totalMoney,
             follow,
             follower,
-            myAddress,
-            myAccountInfo
+            //  myAccountInfo
         })
     }
 
@@ -91,7 +90,7 @@ class AccountController extends Component {
 
 
     onFollow = (address) => {
-        const tx = window.empow.callABI("social.empow", "follow", [this.state.myAddress, address])
+        const tx = window.empow.callABI("social.empow", "follow", [this.props.myAddress, address])
         this.action(tx)
     }
 
@@ -105,7 +104,7 @@ class AccountController extends Component {
 
     handleKeyDownComment = (e, post) => {
         if (e.key === 'Enter') {
-            const tx = window.empow.callABI("social.empow", "comment", [this.state.myAddress, post.postId.toString(), "comment", "0", post.commentText])
+            const tx = window.empow.callABI("social.empow", "comment", [this.props.myAddress, post.postId.toString(), "comment", "0", post.commentText])
             this.action(tx);
         }
     }
@@ -120,14 +119,15 @@ class AccountController extends Component {
 
     handleKeyDownReply = (e, comment) => {
         if (e.key === 'Enter') {
-            const tx = window.empow.callABI("social.empow", "comment", [this.state.myAddress, comment.postId, "reply", comment.commentId.toString(), comment.replyText])
+            const tx = window.empow.callABI("social.empow", "comment", [this.props.myAddress, comment.postId, "reply", comment.commentId.toString(), comment.replyText])
             this.action(tx);
         }
     }
 
     renderInfo() {
-        var { addressAccount, follow, follower, accountInfo, totalMoney } = this.state
-        var profile = accountInfo && accountInfo.profile ? accountInfo.profile : []
+        var { addressAccount, follow, follower, totalMoney } = this.state
+        var { myAccountInfo } = this.props
+        var profile = myAccountInfo.profile || {}
         return (
             <div className="waper-info">
                 <div className="waper-cover">
@@ -135,7 +135,7 @@ class AccountController extends Component {
                 </div>
                 <div className="group1">
                     <div className="avatar">
-                        <img src={profile.avatar ? profile.avatar : Avatar} alt="photos"></img>
+                        <img src={Utils.testImage(profile.avatar) ? profile.avatar : Avatar} alt="photos"></img>
                     </div>
 
                     <div className="child">
@@ -147,7 +147,7 @@ class AccountController extends Component {
                 </div>
                 <div className="group2">
                     <span>{addressAccount ? addressAccount.substr(0, 20) + '...' : ''}</span>
-                    <p style={{ color: '#676f75', marginLeft: '20px' }}>Cấp độ: {accountInfo ? accountInfo.level : 1}</p>
+                    <p style={{ color: '#676f75', marginLeft: '20px' }}>Cấp độ: {myAccountInfo.level || 1}</p>
                 </div>
                 <div className="group2">
                     <p style={{ color: '#dd3468' }}>$ {totalMoney}</p>
@@ -162,7 +162,7 @@ class AccountController extends Component {
 
     renderPost() {
         var { data, myAccountInfo } = this.state
-        var myProfile = myAccountInfo ? myAccountInfo.profile : []
+        var myProfile = myAccountInfo.profile || {}
 
         return (
             <ul className="waper-data">
@@ -202,7 +202,7 @@ class AccountController extends Component {
 
                             <div style={{ display: 'flex', paddingLeft: '20px', paddingRight: '20px' }}>
                                 <div className="waper-avatar">
-                                    <img src={myProfile.avatar && myProfile.avatar !== "" ? myProfile.avatar : Avatar3} alt="photos"></img>
+                                    <img src={Utils.testImage(myProfile.avatar) ? myProfile.avatar : Avatar3} alt="photos"></img>
                                 </div>
 
                                 <div className="waper-cmt">
@@ -222,12 +222,13 @@ class AccountController extends Component {
                             <ul className="coment scroll">
                                 {comment.map((detail, indexx) => {
                                     var addressComment = detail.address || [];
+                                    var pro5 = addressComment.profile || {}
                                     return (
                                         <li>
                                             <div className="info">
                                                 <div className="group">
                                                     <div className="waper-avatar" style={{ marginRight: '10px', cursor: 'pointer' }} onClick={() => this.onClickAddress(addressComment.address)}>
-                                                        <img src={addressComment.profile && addressComment.profile.avatar && addressComment.profile.avatar !== "" ? addressComment.profile.avatar : Avatar3} alt="photos"></img>
+                                                        <img src={Utils.testImage(pro5.avatar) ? pro5.avatar : Avatar3} alt="photos"></img>
                                                     </div>
 
                                                     <div>
@@ -252,7 +253,7 @@ class AccountController extends Component {
 
                                             <div style={{ display: 'flex', paddingLeft: '20px', paddingRight: '20px' }}>
                                                 <div className="waper-avatar">
-                                                    <img src={myProfile.avatar && myProfile.avatar !== "" ? myProfile.avatar : Avatar3} alt="photos"></img>
+                                                    <img src={Utils.testImage(myProfile.avatar) ? myProfile.avatar : Avatar3} alt="photos"></img>
                                                 </div>
                                                 <div className="waper-cmt">
                                                     <input value={detail.replyText}
@@ -300,4 +301,8 @@ class AccountController extends Component {
     }
 }
 
-export default AccountController
+export default connect(state => ({
+    myAddress: state.app.myAddress,
+    myAccountInfo: state.app.myAccountInfo
+}), ({
+}))(AccountController)

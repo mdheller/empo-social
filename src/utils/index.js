@@ -33,6 +33,32 @@ const Utils = {
         var sec = a.getSeconds();
         var time = date + ' ' + month + ' ' + year + ' ' + hour + ':' + min + ':' + sec;
         return time;
+    },
+
+    testImage(url, timeout) {
+        if (!url) {
+            return false;
+        }
+        timeout = timeout || 5000;
+        var timedOut = false, timer;
+        var img = new Image();
+        img.onerror = img.onabort = function() {
+            if (!timedOut) {
+                clearTimeout(timer);
+                return false;
+            }
+        };
+        img.onload = function() {
+            if (!timedOut) {
+                clearTimeout(timer);
+                return true;
+            }
+        };
+        img.src = url;
+        timer = setTimeout(function() {
+            timedOut = true;
+            return false;
+        }, timeout); 
     }
 }
 

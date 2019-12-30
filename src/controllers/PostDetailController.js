@@ -15,6 +15,8 @@ import Photo from '../assets/images/Path 953.svg'
 import Gif from '../assets/images/Group 601.svg'
 import Icon from '../assets/images/Group 7447.svg'
 
+import { connect } from 'react-redux';
+
 class PostDetailController extends Component {
 
     constructor(props) {
@@ -36,11 +38,9 @@ class PostDetailController extends Component {
             return;
         }
 
-        var myAddress = await window.empow.enable()
         var postDetail = await ServerAPI.getPostDetailByPostId(postId)
         this.setState({
             postDetail,
-            myAddress
         })
     }
 
@@ -59,9 +59,9 @@ class PostDetailController extends Component {
     }
 
     handleKeyDownComment = (e) => {
-        var { myAddress, postId, textComment } = this.state
+        var { postId, textComment } = this.state
         if (e.key === 'Enter') {
-            const tx = window.empow.callABI("social.empow", "comment", [myAddress, postId.toString(), "comment", "0", textComment])
+            const tx = window.empow.callABI("social.empow", "comment", [this.props.myAddress, postId.toString(), "comment", "0", textComment])
             this.action(tx);
         }
     }
@@ -75,9 +75,9 @@ class PostDetailController extends Component {
     }
 
     handleKeyDownReply = (e, comment) => {
-        var { myAddress, postId } = this.state
+        var { postId } = this.state
         if (e.key === 'Enter') {
-            const tx = window.empow.callABI("social.empow", "comment", [myAddress, postId, "reply", comment.commentId.toString(), comment.replyText])
+            const tx = window.empow.callABI("social.empow", "comment", [this.props.myAddress, postId, "reply", comment.commentId.toString(), comment.replyText])
             this.action(tx);
         }
     }
@@ -112,13 +112,15 @@ class PostDetailController extends Component {
     }
 
     onFollow = (address) => {
-        const tx = window.empow.callABI("social.empow", "follow", [this.state.myAddress, address])
+        const tx = window.empow.callABI("social.empow", "follow", [this.props.myAddress, address])
         this.action(tx)
     }
 
     renderPostDetail() {
         var { postDetail } = this.state
+        var { myAccountInfo } = this.props;
 
+        var profile = myAccountInfo.profile || {}
         var like = postDetail.like || {};
         var comment = postDetail.comment || []
         var address = postDetail.address || {}
@@ -174,7 +176,7 @@ class PostDetailController extends Component {
 
                 <div style={{ display: 'flex', paddingLeft: '20px', paddingRight: '20px' }}>
                     <div>
-                        <img src={Avatar} alt="photos"></img>
+                        <img src={Utils.testImage(profile.avatar) ? profile.avatar : Avatar} alt="photos"></img>
                     </div>
                     <div className="waper-cmt">
                         <input value={postDetail.commentText}
@@ -192,12 +194,13 @@ class PostDetailController extends Component {
                 <div className="coment scroll">
                     {comment.map((detail, indexx) => {
                         var addressComment = detail.address || [];
+                        var pro5 = addressComment.profile || {}
                         return (
                             <li>
                                 <div className="info">
                                     <div className="group">
                                         <div onClick={() => this.onClickAddress(addressComment.address)} className="waper-avatar" style={{ marginRight: '10px', cursor: 'pointer' }}>
-                                            <img src={addressComment.profile && addressComment.profile.avatar && addressComment.profile.avatar !== "" ? addressComment.profile.avatar : Avatar} alt="photos"></img>
+                                            <img src={Utils.testImage(pro5.avatar) ? pro5.avatar : Avatar} alt="photos"></img>
                                         </div>
                                         <div>
                                             <p onClick={() => this.onClickAddress(addressComment.address)} style={{ fontWeight: 'bold', cursor: 'pointer' }}>{addressComment.address}</p>
@@ -291,4 +294,8 @@ class PostDetailController extends Component {
     }
 }
 
-export default PostDetailController
+export default connect(state => ({
+    myAddress: state.app.myAddress,
+    myAccountInfo: state.app.myAccountInfo
+}), ({
+}))(PostDetailController)
