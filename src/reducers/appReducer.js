@@ -5,7 +5,7 @@ export const setMyAccountInfo = createAction('setMyAccountInfo');
 
 export const appReducer = createReducer({
     myAddress: false,
-    myAccountInfo: {}
+    myAccountInfo: false
 }, {
     [setMyAddress]: (state, {payload}) => {
         state.myAddress = payload;

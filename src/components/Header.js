@@ -39,6 +39,10 @@ class Header extends Component {
 
     async componentDidMount() {
 
+        if (!window || !window.empow || !window.empow.enable) {
+            return;
+        }
+
         var myAddress = await window.empow.enable()
         var myAccountInfo = await ServerAPI.getAddress(myAddress)
 
@@ -96,7 +100,7 @@ class Header extends Component {
         })
     }
 
-    onClickNoti = async (noti) => {
+    onClickNoti = (noti) => {
         window.location = '/post-detail/' + noti.postId
     }
 
@@ -147,7 +151,7 @@ class Header extends Component {
                         <li><a href="/follow">Follow</a></li>
                     </ul>
                     {window.empow && <div className="waper-account">
-                        <a href="/my-account"><img src={Utils.testImage(profile.avatar) ? profile.avatar : IconAva} alt="photos" className="waper-ava"></img></a>
+                        <a href="/my-account"><img src={profile.avatar ? profile.avatar : IconAva} alt="photos" className="waper-ava"></img></a>
                         <div className="waper-icon">
                             <img src={Mess} alt="photos"></img>
                             <img src={Noti} alt="photos" onClick={() => this.onShowNoti()}></img>

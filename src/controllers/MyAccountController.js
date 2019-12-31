@@ -31,20 +31,27 @@ class MyAccountController extends Component {
             level: 'S',
             date: '30 thg 11, 2019',
             data: [],
+            follow: '0',
+            follower: '0',
+            totalMoney: 0
         };
     };
 
-    async componentDidMount() {
+    async componentDidUpdate(pre, next) {
+
+        if (!this.props.myAddress || pre.myAddress === next.myAddress) {
+            return;
+        }
+
         var data = await ServerAPI.getMyPost(this.props.myAddress);
 
         var follow = await ServerAPI.getMyFollow(this.props.myAddress);
         var follower = await ServerAPI.getMyFollower(this.props.myAddress);
 
+
         var totalMoney = 0
         data.forEach(post => {
-            if (post.like && post.like.amount) {
-                totalMoney += parseFloat(post.like.amount)
-            }
+            totalMoney += parseFloat(post.realLike)
         });
 
         this.setState({
@@ -132,6 +139,14 @@ class MyAccountController extends Component {
         window.location = '/account/' + address
     }
 
+    onClickReply = (index, indexx) => {
+        var data = this.state.data;
+        data[index].comment[indexx].showReply = !data[index].comment[indexx].showReply
+        this.setState({
+            data
+        });
+    }
+
     handleChangeTextComment = (event, index) => {
         var data = this.state.data;
         data[index].commentText = event.target.value
@@ -162,19 +177,23 @@ class MyAccountController extends Component {
         }
     }
 
+    onClickTitle = (postId) => {
+        window.location = '/post-detail/' + postId
+    }
+
     renderInfo() {
         var { follow, follower, totalMoney } = this.state
-        var {myAccountInfo} = this.props
+        var { myAccountInfo } = this.props
         var profile = myAccountInfo.profile || {}
         return (
             <div className="waper-info">
                 <div className="waper-cover" onClick={() => this.onClickImg(2)}>
-                    <img src={Utils.testImage(profile.cover) ? profile.cover : CoverPhoto} alt="photos"></img>
+                    <img src={profile.cover ? profile.cover : CoverPhoto} alt="photos"></img>
                     <input type="file" id="filee" ref="fileUploaderr" name="photo" style={{ display: "none" }} onChange={(event) => this.handleChange(event)} />
                 </div>
                 <div className="group1">
                     <div onClick={() => this.onClickImg(1)} className="avatar">
-                        <img src={Utils.testImage(profile.avatar) ? profile.avatar : Avatar} alt="photos"></img>
+                        <img src={profile.avatar ? profile.avatar : Avatar} alt="photos"></img>
                         <input type="file" id="file" ref="fileUploader" name="photo" style={{ display: "none" }} onChange={(event) => this.handleChange(event)} />
                     </div>
 
@@ -186,7 +205,7 @@ class MyAccountController extends Component {
                 </div>
                 <div className="group2">
                     <span>{this.props.myAddress ? this.props.myAddress.substr(0, 20) + '...' : ''}</span>
-                    <p style={{ color: '#676f75', marginLeft: '20px' }}>Cấp độ: {myAccountInfo.level || 1}</p>
+                    <p style={{ color: '#676f75', marginLeft: '20px' }}>Level: {Utils.convertLevel(myAccountInfo.level)}</p>
                 </div>
                 <div className="group2">
                     <p style={{ color: '#dd3468' }}>$ {totalMoney}</p>
@@ -201,19 +220,19 @@ class MyAccountController extends Component {
 
     renderPost() {
         var { data } = this.state
-        var { myAccountInfo} = this.props
+        var { myAccountInfo } = this.props
         var profile = myAccountInfo.profile || {}
+
         return (
             <ul className="waper-data">
                 {data.map((value, index) => {
-                    var like = value.like || {};
                     var comment = value.comment || []
                     return (
                         <li style={{ marginBottom: '50px' }}>
                             <div className="content">
-                                <h1>{value.title}</h1>
+                                <h1 style={{ cursor: 'pointer' }} onClick={() => this.onClickTitle(value.postId)}>{value.title}</h1>
                                 <div className="time">
-                                    <p style={{ color: '#dd3468' }}>$ {like.amount}</p>
+                                    <p style={{ color: '#dd3468' }}>$ {value.realLike}</p>
                                     <div className="time">
                                         <p>{Utils.convertDate(value.time)}</p>
                                         <img src={Offline} alt="photos"></img>
@@ -241,7 +260,7 @@ class MyAccountController extends Component {
 
                             <div style={{ display: 'flex', paddingLeft: '20px', paddingRight: '20px' }}>
                                 <div className="waper-avatar">
-                                    <img src={Utils.testImage(profile.avatar) ? profile.avatar : Avatar3} alt="photos"></img>
+                                    <img src={profile.avatar ? profile.avatar : Avatar3} alt="photos"></img>
                                 </div>
 
                                 <div className="waper-cmt">
@@ -267,13 +286,13 @@ class MyAccountController extends Component {
                                             <div className="info">
                                                 <div className="group">
                                                     <div onClick={() => this.onClickAddress(addressComment.address)} className="waper-avatar" style={{ marginRight: '10px', cursor: 'pointer' }}>
-                                                        <img src={Utils.testImage(pro5.avatar)  ? pro5.avatar : Avatar3} alt="photos"></img>
+                                                        <img src={pro5.avatar ? pro5.avatar : Avatar3} alt="photos"></img>
                                                     </div>
 
                                                     <div>
                                                         <p onClick={() => this.onClickAddress(addressComment.address)} style={{ fontWeight: 'bold', cursor: 'pointer' }}>{addressComment.address}</p>
                                                         <div className="title">
-                                                            <p>Cấp độ: {addressComment.level}</p>
+                                                            <p>Level: {Utils.convertLevel(addressComment.level)}</p>
                                                             <img src={Offline} alt="photos"></img>
                                                             <p>{Utils.convertDate(detail.time)} hour</p>
                                                         </div>
@@ -284,15 +303,11 @@ class MyAccountController extends Component {
                                             <p style={{ marginLeft: '45px' }}>{detail.content}</p>
 
                                             <div className="reaction">
-                                                <div>
-                                                    <img src={Heart} alt="photos"></img>
-                                                    <p>{detail.totalReply}</p>
-                                                </div>
+                                                <p onClick={() => this.onClickReply(index, indexx)} style={{ cursor: 'pointer' }}>Reply</p>
                                             </div>
-
-                                            <div style={{ display: 'flex', paddingLeft: '20px', paddingRight: '20px' }}>
+                                            {detail.showReply && <div style={{ display: 'flex', paddingLeft: '20px', paddingRight: '20px' }}>
                                                 <div className="waper-avatar">
-                                                    <img src={Utils.testImage(profile.avatar) ? profile.avatar : Avatar3} alt="photos"></img>
+                                                    <img src={profile.avatar ? profile.avatar : Avatar3} alt="photos"></img>
                                                 </div>
                                                 <div className="waper-cmt">
                                                     <input value={detail.replyText}
@@ -306,7 +321,7 @@ class MyAccountController extends Component {
                                                         <img src={Icon} alt="photos"></img>
                                                     </div>
                                                 </div>
-                                            </div>
+                                            </div>}
 
                                         </li>
                                     )

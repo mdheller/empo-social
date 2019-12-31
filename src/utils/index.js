@@ -22,7 +22,7 @@ const Utils = {
     },
 
     convertDate(nanoTime) {
-        var timestamp = nanoTime / 10**9
+        var timestamp = nanoTime / 10 ** 9
         var a = new Date(timestamp * 1000);
         var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
         var year = a.getFullYear();
@@ -35,30 +35,28 @@ const Utils = {
         return time;
     },
 
-    testImage(url, timeout) {
-        if (!url) {
-            return false;
+    convertLevel(level) {
+        if (level === 2) {
+            return 'Members'
         }
-        timeout = timeout || 5000;
-        var timedOut = false, timer;
-        var img = new Image();
-        img.onerror = img.onabort = function() {
-            if (!timedOut) {
-                clearTimeout(timer);
-                return false;
-            }
-        };
-        img.onload = function() {
-            if (!timedOut) {
-                clearTimeout(timer);
-                return true;
-            }
-        };
-        img.src = url;
-        timer = setTimeout(function() {
-            timedOut = true;
-            return false;
-        }, timeout); 
+
+        if (level === 3) {
+            return 'LT members'
+        }
+
+        if (level === 4) {
+            return 'Rising stars'
+        }
+
+        if (level === 5) {
+            return 'Stars and legends'
+        }
+
+        if (level === 6) {
+            return 'Thinker'
+        }
+
+        return 'New members'
     }
 }
 

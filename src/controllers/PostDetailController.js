@@ -116,27 +116,35 @@ class PostDetailController extends Component {
         this.action(tx)
     }
 
+    onClickReply = (indexx) => {
+        var postDetail = this.state.postDetail;
+        postDetail.comment[indexx].showReply = !postDetail.comment[indexx].showReply
+        this.setState({
+            postDetail
+        });
+    }
+
     renderPostDetail() {
         var { postDetail } = this.state
         var { myAccountInfo } = this.props;
 
         var profile = myAccountInfo.profile || {}
-        var like = postDetail.like || {};
         var comment = postDetail.comment || []
         var address = postDetail.address || {}
+        var pro5 = address.profile || {}
 
         return (
             <div className="post-detail">
                 <div className="info">
                     <div className="group">
                         <div onClick={() => this.onClickAddress(postDetail.author)} style={{ marginRight: '10px', cursor: 'pointer' }}>
-                            <img src={Avatar} alt="photos"></img>
+                            <img src={pro5.avatar ? pro5.avatar : Avatar} alt="photos" style={{ width: '40px', height: '40px', borderRadius: '50%' }}></img>
                         </div>
                         <div>
                             <p onClick={() => this.onClickAddress(postDetail.author)} style={{ fontWeight: 'bold', fontSize: '20px', cursor: 'pointer' }}>{postDetail && postDetail.author ? postDetail.author.substr(0, 20) + '...' : ''}</p>
                             <div className="title">
-                                <p style={{ color: '#dd3468' }}>$ {like.amount}</p>
-                                <p>Cấp độ: {address.level}</p>
+                                <p style={{ color: '#dd3468' }}>$ {postDetail.realLike}</p>
+                                <p>Level: {Utils.convertLevel(address.level)}</p>
                             </div>
                         </div>
                     </div>
@@ -176,7 +184,7 @@ class PostDetailController extends Component {
 
                 <div style={{ display: 'flex', paddingLeft: '20px', paddingRight: '20px' }}>
                     <div>
-                        <img src={Utils.testImage(profile.avatar) ? profile.avatar : Avatar} alt="photos"></img>
+                        <img src={profile.avatar ? profile.avatar : Avatar} style={{ width: '40px', height: '40px', borderRadius: '50%' }} alt="photos"></img>
                     </div>
                     <div className="waper-cmt">
                         <input value={postDetail.commentText}
@@ -200,12 +208,12 @@ class PostDetailController extends Component {
                                 <div className="info">
                                     <div className="group">
                                         <div onClick={() => this.onClickAddress(addressComment.address)} className="waper-avatar" style={{ marginRight: '10px', cursor: 'pointer' }}>
-                                            <img src={Utils.testImage(pro5.avatar) ? pro5.avatar : Avatar} alt="photos"></img>
+                                            <img src={pro5.avatar ? pro5.avatar : Avatar} alt="photos"></img>
                                         </div>
                                         <div>
                                             <p onClick={() => this.onClickAddress(addressComment.address)} style={{ fontWeight: 'bold', cursor: 'pointer' }}>{addressComment.address}</p>
                                             <div className="title">
-                                                <p>Cấp độ: {addressComment.level}</p>
+                                                <p>Level: {Utils.convertLevel(addressComment.level)}</p>
                                                 <img src={Offline} alt="photos"></img>
                                                 <p>{Utils.convertDate(detail.time)}</p>
                                             </div>
@@ -216,15 +224,12 @@ class PostDetailController extends Component {
                                 <p style={{ marginLeft: '45px' }}>{detail.content}</p>
 
                                 <div className="reaction">
-                                    <div>
-                                        <img src={Coment} alt="photos"></img>
-                                        <p>{detail.totalReply}</p>
-                                    </div>
+                                    <p onClick={() => this.onClickReply(indexx)} style={{ cursor: 'pointer' }}>Reply</p>
                                 </div>
 
-                                <div style={{ display: 'flex', paddingLeft: '20px', paddingRight: '20px' }}>
+                                {detail.showReply && <div style={{ display: 'flex', paddingLeft: '20px', paddingRight: '20px' }}>
                                     <div>
-                                        <img src={Avatar} alt="photos"></img>
+                                        <img src={profile.avatar ? profile.avatar : Avatar} style={{ width: '40px', height: '40px', borderRadius: '50%' }} alt="photos"></img>
                                     </div>
                                     <div className="waper-cmt">
                                         <input value={detail.replyText}
@@ -238,7 +243,7 @@ class PostDetailController extends Component {
                                             <img src={Icon} alt="photos"></img>
                                         </div>
                                     </div>
-                                </div>
+                                </div>}
 
                             </li>
                         )
