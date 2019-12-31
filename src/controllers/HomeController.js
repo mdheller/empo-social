@@ -101,6 +101,14 @@ class HomeController extends Component {
         })
     }
 
+    onClickReply = (index, indexx) => {
+        var data = this.state.data;
+        data[index].comment[indexx].showReply = !data[index].comment[indexx].showReply
+        this.setState({
+            data
+        });
+    }
+
     handleChangeText = (event) => {
         this.setState({
             status: event.target.value
@@ -280,6 +288,10 @@ class HomeController extends Component {
         this.action(tx)
     }
 
+    onClickTitle = (postId) => {
+        window.location = '/post-detail/' + postId
+    }
+
     renderMoreStatus() {
 
 
@@ -349,7 +361,7 @@ class HomeController extends Component {
                                     <div>
                                         <p onClick={() => this.onClickAddress(value.author)} style={{ fontWeight: 'bold', fontSize: '20px' }}>{value.author.substr(0, 20) + '...'}</p>
                                         <div className="title">
-                                            <p>Cấp độ: {address.level}</p>
+                                            <p>Level: {Utils.convertLevel(address.level)}</p>
                                             <img src={Offline} alt="photos"></img>
                                             <p>{Utils.convertDate(value.time)}</p>
                                         </div>
@@ -422,10 +434,11 @@ class HomeController extends Component {
     renderStatus() {
         var { myAccountInfo } = this.props;
         var profile = myAccountInfo.profile || {}
+        console.log(profile)
         return (
             <div className="post" style={{ backgroundColor: this.state.color ? this.state.color : '' }}>
                 <div style={{ flex: 0.1 }}>
-                    <img src={Utils.testImage(profile.avatar) ? profile.profile : Avatar} alt="photos" style={{ width: '36px', height: '36px', borderRadius: '50%' }}></img>
+                    <img src={profile.avatar ? profile.avatar : Avatar} alt="photos" style={{ width: '36px', height: '36px', borderRadius: '50%' }}></img>
                 </div>
                 <div className="waper-content">
                     <textarea
@@ -468,21 +481,22 @@ class HomeController extends Component {
         return (
             <ul>
                 {this.state.data.map((value, index) => {
-                    var like = value.like || {};
                     var comment = value.comment || []
                     var address = value.address || {}
+                    var pro55 = address.profile || {}
+                    
                     return (
                         <li className="post-detail" style={{ marginBottom: '50px' }}>
                             <div className="info">
                                 <div className="group">
                                     <div onClick={() => this.onClickAddress(value.author)} style={{ marginRight: '10px', cursor: 'pointer' }}>
-                                        <img src={Avatar} alt="photos"></img>
+                                        <img src={pro55.avatar ? pro55.avatar : Avatar} alt="photos" style={{ width: '40px', height: '40px', borderRadius: '50%' }}></img>
                                     </div>
                                     <div>
                                         <p onClick={() => this.onClickAddress(value.author)} style={{ fontWeight: 'bold', fontSize: '20px', cursor: 'pointer' }}>{value.author.substr(0, 20) + '...'}</p>
                                         <div className="title">
-                                            <p style={{ color: '#dd3468' }}>$ {like.amount}</p>
-                                            <p>Cấp độ: {address.level}</p>
+                                            <p style={{ color: '#dd3468' }}>$ {value.realLike}</p>
+                                            <p>Level: {Utils.convertLevel(address.level)}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -492,7 +506,7 @@ class HomeController extends Component {
                             </div>
 
                             <div className="content">
-                                <p>{value.title}</p>
+                                <p style={{ cursor: 'pointer' }} onClick={() => this.onClickTitle(value.postId)}>{value.title}</p>
                                 <img src={value.content.data} alt="photos"></img>
                             </div>
 
@@ -522,7 +536,7 @@ class HomeController extends Component {
 
                             <div style={{ display: 'flex', paddingLeft: '20px', paddingRight: '20px' }}>
                                 <div>
-                                    <img src={Utils.testImage(profile.avatar) ? profile.avatar : Avatar} alt="photos"></img>
+                                    <img src={profile.avatar ? profile.avatar : Avatar} alt="photos" style={{ width: '40px', height: '40px', borderRadius: '50%' }}></img>
                                 </div>
                                 <div className="waper-cmt">
                                     <input value={value.commentText}
@@ -546,12 +560,12 @@ class HomeController extends Component {
                                             <div className="info">
                                                 <div className="group">
                                                     <div onClick={() => this.onClickAddress(addressComment.address)} className="waper-avatar" style={{ marginRight: '10px', cursor: 'pointer' }}>
-                                                        <img src={Utils.testImage(pro5.avatar) ? pro5.avatar : Avatar} alt="photos"></img>
+                                                        <img src={pro5.avatar ? pro5.avatar : Avatar} alt="photos"></img>
                                                     </div>
                                                     <div>
                                                         <p onClick={() => this.onClickAddress(addressComment.address)} style={{ fontWeight: 'bold', cursor: 'pointer' }}>{addressComment.address}</p>
                                                         <div className="title">
-                                                            <p>Cấp độ: {addressComment.level}</p>
+                                                            <p>Level: {Utils.convertLevel(addressComment.level)}</p>
                                                             <img src={Offline} alt="photos"></img>
                                                             <p>{Utils.convertDate(detail.time)}</p>
                                                         </div>
@@ -562,15 +576,12 @@ class HomeController extends Component {
                                             <p style={{ marginLeft: '45px' }}>{detail.content}</p>
 
                                             <div className="reaction">
-                                                <div>
-                                                    <img src={Coment} alt="photos"></img>
-                                                    <p>{detail.totalReply}</p>
-                                                </div>
+                                                <p onClick={() => this.onClickReply(index, indexx)} style={{ cursor: 'pointer' }}>Reply</p>
                                             </div>
 
-                                            <div style={{ display: 'flex', paddingLeft: '20px', paddingRight: '20px' }}>
+                                            {detail.showReply && <div style={{ display: 'flex', paddingLeft: '20px', paddingRight: '20px' }}>
                                                 <div>
-                                                    <img src={Avatar} alt="photos"></img>
+                                                    <img src={profile.avatar ? profile.avatar : Avatar} alt="photos" style={{ width: '40px', height: '40px', borderRadius: '50%' }}></img>
                                                 </div>
                                                 <div className="waper-cmt">
                                                     <input value={detail.replyText}
@@ -584,7 +595,7 @@ class HomeController extends Component {
                                                         <img src={Icon} alt="photos"></img>
                                                     </div>
                                                 </div>
-                                            </div>
+                                            </div>}
 
                                         </li>
                                     )

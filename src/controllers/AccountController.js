@@ -30,7 +30,6 @@ class AccountController extends Component {
             date: '30 thg 11, 2019',
             data: [],
             accountInfo: {},
-            // myAccountInfo: {}
         };
     };
 
@@ -38,7 +37,6 @@ class AccountController extends Component {
         var addressAccount = this.props.match.params.address
 
         var accountInfo = await ServerAPI.getAddress(addressAccount)
-        // var myAccountInfo = await ServerAPI.getAddress(this.props.myAddress)
 
         var data = await ServerAPI.getMyPost(addressAccount);
 
@@ -59,7 +57,6 @@ class AccountController extends Component {
             totalMoney,
             follow,
             follower,
-            //  myAccountInfo
         })
     }
 
@@ -86,6 +83,18 @@ class AccountController extends Component {
 
     onClickAddress = (address) => {
         window.location = '/account/' + address
+    }
+
+    onClickReply = (index, indexx) => {
+        var data = this.state.data;
+        data[index].comment[indexx].showReply = !data[index].comment[indexx].showReply
+        this.setState({
+            data
+        });
+    }
+
+    onClickTitle = (postId) => {
+        window.location = '/post-detail/' + postId
     }
 
 
@@ -125,9 +134,8 @@ class AccountController extends Component {
     }
 
     renderInfo() {
-        var { addressAccount, follow, follower, totalMoney } = this.state
-        var { myAccountInfo } = this.props
-        var profile = myAccountInfo.profile || {}
+        var { addressAccount, follow, follower, totalMoney, accountInfo } = this.state
+        var profile = accountInfo.profile || {}
         return (
             <div className="waper-info">
                 <div className="waper-cover">
@@ -135,7 +143,7 @@ class AccountController extends Component {
                 </div>
                 <div className="group1">
                     <div className="avatar">
-                        <img src={Utils.testImage(profile.avatar) ? profile.avatar : Avatar} alt="photos"></img>
+                        <img src={profile.avatar ? profile.avatar : Avatar} alt="photos"></img>
                     </div>
 
                     <div className="child">
@@ -147,7 +155,7 @@ class AccountController extends Component {
                 </div>
                 <div className="group2">
                     <span>{addressAccount ? addressAccount.substr(0, 20) + '...' : ''}</span>
-                    <p style={{ color: '#676f75', marginLeft: '20px' }}>Cấp độ: {myAccountInfo.level || 1}</p>
+                    <p style={{ color: '#676f75', marginLeft: '20px' }}>Level: {Utils.convertLevel(accountInfo.level)}</p>
                 </div>
                 <div className="group2">
                     <p style={{ color: '#dd3468' }}>$ {totalMoney}</p>
@@ -161,20 +169,20 @@ class AccountController extends Component {
     }
 
     renderPost() {
-        var { data, myAccountInfo } = this.state
+        var { data } = this.state
+        var { myAccountInfo } = this.props
         var myProfile = myAccountInfo.profile || {}
 
         return (
             <ul className="waper-data">
                 {data.map((value, index) => {
-                    var like = value.like || {};
                     var comment = value.comment || []
                     return (
                         <li style={{ marginBottom: '50px' }}>
                             <div className="content">
-                                <h1>{value.title}</h1>
+                                <h1 style={{ cursor: 'pointer' }} onClick={() => this.onClickTitle(value.postId)}>{value.title}</h1>
                                 <div className="time">
-                                    <p style={{ color: '#dd3468' }}>$ {like.amount}</p>
+                                    <p style={{ color: '#dd3468' }}>$ {value.realLike}</p>
                                     <div className="time">
                                         <p>{Utils.convertDate(value.time)}</p>
                                         <img src={Offline} alt="photos"></img>
@@ -202,7 +210,7 @@ class AccountController extends Component {
 
                             <div style={{ display: 'flex', paddingLeft: '20px', paddingRight: '20px' }}>
                                 <div className="waper-avatar">
-                                    <img src={Utils.testImage(myProfile.avatar) ? myProfile.avatar : Avatar3} alt="photos"></img>
+                                    <img src={myProfile.avatar ? myProfile.avatar : Avatar3} alt="photos"></img>
                                 </div>
 
                                 <div className="waper-cmt">
@@ -228,13 +236,13 @@ class AccountController extends Component {
                                             <div className="info">
                                                 <div className="group">
                                                     <div className="waper-avatar" style={{ marginRight: '10px', cursor: 'pointer' }} onClick={() => this.onClickAddress(addressComment.address)}>
-                                                        <img src={Utils.testImage(pro5.avatar) ? pro5.avatar : Avatar3} alt="photos"></img>
+                                                        <img src={pro5.avatar ? pro5.avatar : Avatar3} alt="photos"></img>
                                                     </div>
 
                                                     <div>
                                                         <p onClick={() => this.onClickAddress(addressComment.address)} style={{ fontWeight: 'bold', cursor: 'pointer' }}>{addressComment.address}</p>
                                                         <div className="title">
-                                                            <p>Cấp độ: {addressComment.level}</p>
+                                                            <p>Level: {Utils.convertLevel(addressComment.level)}</p>
                                                             <img src={Offline} alt="photos"></img>
                                                             <p>{Utils.convertDate(detail.time)} hour</p>
                                                         </div>
@@ -245,15 +253,12 @@ class AccountController extends Component {
                                             <p style={{ marginLeft: '45px' }}>{detail.content}</p>
 
                                             <div className="reaction">
-                                                <div>
-                                                    <img src={Heart} alt="photos"></img>
-                                                    <p>{detail.totalReply}</p>
-                                                </div>
+                                                <p onClick={() => this.onClickReply(index, indexx)} style={{ cursor: 'pointer' }}>Reply</p>
                                             </div>
 
-                                            <div style={{ display: 'flex', paddingLeft: '20px', paddingRight: '20px' }}>
+                                            {detail.showReply && <div style={{ display: 'flex', paddingLeft: '20px', paddingRight: '20px' }}>
                                                 <div className="waper-avatar">
-                                                    <img src={Utils.testImage(myProfile.avatar) ? myProfile.avatar : Avatar3} alt="photos"></img>
+                                                    <img src={myProfile.avatar ? myProfile.avatar : Avatar3} alt="photos"></img>
                                                 </div>
                                                 <div className="waper-cmt">
                                                     <input value={detail.replyText}
@@ -267,7 +272,7 @@ class AccountController extends Component {
                                                         <img src={Icon} alt="photos"></img>
                                                     </div>
                                                 </div>
-                                            </div>
+                                            </div>}
 
                                         </li>
                                     )

@@ -14,13 +14,14 @@ import Icon from '../assets/images/Group 7447.svg'
 import Chat from '../components/Chat'
 
 import ServerAPI from '../ServerAPI';
+import { connect } from 'react-redux';
+import Utils from '../utils'
 
 class RightNavbar extends Component {
     constructor(props) {
         super(props);
 
         this.state = {
-            accountInfo: {},
             gasPercent: 0,
             ramEMPercent: 0,
             data: [
@@ -155,22 +156,28 @@ class RightNavbar extends Component {
 
 
 
-    async componentDidMount() {
+    async componentDidUpdate(pre) {
+        if (pre.myAddress === this.props.myAddress && pre.myAccountInfo === this.props.myAccountInfo) {
+            return;
+        }
+
         if (window.location.pathname === '/my-account') {
             this.setState({
                 showSugget: true
             })
         }
 
-        var address = await window.empow.enable()
+        var accountInfo = this.props.myAccountInfo
 
-        var accountInfo = await ServerAPI.getAddress(address);
+        if (!accountInfo) {
+            return;
+        }
 
-        let gasPercent = (accountInfo.gas_info.limit - (accountInfo.gas_info.limit - accountInfo.gas_info.current_total)) / accountInfo.gas_info.limit * 100
-        let ramEMPercent = (accountInfo.ram_info.available - accountInfo.ram_info.used) / accountInfo.ram_info.available * 100
+
+        let gasPercent = accountInfo.gas_info.current_total / accountInfo.gas_info.limit * 100
+        let ramEMPercent = accountInfo.ram_info.available / accountInfo.ram_info.total * 100
 
         this.setState({
-            accountInfo,
             gasPercent,
             ramEMPercent
         })
@@ -213,7 +220,7 @@ class RightNavbar extends Component {
                                     <div>
                                         <p style={{ fontWeight: 'bold', fontSize: '20px' }}>{value.name}</p>
                                         <div className="title">
-                                            <p>Cấp độ: {value.level}</p>
+                                            <p>Level: {Utils.convertLevel(value.level)}</p>
                                             <img src={Offline} alt="photos"></img>
                                             <p>{value.time} hour</p>
                                         </div>
@@ -261,7 +268,7 @@ class RightNavbar extends Component {
                                                     <div>
                                                         <p style={{ fontWeight: 'bold' }}>{detail.name}</p>
                                                         <div className="title">
-                                                            <p>Cấp độ: {detail.level}</p>
+                                                            <p>Level: {Utils.convertLevel(detail.level)}</p>
                                                             <img src={Offline} alt="photos"></img>
                                                             <p>{detail.time} hour</p>
                                                         </div>
@@ -303,12 +310,14 @@ class RightNavbar extends Component {
     }
 
     render() {
-        var { accountInfo, gasPercent, ramEMPercent } = this.state
+        var { gasPercent, ramEMPercent } = this.state
+        var accountInfo = this.props.myAccountInfo || {}
+
         return (
             <div className="right-navbar">
                 {window.empow && <div className="waper-info">
                     <p>Balance: {accountInfo.balance} EM <span style={{ color: '#676f75', fontSize: '13px' }}>~ $0</span></p>
-                    <p>Level: {accountInfo.level || 1} điểm</p>
+                    <p>Level: {Utils.convertLevel(accountInfo.level)}</p>
                     <div className="group">
                         <div className="group">
                             <p>GAS</p>
@@ -332,4 +341,8 @@ class RightNavbar extends Component {
     }
 };
 
-export default RightNavbar
+export default connect(state => ({
+    myAddress: state.app.myAddress,
+    myAccountInfo: state.app.myAccountInfo
+}), ({
+}))(RightNavbar)
