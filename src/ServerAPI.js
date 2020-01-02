@@ -113,6 +113,14 @@ const ServerAPI = {
             .catch(error => (reject(error.response.data)))
         })
     },
+
+    getPostLiked(address) {
+        return new Promise ( (resolve,reject) => {
+            Axios.get(`${API_ENDPOINT}/getPostLiked/${address}`)
+            .then(res => (resolve(res.data)))
+            .catch(error => (reject(error.response.data)))
+        })
+    },
 }
 
 export default ServerAPI;

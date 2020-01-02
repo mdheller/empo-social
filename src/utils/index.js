@@ -69,6 +69,18 @@ const Utils = {
         }
 
         return 'Follow'
+    },
+
+    isLikedPost(postId, listPostLiked) {
+        if (!listPostLiked) {
+            return false
+        }
+        var data = listPostLiked.find(x => x.postId === postId)
+        if (data) {
+            return true;
+        }
+
+        return false
     }
 }
 

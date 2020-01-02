@@ -9,6 +9,7 @@ import Noti from '../assets/images/Group 704.svg'
 import CoverPhoto from '../assets/images/Rectangle 3121.svg'
 import Offline from '../assets/images/Ellipse 311.svg'
 import Heart from '../assets/images/Heart.svg'
+import Heart2 from '../assets/images/Heart2.svg'
 import Coment from '../assets/images/Path 1968.svg'
 import Upload from '../assets/images/Group 613.svg'
 import Gif from '../assets/images/Group 601.svg'
@@ -290,7 +291,8 @@ class MyAccountController extends Component {
         return (
             <ul className="waper-data">
                 {data.map((value, index) => {
-                    var comment = value.comment || []
+                    var comment = value.comment || [];
+                    var isLiked = Utils.isLikedPost(value.postId, this.props.listPostLiked)
                     return (
                         <li style={{ marginBottom: '50px' }}>
                             <div className="content">
@@ -306,10 +308,15 @@ class MyAccountController extends Component {
                             </div>
 
                             <div className="reaction">
-                                <div onClick={() => this.onLikePost(value)}>
+                                {!isLiked && <div onClick={() => this.onLikePost(value)}>
                                     <img src={Heart} alt="photos"></img>
                                     <p>{value.totalLike}</p>
-                                </div>
+                                </div>}
+
+                                {isLiked && <div>
+                                    <img src={Heart2} alt="photos"></img>
+                                    <p>{value.totalLike}</p>
+                                </div>}
 
                                 <div>
                                     <img src={Coment} alt="photos"></img>
@@ -413,7 +420,7 @@ class MyAccountController extends Component {
                     <div className="dark-range" onClick={() => this.togglePopup('showSend')}></div>
                     <div className="share-post">
                         <div className="group1">
-                            <p>Repost lại thông tin này</p>
+                            <p>Share this post</p>
                             <img onClick={() => this.togglePopup('showSend')} src={Delete} alt="photos"></img>
                         </div>
 
@@ -444,17 +451,11 @@ class MyAccountController extends Component {
 
                             <div className="content">
                                 <p>{value.title}</p>
-                                <img src={value.content.data} alt="photos"></img>
+                                <img src={value.content.data} style={{width: '100%'}} alt="photos"></img>
                             </div>
                         </div>
                         <div className="waper-button">
                             <div style={{ display: 'flex', alignItems: 'center' }}>
-                                <div onClick={() => this.upLoadPhoto()} style={{ display: 'flex', alignItems: 'center' }}>
-                                    <img src={Photo} alt="photos"></img>
-                                    <input type="file" id="file" ref="fileUploader" style={{ display: "none" }} onChange={(event) => this.handleChange(event)} />
-                                </div>
-                                <img src={Chart} alt="photos"></img>
-                                <img src={Gif} alt="photos"></img>
                                 <div className="waper-emoji">
                                     <img onClick={() => { this.setState({ showEmoji: !this.state.showEmoji }) }} src={Icon} alt="photos"></img>
                                     {this.state.showEmoji && <div className="emoji-icon">
@@ -463,8 +464,6 @@ class MyAccountController extends Component {
                                 </div>
                             </div>
                             <div style={{ justifyContent: 'center', display: 'flex' }}>
-                                <img src={Elip} alt="photos"></img>
-                                <img src={Plus} alt="photos"></img>
                                 <button className={`btn-general-1 ${isLoadingSharePost ? 'btn-loading' : ''}`} onClick={() => this.onSharePost()}>
                                     {isLoadingSharePost && <img src={Loading} alt="photos"></img>}
                                     {!isLoadingSharePost && <span>Post</span>}
@@ -500,6 +499,7 @@ class MyAccountController extends Component {
 
 export default connect(state => ({
     myAddress: state.app.myAddress,
-    myAccountInfo: state.app.myAccountInfo
+    myAccountInfo: state.app.myAccountInfo,
+    listPostLiked: state.app.listPostLiked
 }), ({
 }))(MyAccountController)

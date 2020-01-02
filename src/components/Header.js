@@ -13,7 +13,8 @@ import { connect } from 'react-redux';
 import {
     setMyAddress,
     setMyAccountInfo,
-    setListFollow
+    setListFollow,
+    setListPostLiked
 } from '../reducers/appReducer'
 
 import Alert from 'react-s-alert';
@@ -46,10 +47,12 @@ class Header extends Component {
         var myAddress = await window.empow.enable()
         var myAccountInfo = await ServerAPI.getAddress(myAddress)
         var listFollow = await ServerAPI.getListFollow(myAddress)
+        var listPostLiked = await ServerAPI.getPostLiked(myAddress)
 
         this.props.setMyAddress(myAddress);
         this.props.setMyAccountInfo(myAccountInfo);
         this.props.setListFollow(listFollow);
+        this.props.setListPostLiked(listPostLiked);
 
         this.setState({
             myAddress,
@@ -177,5 +180,6 @@ export default connect(state => ({
 }), ({
     setMyAddress,
     setMyAccountInfo,
-    setListFollow
+    setListFollow,
+    setListPostLiked
 }))(Header)
