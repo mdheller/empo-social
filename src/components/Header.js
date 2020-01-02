@@ -19,7 +19,6 @@ import {
 import Alert from 'react-s-alert';
 import 'react-s-alert/dist/s-alert-default.css';
 import 'react-s-alert/dist/s-alert-css-effects/slide.css';
-import Utils from '../utils';
 
 const socket = io('http://localhost:8000');
 
@@ -131,7 +130,7 @@ class Header extends Component {
     }
 
     render() {
-        var { myAccountInfo } = this.state
+        var { myAccountInfo, myAddress } = this.state
         var profile = myAccountInfo.profile || {}
 
         return (
@@ -153,7 +152,7 @@ class Header extends Component {
                         <li><a href="/trending">Trending</a></li>
                         <li><a href="/follow">Follow</a></li>
                     </ul>
-                    {window.empow && <div className="waper-account">
+                    {myAddress && <div className="waper-account">
                         <a href="/my-account"><img src={profile.avatar ? profile.avatar : IconAva} alt="photos" className="waper-ava"></img></a>
                         <div className="waper-icon">
                             <img src={Mess} alt="photos"></img>
@@ -162,7 +161,7 @@ class Header extends Component {
                         </div>
                     </div>}
 
-                    {!window.empow && <div className="waper-account">
+                    {!myAddress && <div className="waper-account">
                         <a href="https://chrome.google.com/webstore/detail/empow-wallet/nlgnepoeokdfodgjkjiblkadkjbdfmgd" target="_blank" rel="noopener noreferrer">Install Empow Wallet</a>
                     </div>}
 
