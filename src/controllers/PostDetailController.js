@@ -124,6 +124,15 @@ class PostDetailController extends Component {
         this.action(tx)
     }
 
+    onFollow = (address, follow) => {
+        if (follow === 'Unfollow') {
+            this.onUnfollow(address)
+            return;
+        }
+        const tx = window.empow.callABI("social.empow", "follow", [this.props.myAddress, address])
+        this.action(tx)
+    }
+
     onLikePost = async (post) => {
         if (!this.props.myAddress) {
             return;
@@ -180,6 +189,7 @@ class PostDetailController extends Component {
         var accountInfoSharePost = this.state.accountInfoSharePost
         var address = value.address || {}
         var profile = accountInfoSharePost && accountInfoSharePost.profile ? accountInfoSharePost.profile : []
+        var follow = Utils.renderFollow(value.author, this.props.listFollow)
         return (
             <div className="overlay">
                 <div className="waper">
@@ -214,7 +224,7 @@ class PostDetailController extends Component {
                                     </div>
                                 </div>
                                 {(this.props.myAddress && value.author !== this.props.myAddress) && <div>
-                                    <button className="btn-general-2" onClick={() => this.onFollow(value.author)}>{Utils.renderFollow(value.author, this.props.listFollow)}</button>
+                                    <button className="btn-general-2" onClick={() => this.onFollow(value.author, follow)}>{follow}</button>
                                 </div>}
                             </div>
 
@@ -259,6 +269,7 @@ class PostDetailController extends Component {
         var comment = postDetail.comment || []
         var address = postDetail.address || {}
         var pro5 = address.profile || {}
+        var follow = Utils.renderFollow(postDetail.author, this.props.listFollow)
 
         return (
             <div className="post-detail">
@@ -277,7 +288,7 @@ class PostDetailController extends Component {
                     </div>
 
                     {(this.props.myAddress && postDetail.author !== this.props.myAddress) && <div>
-                        <button className="btn-general-2" onClick={() => this.onFollow(postDetail.author)}>{Utils.renderFollow(postDetail.author, this.props.listFollow)}</button>
+                        <button className="btn-general-2" onClick={() => this.onFollow(postDetail.author, follow)}>{follow}</button>
                     </div>}
                 </div>
 

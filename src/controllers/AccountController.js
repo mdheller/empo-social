@@ -149,8 +149,17 @@ class AccountController extends Component {
         this.action(tx);
     }
 
-    onFollow = (address) => {
+    onFollow = (address, follow) => {
+        if (follow === 'Unfollow') {
+            this.onUnfollow(address)
+            return;
+        }
         const tx = window.empow.callABI("social.empow", "follow", [this.props.myAddress, address])
+        this.action(tx)
+    }
+
+    onUnfollow = (address) => {
+        const tx = window.empow.callABI("social.empow", "unfollow", [this.props.myAddress, address])
         this.action(tx)
     }
 
@@ -187,6 +196,7 @@ class AccountController extends Component {
     renderInfo() {
         var { addressAccount, follow, follower, totalMoney, accountInfo } = this.state
         var profile = accountInfo.profile || {}
+        var follow = Utils.renderFollow(addressAccount, this.props.listFollow)
         return (
             <div className="waper-info">
                 <div className="waper-cover">
@@ -202,7 +212,7 @@ class AccountController extends Component {
                         <img src={Fb} alt="photos"></img>
                         <img src={Noti} alt="photos"></img>
                         {(this.props.myAddress && addressAccount !== this.props.myAddress) && <div>
-                            <button className="btn-general-2" onClick={() => this.onFollow(addressAccount)}>{Utils.renderFollow(addressAccount, this.props.listFollow)}</button>
+                            <button className="btn-general-2" onClick={() => this.onFollow(addressAccount, follow)}>{follow}</button>
                         </div>}
                     </div>
                 </div>
@@ -225,6 +235,7 @@ class AccountController extends Component {
         var { data } = this.state
         var { myAccountInfo } = this.props
         var myProfile = myAccountInfo.profile || {}
+        
 
         return (
             <ul className="waper-data">
@@ -343,6 +354,7 @@ class AccountController extends Component {
         var accountInfoSharePost = this.state.accountInfoSharePost
         var address = value.address || {}
         var profile = accountInfoSharePost && accountInfoSharePost.profile ? accountInfoSharePost.profile : []
+        var follow = Utils.renderFollow(value.author, this.props.listFollow)
         return (
             <div className="overlay">
                 <div className="waper">
@@ -377,7 +389,7 @@ class AccountController extends Component {
                                     </div>
                                 </div>
                                 {(this.props.myAddress && value.author !== this.props.myAddress) && <div>
-                                    <button className="btn-general-2" onClick={() => this.onFollow(value.author)}>{Utils.renderFollow(value.author, this.props.listFollow)}</button>
+                                    <button className="btn-general-2" onClick={() => this.onFollow(value.author, follow)}>{follow}</button>
                                 </div>}
                             </div>
 
