@@ -242,7 +242,7 @@ class HomeController extends Component {
                     city: country.city
                 }
 
-                const tx = window.empow.callABI("social.empow", "post", [this.props.myAddress, status, content, tag])
+                const tx = window.empow.callABI("social.empow", "post", [_self.props.myAddress, status, content, tag])
                 _self.action(tx)
 
 
@@ -257,7 +257,8 @@ class HomeController extends Component {
             status: '',
             file: false,
             sharePostInfo: false,
-            statusShare: ''
+            statusShare: '',
+            tags: []
         })
     }
 
@@ -402,7 +403,6 @@ class HomeController extends Component {
     renderStatus() {
         var { myAccountInfo } = this.props;
         var profile = myAccountInfo.profile || {}
-        console.log(profile)
         return (
             <div className="post" style={{ backgroundColor: this.state.color ? this.state.color : '' }}>
                 <div style={{ flex: 0.1 }}>
