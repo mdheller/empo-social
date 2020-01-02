@@ -164,9 +164,10 @@ class RightNavbar extends Component {
                                         </div>
                                     </div>
                                 </div>
-                                <div>
-                                    <button className="btn-general-2" onClick={() => this.onFollow(value.author)}>Follow</button>
-                                </div>
+
+                                {value.author !== this.props.myAddress && <div>
+                                    <button className="btn-general-2" onClick={() => this.onFollow(value.author)}>{Utils.renderFollow(value.author, this.props.listFollow)}</button>
+                                </div>}
                             </div>
 
                             <div className="content">
@@ -233,6 +234,7 @@ class RightNavbar extends Component {
 
 export default connect(state => ({
     myAddress: state.app.myAddress,
-    myAccountInfo: state.app.myAccountInfo
+    myAccountInfo: state.app.myAccountInfo,
+    listFollow: state.app.listFollow
 }), ({
 }))(RightNavbar)

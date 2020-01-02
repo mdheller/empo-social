@@ -57,6 +57,18 @@ const Utils = {
         }
 
         return 'New members'
+    },
+
+    renderFollow(address, listFollow) {
+        if (!listFollow) {
+            return 'Follow'
+        }
+        var data = listFollow.find(x => x.target === address)
+        if (data) {
+            return 'Unfollow';
+        }
+
+        return 'Follow'
     }
 }
 

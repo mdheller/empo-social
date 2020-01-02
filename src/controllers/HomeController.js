@@ -41,8 +41,6 @@ class HomeController extends Component {
             showShare: false,
             sharePostInfo: false,
             statusShare: '',
-            showError: false,
-            showSuccess: false,
             tags: [],
             accountInfoSharePost: false
         };
@@ -187,21 +185,18 @@ class HomeController extends Component {
 
         handler.on("failed", (error) => {
             console.log(error)
-            this.setState({
-                showError: error.toString()
-            })
         })
 
         handler.on("success", (res) => {
             console.log(res)
             this.resetContent()
-            this.setState({
-                showSuccess: res.toString()
-            })
         })
     }
 
     onLikePost = async (post) => {
+        if (!this.props.myAddress) {
+            return;
+        }
         const tx = window.empow.callABI("social.empow", "like", [this.props.myAddress, post.postId])
         this.action(tx);
     }
@@ -351,7 +346,6 @@ class HomeController extends Component {
                                 placeholder="Add comment"
                                 style={{ backgroundColor: this.state.color ? this.state.color : '' }}></textarea>
                         </div>
-
                         <div className="group2 scroll">
                             <div className="info">
                                 <div className="group">
@@ -367,9 +361,9 @@ class HomeController extends Component {
                                         </div>
                                     </div>
                                 </div>
-                                <div>
-                                    <button className="btn-general-2" onClick={() => this.onFollow(value.author)}>Follow</button>
-                                </div>
+                                {(this.props.myAddress && value.author !== this.props.myAddress) && <div>
+                                    <button className="btn-general-2" onClick={() => this.onFollow(value.author)}>{Utils.renderFollow(value.author, this.props.listFollow)}</button>
+                                </div>}
                             </div>
 
                             <div className="content">
@@ -399,32 +393,6 @@ class HomeController extends Component {
                             </div>
                         </div>
 
-                    </div>
-                </div>
-            </div>
-        )
-    }
-
-    renderError() {
-        return (
-            <div className="overlay">
-                <div className="waper">
-                    <div className="dark-range" onClick={() => { this.setState({ showError: false }) }}></div>
-                    <div className="error">
-                        <p>{this.state.showError}</p>
-                    </div>
-                </div>
-            </div>
-        )
-    }
-
-    renderSuccess() {
-        return (
-            <div className="overlay">
-                <div className="waper">
-                    <div className="dark-range" onClick={() => { this.setState({ showSuccess: false }) }}></div>
-                    <div className="error">
-                        <p>{this.state.showSuccess}</p>
                     </div>
                 </div>
             </div>
@@ -478,13 +446,14 @@ class HomeController extends Component {
     renderPost() {
         var { myAccountInfo } = this.props;
         var profile = myAccountInfo.profile || {}
+
         return (
             <ul>
                 {this.state.data.map((value, index) => {
                     var comment = value.comment || []
                     var address = value.address || {}
                     var pro55 = address.profile || {}
-                    
+
                     return (
                         <li className="post-detail" style={{ marginBottom: '50px' }}>
                             <div className="info">
@@ -500,9 +469,9 @@ class HomeController extends Component {
                                         </div>
                                     </div>
                                 </div>
-                                <div>
-                                    <button className="btn-general-2" onClick={() => this.onFollow(value.author)}>Follow</button>
-                                </div>
+                                {value.author !== this.props.myAddress && <div>
+                                    <button className="btn-general-2" onClick={() => this.onFollow(value.author)}>{Utils.renderFollow(value.author, this.props.listFollow)}</button>
+                                </div>}
                             </div>
 
                             <div className="content">
@@ -534,14 +503,13 @@ class HomeController extends Component {
 
                             </div>
 
-                            <div style={{ display: 'flex', paddingLeft: '20px', paddingRight: '20px' }}>
+                            {this.props.myAddress && <div style={{ display: 'flex', paddingLeft: '20px', paddingRight: '20px' }}>
                                 <div>
                                     <img src={profile.avatar ? profile.avatar : Avatar} alt="photos" style={{ width: '40px', height: '40px', borderRadius: '50%' }}></img>
                                 </div>
                                 <div className="waper-cmt">
                                     <input value={value.commentText}
                                         placeholder="Coment"
-                                        disabled={window.empow ? false : true}
                                         onChange={(e) => this.handleChangeTextComment(e, index)}
                                         onKeyDown={(e) => this.handleKeyDownComment(e, value)}></input>
                                     <div>
@@ -550,7 +518,7 @@ class HomeController extends Component {
                                         <img src={Icon} alt="photos"></img>
                                     </div>
                                 </div>
-                            </div>
+                            </div>}
                             <ul className="coment scroll">
                                 {comment.map((detail, indexx) => {
                                     var addressComment = detail.address || [];
@@ -579,14 +547,13 @@ class HomeController extends Component {
                                                 <p onClick={() => this.onClickReply(index, indexx)} style={{ cursor: 'pointer' }}>Reply</p>
                                             </div>
 
-                                            {detail.showReply && <div style={{ display: 'flex', paddingLeft: '20px', paddingRight: '20px' }}>
+                                            {(this.props.myAddress && detail.showReply) && <div style={{ display: 'flex', paddingLeft: '20px', paddingRight: '20px' }}>
                                                 <div>
                                                     <img src={profile.avatar ? profile.avatar : Avatar} alt="photos" style={{ width: '40px', height: '40px', borderRadius: '50%' }}></img>
                                                 </div>
                                                 <div className="waper-cmt">
                                                     <input value={detail.replyText}
                                                         placeholder="Coment"
-                                                        disabled={window.empow ? false : true}
                                                         onChange={(e) => this.handleChangeTextReply(e, indexx, index)}
                                                         onKeyDown={(e) => this.handleKeyDownReply(e, detail)}></input>
                                                     <div>
@@ -617,11 +584,9 @@ class HomeController extends Component {
                 <div className="container wrapper" style={{ marginTop: '20px' }}>
                     <Navbar></Navbar>
                     <div id="home">
-                        {window.empow && this.renderStatus()}
+                        {this.props.myAddress && this.renderStatus()}
                         {this.renderPost()}
-                        {(this.state.showShare && this.state.sharePostInfo) && this.renderSharePost()}
-                        {this.state.showError && this.renderError()}
-                        {this.state.showSuccess && this.renderSuccess()}
+                        {(this.state.showShare && this.state.sharePostInfo && this.props.myAddress) && this.renderSharePost()}
                     </div>
                     <RightNavbar></RightNavbar>
                 </div>
@@ -632,6 +597,7 @@ class HomeController extends Component {
 
 export default connect(state => ({
     myAddress: state.app.myAddress,
-    myAccountInfo: state.app.myAccountInfo
+    myAccountInfo: state.app.myAccountInfo,
+    listFollow: state.app.listFollow
 }), ({
 }))(HomeController)

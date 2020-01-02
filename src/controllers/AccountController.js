@@ -16,6 +16,12 @@ import Icon from '../assets/images/Group 7447.svg'
 import Photo from '../assets/images/Path 953.svg'
 import Avatar3 from '../assets/images/avatar.svg'
 
+import Chart from '../assets/images/Group 599.svg'
+import Elip from '../assets/images/Ellipse 318.svg'
+import Plus from '../assets/images/Group 605.svg'
+import Delete from '../assets/images/Union 28.svg'
+import EmojiPicker from 'emoji-picker-react';
+
 import Utils from '../utils'
 import ServerAPI from '../ServerAPI';
 import { connect } from 'react-redux';
@@ -30,6 +36,10 @@ class AccountController extends Component {
             date: '30 thg 11, 2019',
             data: [],
             accountInfo: {},
+            showShare: false,
+            sharePostInfo: false,
+            statusShare: '',
+            accountInfoSharePost: false
         };
     };
 
@@ -58,6 +68,30 @@ class AccountController extends Component {
             follow,
             follower,
         })
+    }
+
+    togglePopup = async (post) => {
+        if (!this.state.showShare) {
+            var accountInfoSharePost = await ServerAPI.getAddress(post.author)
+
+            this.setState({
+                showShare: true,
+                sharePostInfo: post,
+                statusShare: '',
+                accountInfoSharePost
+            })
+        } else {
+            this.setState({
+                showShare: false,
+                sharePostInfo: false,
+                showEmoji: false,
+                color: false,
+                file: [],
+                status: '',
+                accountInfoSharePost: false
+            })
+        }
+
     }
 
     action = (tx) => {
@@ -97,6 +131,23 @@ class AccountController extends Component {
         window.location = '/post-detail/' + postId
     }
 
+    onLikePost = async (post) => {
+        if (!this.props.myAddress) {
+            return;
+        }
+        const tx = window.empow.callABI("social.empow", "like", [this.props.myAddress, post.postId])
+        this.action(tx);
+    }
+
+    upLoadPhoto = () => {
+        this.refs.fileUploader.click();
+    }
+
+    onSharePost = async () => {
+        var { sharePostInfo, statusShare } = this.state
+        const tx = window.empow.callABI("social.empow", "share", [this.props.myAddress, sharePostInfo.postId, statusShare])
+        this.action(tx);
+    }
 
     onFollow = (address) => {
         const tx = window.empow.callABI("social.empow", "follow", [this.props.myAddress, address])
@@ -150,7 +201,9 @@ class AccountController extends Component {
                         <img src={Mail} alt="photos"></img>
                         <img src={Fb} alt="photos"></img>
                         <img src={Noti} alt="photos"></img>
-                        <button className="btn-general-2" onClick={() => this.onFollow(addressAccount)}>Follow</button>
+                        {(this.props.myAddress && addressAccount !== this.props.myAddress) && <div>
+                            <button className="btn-general-2" onClick={() => this.onFollow(addressAccount)}>{Utils.renderFollow(addressAccount, this.props.listFollow)}</button>
+                        </div>}
                     </div>
                 </div>
                 <div className="group2">
@@ -192,7 +245,7 @@ class AccountController extends Component {
                             </div>
 
                             <div className="reaction">
-                                <div>
+                                <div onClick={() => this.onLikePost(value)}>
                                     <img src={Heart} alt="photos"></img>
                                     <p>{value.totalLike}</p>
                                 </div>
@@ -202,13 +255,13 @@ class AccountController extends Component {
                                     <p>{value.totalComment}</p>
                                 </div>
 
-                                <div>
+                                <div onClick={() => this.togglePopup(value)}>
                                     <img src={Upload} alt="photos"></img>
                                     <p>{value.totalReport}</p>
                                 </div>
                             </div>
 
-                            <div style={{ display: 'flex', paddingLeft: '20px', paddingRight: '20px' }}>
+                            {this.props.myAddress && <div style={{ display: 'flex', paddingLeft: '20px', paddingRight: '20px' }}>
                                 <div className="waper-avatar">
                                     <img src={myProfile.avatar ? myProfile.avatar : Avatar3} alt="photos"></img>
                                 </div>
@@ -216,7 +269,6 @@ class AccountController extends Component {
                                 <div className="waper-cmt">
                                     <input value={value.commentText}
                                         placeholder="Coment"
-                                        disabled={window.empow ? false : true}
                                         onChange={(e) => this.handleChangeTextComment(e, index)}
                                         onKeyDown={(e) => this.handleKeyDownComment(e, value)}></input>
                                     <div>
@@ -225,7 +277,7 @@ class AccountController extends Component {
                                         <img src={Icon} alt="photos"></img>
                                     </div>
                                 </div>
-                            </div>
+                            </div>}
 
                             <ul className="coment scroll">
                                 {comment.map((detail, indexx) => {
@@ -256,14 +308,13 @@ class AccountController extends Component {
                                                 <p onClick={() => this.onClickReply(index, indexx)} style={{ cursor: 'pointer' }}>Reply</p>
                                             </div>
 
-                                            {detail.showReply && <div style={{ display: 'flex', paddingLeft: '20px', paddingRight: '20px' }}>
+                                            {(this.props.myAddress && detail.showReply) && <div style={{ display: 'flex', paddingLeft: '20px', paddingRight: '20px' }}>
                                                 <div className="waper-avatar">
                                                     <img src={myProfile.avatar ? myProfile.avatar : Avatar3} alt="photos"></img>
                                                 </div>
                                                 <div className="waper-cmt">
                                                     <input value={detail.replyText}
                                                         placeholder="Coment"
-                                                        disabled={window.empow ? false : true}
                                                         onChange={(e) => this.handleChangeTextReply(e, indexx, index)}
                                                         onKeyDown={(e) => this.handleKeyDownReply(e, detail)}></input>
                                                     <div>
@@ -287,6 +338,82 @@ class AccountController extends Component {
         )
     }
 
+    renderSharePost() {
+        var value = this.state.sharePostInfo
+        var accountInfoSharePost = this.state.accountInfoSharePost
+        var address = value.address || {}
+        var profile = accountInfoSharePost && accountInfoSharePost.profile ? accountInfoSharePost.profile : []
+        return (
+            <div className="overlay">
+                <div className="waper">
+                    <div className="dark-range" onClick={() => this.togglePopup('showSend')}></div>
+                    <div className="share-post">
+                        <div className="group1">
+                            <p>Repost lại thông tin này</p>
+                            <img onClick={() => this.togglePopup('showSend')} src={Delete} alt="photos"></img>
+                        </div>
+
+                        <div>
+                            <textarea
+                                value={this.state.statusShare}
+                                onClick={() => { this.setState({ showMoreStatus: true }) }}
+                                onChange={this.handleChangeTextShare}
+                                placeholder="Add comment"
+                                style={{ backgroundColor: this.state.color ? this.state.color : '' }}></textarea>
+                        </div>
+                        <div className="group2 scroll">
+                            <div className="info">
+                                <div className="group">
+                                    <div style={{ marginRight: '10px' }} onClick={() => this.onClickAddress(value.author)} >
+                                        <img className="waper-ava" src={profile.avatar ? profile.avatar : Avatar} alt="photos"></img>
+                                    </div>
+                                    <div>
+                                        <p onClick={() => this.onClickAddress(value.author)} style={{ fontWeight: 'bold', fontSize: '20px' }}>{value.author.substr(0, 20) + '...'}</p>
+                                        <div className="title">
+                                            <p>Level: {Utils.convertLevel(address.level)}</p>
+                                            <img src={Offline} alt="photos"></img>
+                                            <p>{Utils.convertDate(value.time)}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                {(this.props.myAddress && value.author !== this.props.myAddress) && <div>
+                                    <button className="btn-general-2" onClick={() => this.onFollow(value.author)}>{Utils.renderFollow(value.author, this.props.listFollow)}</button>
+                                </div>}
+                            </div>
+
+                            <div className="content">
+                                <p>{value.title}</p>
+                                <img src={value.content.data} alt="photos"></img>
+                            </div>
+                        </div>
+                        <div className="waper-button">
+                            <div style={{ display: 'flex', alignItems: 'center' }}>
+                                <div onClick={() => this.upLoadPhoto()} style={{ display: 'flex', alignItems: 'center' }}>
+                                    <img src={Photo} alt="photos"></img>
+                                    <input type="file" id="file" ref="fileUploader" style={{ display: "none" }} onChange={(event) => this.handleChange(event)} />
+                                </div>
+                                <img src={Chart} alt="photos"></img>
+                                <img src={Gif} alt="photos"></img>
+                                <div className="waper-emoji">
+                                    <img onClick={() => { this.setState({ showEmoji: !this.state.showEmoji }) }} src={Icon} alt="photos"></img>
+                                    {this.state.showEmoji && <div className="emoji-icon">
+                                        <EmojiPicker onEmojiClick={this.onEmojiClick} />
+                                    </div>}
+                                </div>
+                            </div>
+                            <div style={{ justifyContent: 'center', display: 'flex' }}>
+                                <img src={Elip} alt="photos"></img>
+                                <img src={Plus} alt="photos"></img>
+                                <button className="btn-general-1" onClick={() => this.onSharePost()}>Post</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        )
+    }
+
     render() {
         return (
             <div>
@@ -296,18 +423,18 @@ class AccountController extends Component {
                     <div id="account">
                         {this.renderInfo()}
                         {this.renderPost()}
+                        {(this.state.showShare && this.state.sharePostInfo && this.props.myAddress) && this.renderSharePost()}
                     </div>
                     <RightNavbar></RightNavbar>
                 </div>
             </div>
         )
-
-
     }
 }
 
 export default connect(state => ({
     myAddress: state.app.myAddress,
-    myAccountInfo: state.app.myAccountInfo
+    myAccountInfo: state.app.myAccountInfo,
+    listFollow: state.app.listFollow
 }), ({
 }))(AccountController)
