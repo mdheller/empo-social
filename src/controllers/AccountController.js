@@ -15,7 +15,7 @@ import Gif from '../assets/images/Group 601.svg'
 import Icon from '../assets/images/Group 7447.svg'
 import Photo from '../assets/images/Path 953.svg'
 import Avatar3 from '../assets/images/avatar.svg'
-
+import Loading from '../assets/images/loading.svg'
 import Chart from '../assets/images/Group 599.svg'
 import Elip from '../assets/images/Ellipse 318.svg'
 import Plus from '../assets/images/Group 605.svg'
@@ -39,7 +39,9 @@ class AccountController extends Component {
             showShare: false,
             sharePostInfo: false,
             statusShare: '',
-            accountInfoSharePost: false
+            accountInfoSharePost: false,
+            isLoadingSharePost: false,
+            isLoadingFollow: false
         };
     };
 
@@ -102,18 +104,25 @@ class AccountController extends Component {
         handler.on("failed", (error) => {
             console.log(error)
             this.setState({
-                showError: error.toString()
+                isLoadingSharePost: false,
+                isLoadingFollow: false
             })
         })
 
         handler.on("success", (res) => {
             console.log(res)
-            this.setState({
-                showSuccess: res.toString()
-            })
+            this.resetContent()
         })
     }
 
+    resetContent = () => {
+        this.setState({
+            sharePostInfo: false,
+            statusShare: '',
+            isLoadingSharePost: false,
+            isLoadingFollow: false
+        })
+    }
 
     onClickAddress = (address) => {
         window.location = '/account/' + address
@@ -144,12 +153,20 @@ class AccountController extends Component {
     }
 
     onSharePost = async () => {
+        this.setState({
+            isLoadingSharePost: true
+        })
+
         var { sharePostInfo, statusShare } = this.state
         const tx = window.empow.callABI("social.empow", "share", [this.props.myAddress, sharePostInfo.postId, statusShare])
         this.action(tx);
     }
 
     onFollow = (address, follow) => {
+        this.setState({
+            isLoadingFollow: true
+        })
+
         if (follow === 'Unfollow') {
             this.onUnfollow(address)
             return;
@@ -194,9 +211,9 @@ class AccountController extends Component {
     }
 
     renderInfo() {
-        var { addressAccount, follow, follower, totalMoney, accountInfo } = this.state
+        var { addressAccount, follow, follower, totalMoney, accountInfo, isLoadingFollow } = this.state
         var profile = accountInfo.profile || {}
-        var follow = Utils.renderFollow(addressAccount, this.props.listFollow)
+        var followText = Utils.renderFollow(addressAccount, this.props.listFollow)
         return (
             <div className="waper-info">
                 <div className="waper-cover">
@@ -212,7 +229,10 @@ class AccountController extends Component {
                         <img src={Fb} alt="photos"></img>
                         <img src={Noti} alt="photos"></img>
                         {(this.props.myAddress && addressAccount !== this.props.myAddress) && <div>
-                            <button className="btn-general-2" onClick={() => this.onFollow(addressAccount, follow)}>{follow}</button>
+                            <button className={`btn-general-2 ${isLoadingFollow ? 'btn-loading' : ''}`} style={isLoadingFollow ? { backgroundColor: '#dd3468' } : {}} onClick={() => this.onFollow(addressAccount, followText)}>
+                                {isLoadingFollow && <img src={Loading} alt="photos"></img>}
+                                {!isLoadingFollow && <span>{follow}</span>}
+                            </button>
                         </div>}
                     </div>
                 </div>
@@ -235,7 +255,6 @@ class AccountController extends Component {
         var { data } = this.state
         var { myAccountInfo } = this.props
         var myProfile = myAccountInfo.profile || {}
-        
 
         return (
             <ul className="waper-data">
@@ -350,6 +369,7 @@ class AccountController extends Component {
     }
 
     renderSharePost() {
+        var {isLoadingFollow, isLoadingSharePost} =this.state
         var value = this.state.sharePostInfo
         var accountInfoSharePost = this.state.accountInfoSharePost
         var address = value.address || {}
@@ -389,7 +409,10 @@ class AccountController extends Component {
                                     </div>
                                 </div>
                                 {(this.props.myAddress && value.author !== this.props.myAddress) && <div>
-                                    <button className="btn-general-2" onClick={() => this.onFollow(value.author, follow)}>{follow}</button>
+                                    <button className={`btn-general-2 ${isLoadingFollow ? 'btn-loading' : ''}`} style={isLoadingFollow ? { backgroundColor: '#dd3468' } : {}} onClick={() => this.onFollow(value.author, follow)}>
+                                        {isLoadingFollow && <img src={Loading} alt="photos"></img>}
+                                        {!isLoadingFollow && <span>{follow}</span>}
+                                    </button>
                                 </div>}
                             </div>
 
@@ -416,7 +439,10 @@ class AccountController extends Component {
                             <div style={{ justifyContent: 'center', display: 'flex' }}>
                                 <img src={Elip} alt="photos"></img>
                                 <img src={Plus} alt="photos"></img>
-                                <button className="btn-general-1" onClick={() => this.onSharePost()}>Post</button>
+                                <button className={`btn-general-1 ${isLoadingSharePost ? 'btn-loading' : ''}`} onClick={() => this.onSharePost()}>
+                                    {isLoadingSharePost && <img src={Loading} alt="photos"></img>}
+                                    {!isLoadingSharePost && <span>Post</span>}
+                                </button>
                             </div>
                         </div>
 

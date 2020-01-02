@@ -17,7 +17,6 @@ import Offline from '../assets/images/Ellipse 311.svg'
 import Pre from '../assets/images/Group 678.svg'
 import Pluss from '../assets/images/Group 7448.svg'
 import EmojiPicker from 'emoji-picker-react';
-
 import ServerAPI from '../ServerAPI';
 import Utils from '../utils'
 import Buffer from 'buffer'
@@ -25,6 +24,7 @@ import ipfsAPI from 'ipfs-http-client'
 import tagsInput from 'tags-input'
 import $ from "jquery";
 import { connect } from 'react-redux';
+import Loading from '../assets/images/loading.svg'
 
 class HomeController extends Component {
 
@@ -42,7 +42,10 @@ class HomeController extends Component {
             sharePostInfo: false,
             statusShare: '',
             tags: [],
-            accountInfoSharePost: false
+            accountInfoSharePost: false,
+            isLoadingPost: false,
+            isLoadingSharePost: false,
+            isLoadingFollow: false
         };
     };
 
@@ -185,6 +188,11 @@ class HomeController extends Component {
 
         handler.on("failed", (error) => {
             console.log(error)
+            this.setState({
+                isLoadingPost: false,
+                isLoadingSharePost: false,
+                isLoadingFollow: false
+            })
         })
 
         handler.on("success", (res) => {
@@ -203,12 +211,19 @@ class HomeController extends Component {
 
 
     onSharePost = async () => {
+        this.setState({
+            isLoadingSharePost: true
+        })
         var { sharePostInfo, statusShare } = this.state
         const tx = window.empow.callABI("social.empow", "share", [this.props.myAddress, sharePostInfo.postId, statusShare])
         this.action(tx);
     }
 
     onPostStatus = async () => {
+        this.setState({
+            isLoadingPost: true
+        })
+
         const { status, country } = this.state
         const _self = this;
 
@@ -244,8 +259,6 @@ class HomeController extends Component {
 
                 const tx = window.empow.callABI("social.empow", "post", [_self.props.myAddress, status, content, tag])
                 _self.action(tx)
-
-
             })
         }
         const photo = document.getElementById("file");
@@ -258,7 +271,10 @@ class HomeController extends Component {
             file: false,
             sharePostInfo: false,
             statusShare: '',
-            tags: []
+            tags: [],
+            isLoadingPost: false,
+            isLoadingSharePost: false,
+            isLoadingFollow: false
         })
     }
 
@@ -280,6 +296,10 @@ class HomeController extends Component {
     }
 
     onFollow = (address, follow) => {
+        this.setState({
+            isLoadingFollow: true
+        })
+
         if (follow === 'Unfollow') {
             this.onUnfollow(address)
             return;
@@ -298,8 +318,6 @@ class HomeController extends Component {
     }
 
     renderMoreStatus() {
-
-
         return (
             <div className="waper-more-status">
                 <div className="waper-color">
@@ -334,6 +352,7 @@ class HomeController extends Component {
     }
 
     renderSharePost() {
+        var { isLoadingSharePost, isLoadingFollow } = this.state
         var value = this.state.sharePostInfo
         var accountInfoSharePost = this.state.accountInfoSharePost
         var address = value.address || {}
@@ -373,8 +392,12 @@ class HomeController extends Component {
                                     </div>
                                 </div>
                                 {(this.props.myAddress && value.author !== this.props.myAddress) && <div>
-                                    <button className="btn-general-2" onClick={() => this.onFollow(value.author, follow)}>{follow}</button>
+                                    <button className={`btn-general-2 ${isLoadingFollow ? 'btn-loading' : ''}`} style={isLoadingFollow ? { backgroundColor: '#dd3468' } : {}} onClick={() => this.onFollow(value.author, follow)}>
+                                        {isLoadingFollow && <img src={Loading} alt="photos"></img>}
+                                        {!isLoadingFollow && <span>{follow}</span>}
+                                    </button>
                                 </div>}
+
                             </div>
 
                             <div className="content">
@@ -400,7 +423,11 @@ class HomeController extends Component {
                             <div style={{ justifyContent: 'center', display: 'flex' }}>
                                 <img src={Elip} alt="photos"></img>
                                 <img src={Plus} alt="photos"></img>
-                                <button className="btn-general-1" onClick={() => this.onSharePost()}>Post</button>
+
+                                <button className={`btn-general-1 ${isLoadingSharePost ? 'btn-loading' : ''}`} onClick={() => this.onSharePost()}>
+                                    {isLoadingSharePost && <img src={Loading} alt="photos"></img>}
+                                    {!isLoadingSharePost && <span>Post</span>}
+                                </button>
                             </div>
                         </div>
 
@@ -412,6 +439,7 @@ class HomeController extends Component {
 
     renderStatus() {
         var { myAccountInfo } = this.props;
+        var { isLoadingPost } = this.state
         var profile = myAccountInfo.profile || {}
         return (
             <div className="post" style={{ backgroundColor: this.state.color ? this.state.color : '' }}>
@@ -445,7 +473,11 @@ class HomeController extends Component {
                         <div style={{ justifyContent: 'center', display: 'flex' }}>
                             <img src={Elip} alt="photos"></img>
                             <img src={Plus} alt="photos"></img>
-                            <button className="btn-general-1" onClick={() => this.onPostStatus()}>Post</button>
+
+                            <button className={`btn-general-1 ${isLoadingPost ? 'btn-loading' : ''}`} onClick={() => this.onPostStatus()}>
+                                {isLoadingPost && <img src={Loading} alt="photos"></img>}
+                                {!isLoadingPost && <span>Post</span>}
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -455,6 +487,7 @@ class HomeController extends Component {
 
     renderPost() {
         var { myAccountInfo } = this.props;
+        var { isLoadingFollow } = this.state
         var profile = myAccountInfo.profile || {}
 
         return (
@@ -480,7 +513,10 @@ class HomeController extends Component {
                                     </div>
                                 </div>
                                 {value.author !== this.props.myAddress && <div>
-                                    <button className="btn-general-2" onClick={() => this.onFollow(value.author, follow)}>{follow}</button>
+                                    <button className={`btn-general-2 ${isLoadingFollow ? 'btn-loading' : ''}`} style={isLoadingFollow ? { backgroundColor: '#dd3468' } : {}} onClick={() => this.onFollow(value.author, follow)}>
+                                        {isLoadingFollow && <img src={Loading} alt="photos"></img>}
+                                        {!isLoadingFollow && <span>{follow}</span>}
+                                    </button>
                                 </div>}
                             </div>
 

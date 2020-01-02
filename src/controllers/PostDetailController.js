@@ -20,7 +20,7 @@ import Elip from '../assets/images/Ellipse 318.svg'
 import Plus from '../assets/images/Group 605.svg'
 import Delete from '../assets/images/Union 28.svg'
 import EmojiPicker from 'emoji-picker-react';
-
+import Loading from '../assets/images/loading.svg'
 import { connect } from 'react-redux';
 
 class PostDetailController extends Component {
@@ -35,7 +35,9 @@ class PostDetailController extends Component {
             showShare: false,
             sharePostInfo: false,
             statusShare: '',
-            accountInfoSharePost: false
+            accountInfoSharePost: false,
+            isLoadingSharePost: false,
+            isLoadingFollow: false
         };
     };
 
@@ -102,29 +104,40 @@ class PostDetailController extends Component {
         handler.on("failed", (error) => {
             console.log(error)
             this.setState({
-                showError: error.toString()
+                isLoadingSharePost: false,
+                isLoadingFollow: false
             })
         })
 
         handler.on("success", (res) => {
             console.log(res)
             this.resetContent()
-            this.setState({
-                showSuccess: res.toString()
-            })
         })
     }
 
+
+    resetContent = () => {
+        this.setState({
+            sharePostInfo: false,
+            statusShare: '',
+            isLoadingSharePost: false,
+            isLoadingFollow: false
+        })
+    }
     onClickAddress = (address) => {
         window.location = '/account/' + address
     }
 
-    onFollow = (address) => {
-        const tx = window.empow.callABI("social.empow", "follow", [this.props.myAddress, address])
+    onUnfollow = (address) => {
+        const tx = window.empow.callABI("social.empow", "unfollow", [this.props.myAddress, address])
         this.action(tx)
     }
 
     onFollow = (address, follow) => {
+        this.setState({
+            isLoadingFollow: true
+        })
+
         if (follow === 'Unfollow') {
             this.onUnfollow(address)
             return;
@@ -151,6 +164,10 @@ class PostDetailController extends Component {
 
 
     onSharePost = async () => {
+        this.setState({
+            isLoadingSharePost: true
+        })
+
         var { sharePostInfo, statusShare } = this.state
         const tx = window.empow.callABI("social.empow", "share", [this.props.myAddress, sharePostInfo.postId, statusShare])
         this.action(tx);
@@ -185,6 +202,7 @@ class PostDetailController extends Component {
     }
 
     renderSharePost() {
+        var { isLoadingFollow, isLoadingSharePost } = this.state
         var value = this.state.sharePostInfo
         var accountInfoSharePost = this.state.accountInfoSharePost
         var address = value.address || {}
@@ -224,7 +242,10 @@ class PostDetailController extends Component {
                                     </div>
                                 </div>
                                 {(this.props.myAddress && value.author !== this.props.myAddress) && <div>
-                                    <button className="btn-general-2" onClick={() => this.onFollow(value.author, follow)}>{follow}</button>
+                                    <button className={`btn-general-2 ${isLoadingFollow ? 'btn-loading' : ''}`} style={isLoadingFollow ? { backgroundColor: '#dd3468' } : {}} onClick={() => this.onFollow(value.author, follow)}>
+                                        {isLoadingFollow && <img src={Loading} alt="photos"></img>}
+                                        {!isLoadingFollow && <span>{follow}</span>}
+                                    </button>
                                 </div>}
                             </div>
 
@@ -251,7 +272,10 @@ class PostDetailController extends Component {
                             <div style={{ justifyContent: 'center', display: 'flex' }}>
                                 <img src={Elip} alt="photos"></img>
                                 <img src={Plus} alt="photos"></img>
-                                <button className="btn-general-1" onClick={() => this.onSharePost()}>Post</button>
+                                <button className={`btn-general-1 ${isLoadingSharePost ? 'btn-loading' : ''}`} onClick={() => this.onSharePost()}>
+                                    {isLoadingSharePost && <img src={Loading} alt="photos"></img>}
+                                    {!isLoadingSharePost && <span>Post</span>}
+                                </button>
                             </div>
                         </div>
 
@@ -262,7 +286,7 @@ class PostDetailController extends Component {
     }
 
     renderPostDetail() {
-        var { postDetail } = this.state
+        var { postDetail, isLoadingFollow } = this.state
         var { myAccountInfo } = this.props;
 
         var profile = myAccountInfo.profile || {}
@@ -288,7 +312,10 @@ class PostDetailController extends Component {
                     </div>
 
                     {(this.props.myAddress && postDetail.author !== this.props.myAddress) && <div>
-                        <button className="btn-general-2" onClick={() => this.onFollow(postDetail.author, follow)}>{follow}</button>
+                        <button className={`btn-general-2 ${isLoadingFollow ? 'btn-loading' : ''}`} style={isLoadingFollow ? { backgroundColor: '#dd3468' } : {}} onClick={() => this.onFollow(postDetail.author, follow)}>
+                            {isLoadingFollow && <img src={Loading} alt="photos"></img>}
+                            {!isLoadingFollow && <span>{follow}</span>}
+                        </button>
                     </div>}
                 </div>
 

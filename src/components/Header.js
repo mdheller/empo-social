@@ -19,8 +19,8 @@ import {
 import Alert from 'react-s-alert';
 import 'react-s-alert/dist/s-alert-default.css';
 import 'react-s-alert/dist/s-alert-css-effects/slide.css';
-
-const socket = io('http://localhost:8000');
+import { SOCKET } from '../constants/index'
+const socket = io(SOCKET);
 
 class Header extends Component {
 

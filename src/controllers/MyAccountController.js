@@ -15,7 +15,7 @@ import Gif from '../assets/images/Group 601.svg'
 import Icon from '../assets/images/Group 7447.svg'
 import Photo from '../assets/images/Path 953.svg'
 import Avatar3 from '../assets/images/avatar.svg'
-
+import Loading from '../assets/images/loading.svg'
 import Chart from '../assets/images/Group 599.svg'
 import Elip from '../assets/images/Ellipse 318.svg'
 import Plus from '../assets/images/Group 605.svg'
@@ -43,7 +43,8 @@ class MyAccountController extends Component {
             showShare: false,
             sharePostInfo: false,
             statusShare: '',
-            accountInfoSharePost: false
+            accountInfoSharePost: false,
+            isLoadingSharePost: false,
         };
     };
 
@@ -104,15 +105,21 @@ class MyAccountController extends Component {
         handler.on("failed", (error) => {
             console.log(error)
             this.setState({
-                showError: error.toString()
+                isLoadingSharePost: false
             })
         })
 
         handler.on("success", (res) => {
             console.log(res)
-            this.setState({
-                showSuccess: res.toString()
-            })
+            this.resetContent()
+        })
+    }
+
+    resetContent = () => {
+        this.setState({
+            sharePostInfo: false,
+            statusShare: '',
+            isLoadingSharePost: false,
         })
     }
 
@@ -167,6 +174,9 @@ class MyAccountController extends Component {
 
 
     onSharePost = async () => {
+        this.setState({
+            isLoadingSharePost: true
+        })
         var { sharePostInfo, statusShare } = this.state
         const tx = window.empow.callABI("social.empow", "share", [this.props.myAddress, sharePostInfo.postId, statusShare])
         this.action(tx);
@@ -392,6 +402,7 @@ class MyAccountController extends Component {
     }
 
     renderSharePost() {
+        var { isLoadingSharePost } = this.state
         var value = this.state.sharePostInfo
         var accountInfoSharePost = this.state.accountInfoSharePost
         var address = value.address || {}
@@ -429,9 +440,6 @@ class MyAccountController extends Component {
                                         </div>
                                     </div>
                                 </div>
-                                {(this.props.myAddress && value.author !== this.props.myAddress) && <div>
-                                    <button className="btn-general-2" onClick={() => this.onFollow(value.author)}>{Utils.renderFollow(value.author, this.props.listFollow)}</button>
-                                </div>}
                             </div>
 
                             <div className="content">
@@ -457,7 +465,10 @@ class MyAccountController extends Component {
                             <div style={{ justifyContent: 'center', display: 'flex' }}>
                                 <img src={Elip} alt="photos"></img>
                                 <img src={Plus} alt="photos"></img>
-                                <button className="btn-general-1" onClick={() => this.onSharePost()}>Post</button>
+                                <button className={`btn-general-1 ${isLoadingSharePost ? 'btn-loading' : ''}`} onClick={() => this.onSharePost()}>
+                                    {isLoadingSharePost && <img src={Loading} alt="photos"></img>}
+                                    {!isLoadingSharePost && <span>Post</span>}
+                                </button>
                             </div>
                         </div>
 
