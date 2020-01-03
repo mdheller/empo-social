@@ -133,8 +133,6 @@ class SettingController extends Component {
         var { option, selectUsername } = this.state
         var { myAccountInfo } = this.props;
         var account = myAccountInfo.usename || []
-        console.log(selectUsername)
-        console.log(myAccountInfo)
         return (
             <div className="username">
                 <p className="title">Account</p>

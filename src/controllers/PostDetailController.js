@@ -15,10 +15,6 @@ import Upload from '../assets/images/Group 613.svg'
 import Photo from '../assets/images/Path 953.svg'
 import Gif from '../assets/images/Group 601.svg'
 import Icon from '../assets/images/Group 7447.svg'
-
-import Chart from '../assets/images/Group 599.svg'
-import Elip from '../assets/images/Ellipse 318.svg'
-import Plus from '../assets/images/Group 605.svg'
 import Delete from '../assets/images/Union 28.svg'
 import EmojiPicker from 'emoji-picker-react';
 import Loading from '../assets/images/loading.svg'
@@ -49,7 +45,7 @@ class PostDetailController extends Component {
             return;
         }
 
-        var postDetail = await ServerAPI.getPostDetailByPostId(postId)
+        var postDetail = await ServerAPI.getPostDetailByPostId(postId, this.props.myAddress)
         this.setState({
             postDetail,
         })
@@ -287,7 +283,6 @@ class PostDetailController extends Component {
         var address = postDetail.address || {}
         var pro5 = address.profile || {}
         var follow = Utils.renderFollow(postDetail.author, this.props.listFollow)
-        var isLiked = Utils.isLikedPost(postDetail.postId, this.props.listPostLiked)
         return (
             <div className="post-detail">
                 <div className="info">
@@ -323,12 +318,12 @@ class PostDetailController extends Component {
                 </div>
 
                 <div className="reaction">
-                    {!isLiked && <div onClick={() => this.onLikePost(postDetail)}>
+                    {!postDetail.isLiked && <div onClick={() => this.onLikePost(postDetail)}>
                         <img src={Heart} alt="photos"></img>
                         <p>{postDetail.totalLike}</p>
                     </div>}
 
-                    {isLiked && <div>
+                    {postDetail.isLiked && <div>
                         <img src={Heart2} alt="photos"></img>
                         <p>{postDetail.totalLike}</p>
                     </div>}
@@ -439,6 +434,5 @@ export default connect(state => ({
     myAddress: state.app.myAddress,
     myAccountInfo: state.app.myAccountInfo,
     listFollow: state.app.listFollow,
-    listPostLiked: state.app.listPostLiked
 }), ({
 }))(PostDetailController)

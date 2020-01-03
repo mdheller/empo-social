@@ -10,9 +10,9 @@ const ServerAPI = {
         })
     },
 
-    getNewFeed(page = 1, pageSize = 20) {
+    getNewFeed(myAddress, page = 1, pageSize = 20) {
         return new Promise ( (resolve,reject) => {
-            Axios.get(`${API_ENDPOINT}/getNewFeed?page=${page}&pageSize=${pageSize}`)
+            Axios.get(`${API_ENDPOINT}/getNewFeed?page=${page}&pageSize=${pageSize}&address=${myAddress}`)
             .then(res => (resolve(res.data)))
             .catch(error => (reject(error.response.data)))
         })
@@ -98,9 +98,9 @@ const ServerAPI = {
         })
     },
 
-    getPostDetailByPostId(postId) {
+    getPostDetailByPostId(postId, myAddress) {
         return new Promise ( (resolve,reject) => {
-            Axios.get(`${API_ENDPOINT}/getPostDetailByPostId/${postId}`)
+            Axios.get(`${API_ENDPOINT}/getPostDetailByPostId/${postId}?address=${myAddress}`)
             .then(res => (resolve(res.data)))
             .catch(error => (reject(error.response.data)))
         })
@@ -109,14 +109,6 @@ const ServerAPI = {
     getPostRightNavbar() {
         return new Promise ( (resolve,reject) => {
             Axios.get(`${API_ENDPOINT}/getPostRightNavbar`)
-            .then(res => (resolve(res.data)))
-            .catch(error => (reject(error.response.data)))
-        })
-    },
-
-    getPostLiked(address) {
-        return new Promise ( (resolve,reject) => {
-            Axios.get(`${API_ENDPOINT}/getPostLiked/${address}`)
             .then(res => (resolve(res.data)))
             .catch(error => (reject(error.response.data)))
         })

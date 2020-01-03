@@ -17,9 +17,6 @@ import Icon from '../assets/images/Group 7447.svg'
 import Photo from '../assets/images/Path 953.svg'
 import Avatar3 from '../assets/images/avatar.svg'
 import Loading from '../assets/images/loading.svg'
-import Chart from '../assets/images/Group 599.svg'
-import Elip from '../assets/images/Ellipse 318.svg'
-import Plus from '../assets/images/Group 605.svg'
 import Delete from '../assets/images/Union 28.svg'
 import EmojiPicker from 'emoji-picker-react';
 
@@ -292,7 +289,6 @@ class MyAccountController extends Component {
             <ul className="waper-data">
                 {data.map((value, index) => {
                     var comment = value.comment || [];
-                    var isLiked = Utils.isLikedPost(value.postId, this.props.listPostLiked)
                     return (
                         <li style={{ marginBottom: '50px' }}>
                             <div className="content">
@@ -308,12 +304,12 @@ class MyAccountController extends Component {
                             </div>
 
                             <div className="reaction">
-                                {!isLiked && <div onClick={() => this.onLikePost(value)}>
+                                {!value.isLiked && <div onClick={() => this.onLikePost(value)}>
                                     <img src={Heart} alt="photos"></img>
                                     <p>{value.totalLike}</p>
                                 </div>}
 
-                                {isLiked && <div>
+                                {value.isLiked && <div>
                                     <img src={Heart2} alt="photos"></img>
                                     <p>{value.totalLike}</p>
                                 </div>}
@@ -500,6 +496,5 @@ class MyAccountController extends Component {
 export default connect(state => ({
     myAddress: state.app.myAddress,
     myAccountInfo: state.app.myAccountInfo,
-    listPostLiked: state.app.listPostLiked
 }), ({
 }))(MyAccountController)

@@ -49,7 +49,7 @@ class HomeController extends Component {
     };
 
     async componentDidMount() {
-        var data = await ServerAPI.getNewFeed();
+        var data = await ServerAPI.getNewFeed(this.propsmyAddress);
         var country = await ServerAPI.getCountry()
         this.setState({
             data,
@@ -473,7 +473,7 @@ class HomeController extends Component {
     }
 
     renderPost() {
-        var { myAccountInfo, myAddress, listFollow, listPostLiked } = this.props;
+        var { myAccountInfo, myAddress, listFollow } = this.props;
         var { isLoadingFollow } = this.state
         var profile = myAccountInfo.profile || {}
 
@@ -484,7 +484,6 @@ class HomeController extends Component {
                     var address = value.address || {}
                     var pro55 = address.profile || {}
                     var follow = Utils.renderFollow(value.author, listFollow)
-                    var isLiked = Utils.isLikedPost(value.postId, listPostLiked)
                     return (
                         <li className="post-detail" style={{ marginBottom: '50px' }}>
                             <div className="info">
@@ -519,12 +518,12 @@ class HomeController extends Component {
                             </div>
 
                             <div className="reaction">
-                                {!isLiked && <div onClick={() => this.onLikePost(value)}>
+                                {!value.isLiked && <div onClick={() => this.onLikePost(value)}>
                                     <img src={Heart} alt="photos"></img>
                                     <p>{value.totalLike}</p>
                                 </div>}
 
-                                {isLiked && <div>
+                                {value.isLiked && <div>
                                     <img src={Heart2} alt="photos"></img>
                                     <p>{value.totalLike}</p>
                                 </div>}
@@ -638,6 +637,5 @@ export default connect(state => ({
     myAddress: state.app.myAddress,
     myAccountInfo: state.app.myAccountInfo,
     listFollow: state.app.listFollow,
-    listPostLiked: state.app.listPostLiked
 }), ({
 }))(HomeController)
