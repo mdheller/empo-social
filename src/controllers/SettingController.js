@@ -9,6 +9,10 @@ import Select from 'react-select'
 
 import { connect } from 'react-redux';
 
+import Alert from 'react-s-alert';
+import 'react-s-alert/dist/s-alert-default.css';
+import 'react-s-alert/dist/s-alert-css-effects/slide.css';
+
 class SettingController extends Component {
 
     constructor(props) {
@@ -120,7 +124,12 @@ class SettingController extends Component {
         // })
 
         handler.on("failed", (error) => {
-            console.log(error)
+            var msg = error.message.split("Error: ")
+
+            Alert.error(msg[2], {
+                position: 'bottom-left',
+                effect: 'slide',
+            });
         })
 
         handler.on("success", (res) => {

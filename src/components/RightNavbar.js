@@ -4,18 +4,16 @@ import Avatar2 from '../assets/images/21.svg'
 import Offline from '../assets/images/Ellipse 311.svg'
 import Coment from '../assets/images/Path 1968.svg'
 import Heart from '../assets/images/Heart.svg'
-import Dislike from '../assets/images/like (1).svg'
 import Share from '../assets/images/Group 779.svg'
-import Plus from '../assets/images/Group 7448.svg'
-import Upload from '../assets/images/Group 613.svg'
-import Photo from '../assets/images/Path 953.svg'
-import Gif from '../assets/images/Group 601.svg'
-import Icon from '../assets/images/Group 7447.svg'
 import Chat from '../components/Chat'
 
 import ServerAPI from '../ServerAPI';
 import { connect } from 'react-redux';
 import Utils from '../utils'
+
+import Alert from 'react-s-alert';
+import 'react-s-alert/dist/s-alert-default.css';
+import 'react-s-alert/dist/s-alert-css-effects/slide.css';
 
 class RightNavbar extends Component {
     constructor(props) {
@@ -104,10 +102,16 @@ class RightNavbar extends Component {
         // })
 
         handler.on("failed", (error) => {
-            console.log(error)
+            var msg = error.message.split("Error: ")
             this.setState({
-                showError: error.toString()
+                isLoadingSharePost: false,
+                isLoadingFollow: false
             })
+
+            Alert.error(msg[2], {
+                position: 'bottom-left',
+                effect: 'slide',
+            });
         })
 
         handler.on("success", (res) => {

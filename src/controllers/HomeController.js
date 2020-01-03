@@ -24,6 +24,9 @@ import tagsInput from 'tags-input'
 import $ from "jquery";
 import { connect } from 'react-redux';
 import Loading from '../assets/images/loading.svg'
+import Alert from 'react-s-alert';
+import 'react-s-alert/dist/s-alert-default.css';
+import 'react-s-alert/dist/s-alert-css-effects/slide.css';
 
 class HomeController extends Component {
 
@@ -186,12 +189,17 @@ class HomeController extends Component {
         // })
 
         handler.on("failed", (error) => {
-            console.log(error)
+            var msg = error.message.split("Error: ")
             this.setState({
                 isLoadingPost: false,
                 isLoadingSharePost: false,
                 isLoadingFollow: false
             })
+
+            Alert.error(msg[2], {
+                position: 'bottom-left',
+                effect: 'slide',
+            });
         })
 
         handler.on("success", (res) => {

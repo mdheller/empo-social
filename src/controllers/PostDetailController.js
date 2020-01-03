@@ -20,6 +20,10 @@ import EmojiPicker from 'emoji-picker-react';
 import Loading from '../assets/images/loading.svg'
 import { connect } from 'react-redux';
 
+import Alert from 'react-s-alert';
+import 'react-s-alert/dist/s-alert-default.css';
+import 'react-s-alert/dist/s-alert-css-effects/slide.css';
+
 class PostDetailController extends Component {
 
     constructor(props) {
@@ -99,11 +103,16 @@ class PostDetailController extends Component {
         // })
 
         handler.on("failed", (error) => {
-            console.log(error)
+            var msg = error.message.split("Error: ")
             this.setState({
                 isLoadingSharePost: false,
                 isLoadingFollow: false
             })
+
+            Alert.error(msg[2], {
+                position: 'bottom-left',
+                effect: 'slide',
+            });
         })
 
         handler.on("success", (res) => {
