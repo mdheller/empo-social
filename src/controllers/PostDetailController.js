@@ -234,7 +234,7 @@ class PostDetailController extends Component {
                                         <img className="waper-ava" src={profile.avatar ? profile.avatar : Avatar} alt="photos"></img>
                                     </div>
                                     <div>
-                                        <p onClick={() => this.onClickAddress(value.author)} style={{ fontWeight: 'bold', fontSize: '20px' }}>{value.author.substr(0, 20) + '...'}</p>
+                                        <p onClick={() => this.onClickAddress(value.author)} style={{ fontWeight: 'bold', fontSize: '20px' }}>{address.selected_username ? address.selected_username : value.author.substr(0, 20) + '...'}</p>
                                         <div className="title">
                                             <p>Level: {Utils.convertLevel(address.level)}</p>
                                             <img src={Offline} alt="photos"></img>
@@ -252,7 +252,7 @@ class PostDetailController extends Component {
 
                             <div className="content">
                                 <p>{value.title}</p>
-                                <img src={value.content.data} style={{width: '100%'}} alt="photos"></img>
+                                <img src={value.content.data} style={{ width: '100%' }} alt="photos"></img>
                             </div>
                         </div>
                         <div className="waper-button">
@@ -280,7 +280,7 @@ class PostDetailController extends Component {
 
     renderPostDetail() {
         var { postDetail, isLoadingFollow } = this.state
-        var { myAccountInfo } = this.props;
+        var { myAccountInfo, myAddress } = this.props;
 
         var profile = myAccountInfo.profile || {}
         var comment = postDetail.comment || []
@@ -296,7 +296,7 @@ class PostDetailController extends Component {
                             <img src={pro5.avatar ? pro5.avatar : Avatar} alt="photos" style={{ width: '40px', height: '40px', borderRadius: '50%' }}></img>
                         </div>
                         <div>
-                            <p onClick={() => this.onClickAddress(postDetail.author)} style={{ fontWeight: 'bold', fontSize: '20px', cursor: 'pointer' }}>{postDetail && postDetail.author ? postDetail.author.substr(0, 20) + '...' : ''}</p>
+                            <p onClick={() => this.onClickAddress(postDetail.author)} style={{ fontWeight: 'bold', fontSize: '20px', cursor: 'pointer' }}>{address.selected_username ? address.selected_username : (postDetail && postDetail.author ? postDetail.author.substr(0, 20) + '...' : '')}</p>
                             <div className="title">
                                 <p style={{ color: '#dd3468' }}>$ {postDetail.realLike}</p>
                                 <p>Level: {Utils.convertLevel(address.level)}</p>
@@ -304,7 +304,7 @@ class PostDetailController extends Component {
                         </div>
                     </div>
 
-                    {(this.props.myAddress && postDetail.author !== this.props.myAddress) && <div>
+                    {(myAddress && postDetail.author !== myAddress) && <div>
                         <button className={`btn-general-2 ${isLoadingFollow ? 'btn-loading' : ''}`} style={isLoadingFollow ? { backgroundColor: '#dd3468' } : {}} onClick={() => this.onFollow(postDetail.author, follow)}>
                             {isLoadingFollow && <img src={Loading} alt="photos"></img>}
                             {!isLoadingFollow && <span>{follow}</span>}
@@ -346,7 +346,7 @@ class PostDetailController extends Component {
 
                 </div>
 
-                {this.props.myAddress && <div style={{ display: 'flex', paddingLeft: '20px', paddingRight: '20px' }}>
+                {myAddress && <div style={{ display: 'flex', paddingLeft: '20px', paddingRight: '20px' }}>
                     <div>
                         <img src={profile.avatar ? profile.avatar : Avatar} style={{ width: '40px', height: '40px', borderRadius: '50%' }} alt="photos"></img>
                     </div>
@@ -374,7 +374,7 @@ class PostDetailController extends Component {
                                             <img src={pro5.avatar ? pro5.avatar : Avatar} alt="photos"></img>
                                         </div>
                                         <div>
-                                            <p onClick={() => this.onClickAddress(addressComment.address)} style={{ fontWeight: 'bold', cursor: 'pointer' }}>{addressComment.address}</p>
+                                            <p onClick={() => this.onClickAddress(addressComment.address)} style={{ fontWeight: 'bold', cursor: 'pointer' }}>{addressComment.selected_username ? addressComment.selected_username : addressComment.address}</p>
                                             <div className="title">
                                                 <p>Level: {Utils.convertLevel(addressComment.level)}</p>
                                                 <img src={Offline} alt="photos"></img>
@@ -390,7 +390,7 @@ class PostDetailController extends Component {
                                     <p onClick={() => this.onClickReply(indexx)} style={{ cursor: 'pointer' }}>Reply</p>
                                 </div>
 
-                                {(this.props.myAddress && detail.showReply) && <div style={{ display: 'flex', paddingLeft: '20px', paddingRight: '20px' }}>
+                                {(myAddress && detail.showReply) && <div style={{ display: 'flex', paddingLeft: '20px', paddingRight: '20px' }}>
                                     <div>
                                         <img src={profile.avatar ? profile.avatar : Avatar} style={{ width: '40px', height: '40px', borderRadius: '50%' }} alt="photos"></img>
                                     </div>

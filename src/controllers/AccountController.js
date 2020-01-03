@@ -234,7 +234,7 @@ class AccountController extends Component {
                     </div>
                 </div>
                 <div className="group2">
-                    <span>{addressAccount ? addressAccount.substr(0, 20) + '...' : ''}</span>
+                    <span>{addressAccount ? (accountInfo.selected_username ? accountInfo.selected_username : addressAccount.substr(0, 20) + '...') : ''}</span>
                     <p style={{ color: '#676f75', marginLeft: '20px' }}>Level: {Utils.convertLevel(accountInfo.level)}</p>
                 </div>
                 <div className="group2">
@@ -325,7 +325,7 @@ class AccountController extends Component {
                                                     </div>
 
                                                     <div>
-                                                        <p onClick={() => this.onClickAddress(addressComment.address)} style={{ fontWeight: 'bold', cursor: 'pointer' }}>{addressComment.address}</p>
+                                                        <p onClick={() => this.onClickAddress(addressComment.address)} style={{ fontWeight: 'bold', cursor: 'pointer' }}>{addressComment.selected_username ? addressComment.selected_username : addressComment.address}</p>
                                                         <div className="title">
                                                             <p>Level: {Utils.convertLevel(addressComment.level)}</p>
                                                             <img src={Offline} alt="photos"></img>
@@ -403,7 +403,7 @@ class AccountController extends Component {
                                         <img className="waper-ava" src={profile.avatar ? profile.avatar : Avatar} alt="photos"></img>
                                     </div>
                                     <div>
-                                        <p onClick={() => this.onClickAddress(value.author)} style={{ fontWeight: 'bold', fontSize: '20px' }}>{value.author.substr(0, 20) + '...'}</p>
+                                        <p onClick={() => this.onClickAddress(value.author)} style={{ fontWeight: 'bold', fontSize: '20px' }}>{value.selected_username ? value.selected_username : value.author.substr(0, 20) + '...'}</p>
                                         <div className="title">
                                             <p>Level: {Utils.convertLevel(address.level)}</p>
                                             <img src={Offline} alt="photos"></img>
@@ -421,7 +421,7 @@ class AccountController extends Component {
 
                             <div className="content">
                                 <p>{value.title}</p>
-                                <img src={value.content.data} alt="photos" style={{width: '100%'}}></img>
+                                <img src={value.content.data} alt="photos" style={{ width: '100%' }}></img>
                             </div>
                         </div>
                         <div className="waper-button">

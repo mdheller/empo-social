@@ -248,7 +248,7 @@ class MyAccountController extends Component {
 
     renderInfo() {
         var { follow, follower, totalMoney } = this.state
-        var { myAccountInfo } = this.props
+        var { myAccountInfo, myAddress } = this.props
         var profile = myAccountInfo.profile || {}
         return (
             <div className="waper-info">
@@ -269,7 +269,7 @@ class MyAccountController extends Component {
                     </div>
                 </div>
                 <div className="group2">
-                    <span>{this.props.myAddress ? this.props.myAddress.substr(0, 20) + '...' : ''}</span>
+                    <span>{myAccountInfo.selected_username ? myAccountInfo.selected_username : (myAddress ? myAddress.substr(0, 20) + '...' : '')}</span>
                     <p style={{ color: '#676f75', marginLeft: '20px' }}>Level: {Utils.convertLevel(myAccountInfo.level)}</p>
                 </div>
                 <div className="group2">
@@ -362,7 +362,7 @@ class MyAccountController extends Component {
                                                     </div>
 
                                                     <div>
-                                                        <p onClick={() => this.onClickAddress(addressComment.address)} style={{ fontWeight: 'bold', cursor: 'pointer' }}>{addressComment.address}</p>
+                                                        <p onClick={() => this.onClickAddress(addressComment.address)} style={{ fontWeight: 'bold', cursor: 'pointer' }}>{addressComment.selected_username ? addressComment.selected_username : addressComment.address}</p>
                                                         <div className="title">
                                                             <p>Level: {Utils.convertLevel(addressComment.level)}</p>
                                                             <img src={Offline} alt="photos"></img>
@@ -439,7 +439,7 @@ class MyAccountController extends Component {
                                         <img className="waper-ava" src={profile.avatar ? profile.avatar : Avatar} alt="photos"></img>
                                     </div>
                                     <div>
-                                        <p onClick={() => this.onClickAddress(value.author)} style={{ fontWeight: 'bold', fontSize: '20px' }}>{value.author.substr(0, 20) + '...'}</p>
+                                        <p onClick={() => this.onClickAddress(value.author)} style={{ fontWeight: 'bold', fontSize: '20px' }}>{address.selected_username ? address.selected_username : value.author.substr(0, 20) + '...'}</p>
                                         <div className="title">
                                             <p>Level: {Utils.convertLevel(address.level)}</p>
                                             <img src={Offline} alt="photos"></img>
@@ -451,7 +451,7 @@ class MyAccountController extends Component {
 
                             <div className="content">
                                 <p>{value.title}</p>
-                                <img src={value.content.data} style={{width: '100%'}} alt="photos"></img>
+                                <img src={value.content.data} style={{ width: '100%' }} alt="photos"></img>
                             </div>
                         </div>
                         <div className="waper-button">

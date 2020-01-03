@@ -6,8 +6,6 @@ import Photo from '../assets/images/Path 953.svg'
 import Chart from '../assets/images/Group 599.svg'
 import Gif from '../assets/images/Group 601.svg'
 import Icon from '../assets/images/Group 7447.svg'
-import Elip from '../assets/images/Ellipse 318.svg'
-import Plus from '../assets/images/Group 605.svg'
 import RightNavbar from '../components/RightNavbar';
 import Heart from '../assets/images/Heart.svg'
 import Heart2 from '../assets/images/Heart2.svg'
@@ -384,7 +382,7 @@ class HomeController extends Component {
                                         <img className="waper-ava" src={profile.avatar ? profile.avatar : Avatar} alt="photos"></img>
                                     </div>
                                     <div>
-                                        <p onClick={() => this.onClickAddress(value.author)} style={{ fontWeight: 'bold', fontSize: '20px' }}>{value.author.substr(0, 20) + '...'}</p>
+                                        <p onClick={() => this.onClickAddress(value.author)} style={{ fontWeight: 'bold', fontSize: '20px' }}>{address.selected_username ? address.selected_username : value.author.substr(0, 20) + '...'}</p>
                                         <div className="title">
                                             <p>Level: {Utils.convertLevel(address.level)}</p>
                                             <img src={Offline} alt="photos"></img>
@@ -403,7 +401,7 @@ class HomeController extends Component {
 
                             <div className="content">
                                 <p>{value.title}</p>
-                                <img src={value.content.data} style={{width: '100%'}} alt="photos"></img>
+                                <img src={value.content.data} style={{ width: '100%' }} alt="photos"></img>
                             </div>
                         </div>
                         <div className="waper-button">
@@ -475,7 +473,7 @@ class HomeController extends Component {
     }
 
     renderPost() {
-        var { myAccountInfo } = this.props;
+        var { myAccountInfo, myAddress, listFollow, listPostLiked } = this.props;
         var { isLoadingFollow } = this.state
         var profile = myAccountInfo.profile || {}
 
@@ -485,8 +483,8 @@ class HomeController extends Component {
                     var comment = value.comment || []
                     var address = value.address || {}
                     var pro55 = address.profile || {}
-                    var follow = Utils.renderFollow(value.author, this.props.listFollow)
-                    var isLiked = Utils.isLikedPost(value.postId, this.props.listPostLiked)
+                    var follow = Utils.renderFollow(value.author, listFollow)
+                    var isLiked = Utils.isLikedPost(value.postId, listPostLiked)
                     return (
                         <li className="post-detail" style={{ marginBottom: '50px' }}>
                             <div className="info">
@@ -495,14 +493,14 @@ class HomeController extends Component {
                                         <img src={pro55.avatar ? pro55.avatar : Avatar} alt="photos" style={{ width: '40px', height: '40px', borderRadius: '50%' }}></img>
                                     </div>
                                     <div>
-                                        <p onClick={() => this.onClickAddress(value.author)} style={{ fontWeight: 'bold', fontSize: '20px', cursor: 'pointer' }}>{value.author.substr(0, 20) + '...'}</p>
+                                        <p onClick={() => this.onClickAddress(value.author)} style={{ fontWeight: 'bold', fontSize: '20px', cursor: 'pointer' }}>{address.selected_username ? address.selected_username : value.author.substr(0, 20) + '...'}</p>
                                         <div className="title">
                                             <p style={{ color: '#dd3468' }}>$ {value.realLike}</p>
                                             <p>Level: {Utils.convertLevel(address.level)}</p>
                                         </div>
                                     </div>
                                 </div>
-                                {value.author !== this.props.myAddress && <div>
+                                {value.author !== myAddress && <div>
                                     <button className={`btn-general-2 ${isLoadingFollow ? 'btn-loading' : ''}`} style={isLoadingFollow ? { backgroundColor: '#dd3468' } : {}} onClick={() => this.onFollow(value.author, follow)}>
                                         {isLoadingFollow && <img src={Loading} alt="photos"></img>}
                                         {!isLoadingFollow && <span>{follow}</span>}
@@ -544,7 +542,7 @@ class HomeController extends Component {
 
                             </div>
 
-                            {this.props.myAddress && <div style={{ display: 'flex', paddingLeft: '20px', paddingRight: '20px' }}>
+                            {myAddress && <div style={{ display: 'flex', paddingLeft: '20px', paddingRight: '20px' }}>
                                 <div>
                                     <img src={profile.avatar ? profile.avatar : Avatar} alt="photos" style={{ width: '40px', height: '40px', borderRadius: '50%' }}></img>
                                 </div>
@@ -572,7 +570,7 @@ class HomeController extends Component {
                                                         <img src={pro5.avatar ? pro5.avatar : Avatar} alt="photos"></img>
                                                     </div>
                                                     <div>
-                                                        <p onClick={() => this.onClickAddress(addressComment.address)} style={{ fontWeight: 'bold', cursor: 'pointer' }}>{addressComment.address}</p>
+                                                        <p onClick={() => this.onClickAddress(addressComment.address)} style={{ fontWeight: 'bold', cursor: 'pointer' }}>{addressComment.selected_username ? addressComment.selected_username : addressComment.address}</p>
                                                         <div className="title">
                                                             <p>Level: {Utils.convertLevel(addressComment.level)}</p>
                                                             <img src={Offline} alt="photos"></img>
@@ -588,7 +586,7 @@ class HomeController extends Component {
                                                 <p onClick={() => this.onClickReply(index, indexx)} style={{ cursor: 'pointer' }}>Reply</p>
                                             </div>
 
-                                            {(this.props.myAddress && detail.showReply) && <div style={{ display: 'flex', paddingLeft: '20px', paddingRight: '20px' }}>
+                                            {(myAddress && detail.showReply) && <div style={{ display: 'flex', paddingLeft: '20px', paddingRight: '20px' }}>
                                                 <div>
                                                     <img src={profile.avatar ? profile.avatar : Avatar} alt="photos" style={{ width: '40px', height: '40px', borderRadius: '50%' }}></img>
                                                 </div>

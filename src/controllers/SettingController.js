@@ -7,6 +7,8 @@ import Twitt from '../assets/images/twitt.svg'
 import IconAva from '../assets/images/avatar.svg'
 import Select from 'react-select'
 
+import { connect } from 'react-redux';
+
 class SettingController extends Component {
 
     constructor(props) {
@@ -51,42 +53,99 @@ class SettingController extends Component {
                 { label: 'Han Quoc', value: 3 }
             ],
             defaultValue: { label: 'English', value: 1 },
-            option: 0
+            option: 0,
+            usernameText: '',
+            selectUsername: '',
         };
     };
 
-
+    componentDidMount() {
+        console.log(this.props.myAccountInfo)
+        this.setState({
+            selectUsername: this.props.myAccountInfo.selected_username || ''
+        })
+    }
     handleChangeSelect = (value) => {
         this.setState({
             defaultValue: value
         })
     }
 
-    onChangeCheckbox = (index) => {
-        var account = this.state.account;
-        for (let i = 0; i < account.length; i++) {
-            account[i].checked = false;
-        }
-
-        account[index].checked = true;
-
+    handleChangeUsernameText = (event) => {
         this.setState({
-            account
+            usernameText: event.target.value
+        });
+    }
+
+    onChangeCheckbox = (value) => {
+        this.setState({
+            selectUsername: value
         })
     }
 
+    onBuyUsername = () => {
+        var { option, usernameText } = this.state;
+        var { myAddress } = this.props
+
+        if (!myAddress) {
+            return;
+        }
+
+        if (option === 0) {
+            const tx = window.empow.callABI("auth.empow", "addNormalUsername", [myAddress, usernameText])
+
+            this.action(tx);
+        }
+
+        if (option === 1) {
+            const tx = window.empow.callABI("auth.empow", "addPremiumUsername", [myAddress, usernameText])
+
+            this.action(tx);
+        }
+    }
+
+    onSelectUsername = () => {
+        var { selectUsername } = this.state;
+        const tx = window.empow.callABI("auth.empow", "selectUsername", [selectUsername])
+        this.action(tx);
+    }
+
+    action = (tx) => {
+        tx.addApprove("*", "unlimited")
+
+        const handler = window.empow.signAndSend(tx)
+
+        // handler.on("pending", (hash) => {
+        //     addAlert("warning", `transaction on pending: ${hash}`)
+        // })
+
+        handler.on("failed", (error) => {
+            console.log(error)
+        })
+
+        handler.on("success", (res) => {
+            console.log(res)
+        })
+    }
+
+
     renderUsername() {
-        var { account, option } = this.state
+        var { option, selectUsername } = this.state
+        var { myAccountInfo } = this.props;
+        var account = myAccountInfo.usename || []
+        console.log(selectUsername)
+        console.log(myAccountInfo)
         return (
             <div className="username">
                 <p className="title">Account</p>
                 <ul>
                     {account.map((value, index) => {
+                        
                         return (
                             <li>
-                                <p>{value.name}</p>
+                                <p>{value}</p>
                                 <label className="checkbox">
-                                    <input type="radio" name="radio" checked={value.checked} onChange={() => this.onChangeCheckbox(index)} />
+                                    <input type="radio" name="radio" checked={(value === selectUsername || value === myAccountInfo.selected_username) ? true : false} onChange={() => this.onChangeCheckbox(value)} />
                                     <span className="checkmark"></span>
                                 </label>
                             </li>
@@ -94,28 +153,34 @@ class SettingController extends Component {
                     })}
                 </ul>
                 <div className="waper-button">
-                    <button className="btn-general-2">Save</button>
+                    <button className="btn-general-2" onClick={() => this.onSelectUsername()}>Save</button>
                 </div>
 
                 <div className="waper-option">
                     <button onClick={() => this.setState({ option: 0 })}
                         className={option === 0 ? "active" : ""}>Free</button>
                     <button onClick={() => this.setState({ option: 1 })}
-                        className={option === 1 ? "active" : ""}>1 USD</button>
-                    <button onClick={() => this.setState({ option: 2 })}
-                        className={option === 2 ? "active" : ""}>5 USD</button>
+                        className={option === 1 ? "active" : ""}>10 USD</button>
                 </div>
 
                 <div className="waper-input">
                     <p>Username</p>
-                    <input></input>
+                    {option === 0 && <div style={{ display: 'flex' }}>
+                        <span style={{ fontSize: '14px' }}>newbie.</span>
+                        <input value={this.state.usernameText}
+                            onChange={this.handleChangeUsernameText}></input>
+                    </div>}
+                    {option === 1 &&
+                        <input value={this.state.usernameText}
+                            onChange={this.handleChangeUsernameText}></input>
+                    }
                 </div>
 
                 <div className="waper-button">
-                    <button className="btn-general-2">Buy</button>
+                    <button className="btn-general-2" onClick={() => this.onBuyUsername()}>Buy</button>
                 </div>
 
-                <p style={{ color: 'red', marginLeft: '20px' }}>*Tài khoản này đã được mua, vui lòng chọn tài khoản khác</p>
+                {/* <p style={{ color: 'red', marginLeft: '20px' }}>*Tài khoản này đã được mua, vui lòng chọn tài khoản khác</p> */}
             </div>
 
         )
@@ -269,4 +334,8 @@ class SettingController extends Component {
     }
 }
 
-export default SettingController
+export default connect(state => ({
+    myAddress: state.app.myAddress,
+    myAccountInfo: state.app.myAccountInfo
+}), ({
+}))(SettingController)
