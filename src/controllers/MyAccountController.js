@@ -316,7 +316,7 @@ class MyAccountController extends Component {
                 </div>
                 <div className="group2">
                     <span>{myAccountInfo.selected_username ? myAccountInfo.selected_username : (myAddress ? myAddress.substr(0, 20) + '...' : '')}</span>
-                    <p style={{ color: '#676f75', marginLeft: '20px' }}>Level: {Utils.convertLevel(myAccountInfo.level)}</p>
+                    <p style={{ color: '#676f75', marginLeft: '20px' }}>{Utils.convertLevel(myAccountInfo.level)}</p>
                 </div>
                 <div className="group2">
                     <p style={{ color: '#dd3468' }}>$ {totalMoney}</p>
@@ -409,7 +409,7 @@ class MyAccountController extends Component {
                                                     <div>
                                                         <p onClick={() => this.onClickAddress(addressComment.address)} style={{ fontWeight: 'bold', cursor: 'pointer' }}>{addressComment.selected_username ? addressComment.selected_username : addressComment.address}</p>
                                                         <div className="title">
-                                                            <p>Level: {Utils.convertLevel(addressComment.level)}</p>
+                                                            <p>{Utils.convertLevel(addressComment.level)}</p>
                                                             <img src={Offline} alt="photos"></img>
                                                             <p>{Utils.convertDate(detail.time)} hour</p>
                                                         </div>
@@ -486,7 +486,7 @@ class MyAccountController extends Component {
                                     <div>
                                         <p onClick={() => this.onClickAddress(value.author)} style={{ fontWeight: 'bold', fontSize: '20px' }}>{address.selected_username ? address.selected_username : value.author.substr(0, 20) + '...'}</p>
                                         <div className="title">
-                                            <p>Level: {Utils.convertLevel(address.level)}</p>
+                                            <p>{Utils.convertLevel(address.level)}</p>
                                             <img src={Offline} alt="photos"></img>
                                             <p>{Utils.convertDate(value.time)}</p>
                                         </div>
