@@ -162,7 +162,7 @@ class RightNavbar extends Component {
                                     <div>
                                         <p onClick={() => this.onClickAddress(value.author)} style={{ fontWeight: 'bold', fontSize: '20px', cursor: 'pointer' }}>{value.author.substr(0, 15) + '...'}</p>
                                         <div className="title">
-                                            <p>Level: {Utils.convertLevel(value.level)}</p>
+                                            <p>{Utils.convertLevel(value.level)}</p>
                                             <img src={Offline} alt="photos"></img>
                                             <p>{Utils.convertDate(value.time)} hour</p>
                                         </div>
@@ -212,7 +212,7 @@ class RightNavbar extends Component {
             <div className="right-navbar">
                 {window.empow && <div className="waper-info">
                     <p>Balance: {accountInfo.balance} EM <span style={{ color: '#676f75', fontSize: '13px' }}>~ $0</span></p>
-                    <p>Level: {Utils.convertLevel(accountInfo.level)}</p>
+                    <p>{Utils.convertLevel(accountInfo.level)}</p>
                     <div className="group">
                         <div className="group">
                             <p>GAS</p>
