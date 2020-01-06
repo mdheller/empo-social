@@ -201,12 +201,8 @@ a {
             li {
                 margin-left: 30px;
                 font-size: 16px;
-                a {
-                    color: white;
-                }
-                a:hover {
-                    color: #ff6a7e;
-                }
+                color: white;
+                cursor: pointer;
             }
 
             .active {

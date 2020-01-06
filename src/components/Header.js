@@ -13,6 +13,7 @@ import { connect } from 'react-redux';
 import {
     setMyAddress,
     setMyAccountInfo,
+    setTypeNewFeed
 } from '../reducers/appReducer'
 
 import Alert from 'react-s-alert';
@@ -103,6 +104,10 @@ class Header extends Component {
         window.location = '/post-detail/' + noti.postId
     }
 
+    onChangeTypeNewFeed = (type) => {
+        this.props.setTypeNewFeed(type);
+    }
+
     renderNoti() {
         var { listNoti } = this.state
 
@@ -128,6 +133,7 @@ class Header extends Component {
 
     render() {
         var { myAccountInfo, myAddress } = this.state
+        var { typeNewFeed } = this.props
         var profile = myAccountInfo.profile || {}
 
         return (
@@ -146,8 +152,9 @@ class Header extends Component {
                             onKeyDown={this.handleKeyDownSearch}></input>
                     </div>
                     <ul className="menu">
-                        <li><a href="/trending">Trending</a></li>
-                        <li><a href="/follow">Follow</a></li>
+                        <li onClick={() => this.onChangeTypeNewFeed('trending')} style={typeNewFeed === 'trending' ? {color: '#ff6a7e'} : {}}>Trending</li>
+                        <li onClick={() => this.onChangeTypeNewFeed('follow')} style={typeNewFeed === 'follow' ? {color: '#ff6a7e'} : {}}>Follow</li>
+                        <li onClick={() => this.onChangeTypeNewFeed('all')} style={typeNewFeed === 'all' ? {color: '#ff6a7e'} : {}}>All</li>
                     </ul>
                     {myAddress && <div className="waper-account">
                         <a href="/my-account"><img src={profile.avatar ? profile.avatar : IconAva} alt="photos" className="waper-ava"></img></a>
@@ -171,7 +178,9 @@ class Header extends Component {
 
 
 export default connect(state => ({
+    typeNewFeed: state.app.typeNewFeed
 }), ({
     setMyAddress,
     setMyAccountInfo,
+    setTypeNewFeed
 }))(Header)

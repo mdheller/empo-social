@@ -51,17 +51,26 @@ class HomeController extends Component {
         };
     };
 
-    componentDidMount() {
-        if (!this.props.myAddress) {
-            var handle = setInterval(this.getData, 1000);
-            this.setState({
-                handle
-            })
-            return
+    // componentDidMount() {
+    //     if (!this.props.myAddress) {
+    //         var handle = setInterval(this.getData, 1000);
+    //         this.setState({
+    //             handle
+    //         })
+    //         return
+    //     }
+
+    //     this.getData()
+
+    // }
+
+    componentDidUpdate(pre) {
+        if (pre.myAddress === this.props.myAddress 
+            && pre.myAccountInfo === this.props.myAccountInfo
+            && pre.typeNewFeed === this.props.typeNewFeed) {
+            return;
         }
-
         this.getData()
-
     }
 
     getData = async () => {
@@ -69,9 +78,10 @@ class HomeController extends Component {
             return;
         }
 
-        clearInterval(this.state.handle)
+       // clearInterval(this.state.handle)
 
-        var data = await ServerAPI.getNewFeed(this.props.myAddress);
+        console.log(this.props.typeNewFeed)
+        var data = await ServerAPI.getNewFeed(this.props.myAddress, this.props.typeNewFeed);
         var country = await ServerAPI.getCountry()
         this.setState({
             data,
@@ -783,5 +793,6 @@ class HomeController extends Component {
 export default connect(state => ({
     myAddress: state.app.myAddress,
     myAccountInfo: state.app.myAccountInfo,
+    typeNewFeed: state.app.typeNewFeed
 }), ({
 }))(HomeController)
