@@ -276,7 +276,7 @@ class MyAccountController extends Component {
                 </div>
                 <div className="group2">
                     <span>{myAccountInfo.selected_username ? myAccountInfo.selected_username : (myAddress ? myAddress.substr(0, 20) + '...' : '')}</span>
-                    <p style={{ color: '#676f75', marginLeft: '20px' }}>Level: {Utils.convertLevel(myAccountInfo.level)}</p>
+                    <p style={{ color: '#676f75', marginLeft: '20px' }}>{Utils.convertLevel(myAccountInfo.level)}</p>
                 </div>
                 <div className="group2">
                     <p style={{ color: '#dd3468' }}>$ {totalMoney}</p>
