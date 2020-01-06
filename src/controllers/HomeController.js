@@ -51,8 +51,27 @@ class HomeController extends Component {
         };
     };
 
-    async componentDidMount() {
-        var data = await ServerAPI.getNewFeed(this.propsmyAddress);
+    componentDidMount() {
+        if (!this.props.myAddress) {
+            var handle = setInterval(this.getData, 1000);
+            this.setState({
+                handle
+            })
+            return
+        }
+
+        this.getData()
+
+    }
+
+    getData = async () => {
+        if (!this.props.myAddress) {
+            return;
+        }
+
+        clearInterval(this.state.handle)
+
+        var data = await ServerAPI.getNewFeed(this.props.myAddress);
         var country = await ServerAPI.getCountry()
         this.setState({
             data,
@@ -179,24 +198,22 @@ class HomeController extends Component {
 
     }
 
-    action = (tx) => {
+    action = (tx, actionName = false, data = false) => {
         tx.addApprove("*", "unlimited")
 
         const handler = window.empow.signAndSend(tx)
 
-        // handler.on("pending", (hash) => {
-        //     addAlert("warning", `transaction on pending: ${hash}`)
-        // })
-
         handler.on("failed", (error) => {
-            var msg = error.message.split("Error: ")
+            console.log(error)
+            var msg = error.message ? error.message.split("Error: ") : error.split('message":"')
+            var text = error.message ? msg[2] : msg[1]
             this.setState({
                 isLoadingPost: false,
                 isLoadingSharePost: false,
                 isLoadingFollow: false
             })
 
-            Alert.error(msg[2], {
+            Alert.error(text, {
                 position: 'bottom-left',
                 effect: 'slide',
             });
@@ -204,7 +221,18 @@ class HomeController extends Component {
 
         handler.on("success", (res) => {
             console.log(res)
-            this.resetContent()
+
+            if (!actionName) {
+                this.resetContent()
+            }
+
+            if (actionName === "like") {
+                this.onLikeSuccess(data)
+            }
+
+            if (actionName === "post") {
+                this.onPostSuccess(JSON.parse(res.transaction.tx_receipt.receipts[0].content)[0], data);
+            }
         })
     }
 
@@ -213,9 +241,25 @@ class HomeController extends Component {
             return;
         }
         const tx = window.empow.callABI("social.empow", "like", [this.props.myAddress, post.postId])
-        this.action(tx);
+        this.action(tx, 'like', post);
     }
 
+    onLikeSuccess = (post) => {
+        post.isLiked = true;
+        post.totalLike = post.totalLike + 1
+        var data = this.state.data;
+        for (let i = 0; i < data.length; i++) {
+            if (data[i].postId === post.postId) {
+                data[i] = post;
+                break;
+            }
+        }
+
+        this.setState({
+            data
+        })
+
+    }
 
     onSharePost = async () => {
         this.setState({
@@ -265,11 +309,35 @@ class HomeController extends Component {
                 }
 
                 const tx = window.empow.callABI("social.empow", "post", [_self.props.myAddress, status, content, tag])
-                _self.action(tx)
+                _self.action(tx, "post", content)
             })
         }
         const photo = document.getElementById("file");
         reader.readAsArrayBuffer(photo.files[0]); // Read Provided File
+    }
+
+    onPostSuccess = (postId, content) => {
+        var post = {
+            postId,
+            content,
+            realLike: 0,
+            title: this.state.status,
+            time: new Date().getTime() * 10 ** 6,
+            totalComment: 0,
+            totalCommentAndReply: 0,
+            totalLike: 0,
+            totalReport: 0,
+            showContent: true,
+            author: this.props.myAddress
+        }
+
+        var data = this.state.data;
+        data.unshift(post);
+        this.setState({
+            data
+        })
+
+        this.resetContent()
     }
 
     resetContent = () => {
@@ -565,7 +633,7 @@ class HomeController extends Component {
                                     </div>
                                 </div>
                             </div>}
-                            <ul className="coment scroll">
+                            {(comment && comment.length > 0) && <ul className="coment scroll">
                                 {comment.map((detail, indexx) => {
                                     var addressComment = detail.address || [];
                                     var pro5 = addressComment.profile || {}
@@ -614,7 +682,7 @@ class HomeController extends Component {
                                     )
                                 })}
 
-                            </ul>
+                            </ul>}
 
                         </li>
                     )

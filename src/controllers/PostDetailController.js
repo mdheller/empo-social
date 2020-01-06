@@ -93,14 +93,10 @@ class PostDetailController extends Component {
         }
     }
 
-    action = (tx) => {
+    action = (tx, actionName = false, data = false) => {
         tx.addApprove("*", "unlimited")
 
         const handler = window.empow.signAndSend(tx)
-
-        // handler.on("pending", (hash) => {
-        //     addAlert("warning", `transaction on pending: ${hash}`)
-        // })
 
         handler.on("failed", (error) => {
             var msg = error.message.split("Error: ")
@@ -118,6 +114,10 @@ class PostDetailController extends Component {
         handler.on("success", (res) => {
             console.log(res)
             this.resetContent()
+
+            if (actionName === "like") {
+                this.onLikeSuccess(data)
+            }
         })
     }
 
@@ -157,7 +157,17 @@ class PostDetailController extends Component {
             return;
         }
         const tx = window.empow.callABI("social.empow", "like", [this.props.myAddress, post.postId])
-        this.action(tx);
+        this.action(tx, 'like', post);
+    }
+
+    onLikeSuccess = (post) => {
+        post.isLiked = true;
+        post.totalLike = post.totalLike + 1
+       
+        this.setState({
+            postDetail: post
+        })
+
     }
 
     onClickReply = (indexx) => {

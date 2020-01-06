@@ -354,7 +354,7 @@ class MyAccountController extends Component {
                                 </div>
                             </div>
 
-                            <ul className="coment scroll">
+                            {(comment && comment.length > 0) && <ul className="coment scroll">
                                 {comment.map((detail, indexx) => {
                                     var addressComment = detail.address || [];
                                     var pro5 = addressComment.profile || {}
@@ -404,7 +404,7 @@ class MyAccountController extends Component {
                                     )
                                 })}
 
-                            </ul>
+                            </ul>}
 
                         </li>
                     )

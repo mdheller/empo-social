@@ -97,7 +97,7 @@ class AccountController extends Component {
 
     }
 
-    action = (tx) => {
+    action = (tx, actionName = false, data = false) => {
         tx.addApprove("*", "unlimited")
 
         const handler = window.empow.signAndSend(tx)
@@ -118,6 +118,10 @@ class AccountController extends Component {
         handler.on("success", (res) => {
             console.log(res)
             this.resetContent()
+
+            if (actionName === "like") {
+                this.onLikeSuccess(data)
+            }
         })
     }
 
@@ -151,7 +155,24 @@ class AccountController extends Component {
             return;
         }
         const tx = window.empow.callABI("social.empow", "like", [this.props.myAddress, post.postId])
-        this.action(tx);
+        this.action(tx, 'like', post);
+    }
+
+    onLikeSuccess = (post) => {
+        post.isLiked = true;
+        post.totalLike = post.totalLike + 1
+        var data = this.state.data;
+        for (let i = 0; i < data.length; i++) {
+            if (data[i].postId === post.postId) {
+                data[i] = post;
+                break;
+            }
+        }
+
+        this.setState({
+            data
+        })
+
     }
 
     onSharePost = async () => {
@@ -316,7 +337,7 @@ class AccountController extends Component {
                                 </div>
                             </div>}
 
-                            <ul className="coment scroll">
+                            {(comment && comment.length > 0) && <ul className="coment scroll">
                                 {comment.map((detail, indexx) => {
                                     var addressComment = detail.address || [];
                                     var pro5 = addressComment.profile || {}
@@ -366,7 +387,7 @@ class AccountController extends Component {
                                     )
                                 })}
 
-                            </ul>
+                            </ul>}
 
                         </li>
                     )

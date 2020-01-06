@@ -67,8 +67,8 @@ class RightNavbar extends Component {
 
         var data = await ServerAPI.getPostRightNavbar()
 
-        let gasPercent = accountInfo.gas_info.current_total / accountInfo.gas_info.limit * 100
-        let ramEMPercent = accountInfo.ram_info.available / accountInfo.ram_info.total * 100
+        let gasPercent = accountInfo.gas_info ? (accountInfo.gas_info.current_total / accountInfo.gas_info.limit * 1000) : 0
+        let ramEMPercent = accountInfo.ram_info ? (accountInfo.ram_info.available / accountInfo.ram_info.total * 100) : 0
 
         this.setState({
             gasPercent,
