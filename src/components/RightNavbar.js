@@ -67,7 +67,7 @@ class RightNavbar extends Component {
 
         var data = await ServerAPI.getPostRightNavbar()
 
-        let gasPercent = accountInfo.gas_info ? (accountInfo.gas_info.current_total / accountInfo.gas_info.limit * 1000) : 0
+        let gasPercent = accountInfo.gas_info ? (accountInfo.gas_info.current_total / accountInfo.gas_info.limit * 100) : 0
         let ramEMPercent = accountInfo.ram_info ? (accountInfo.ram_info.available / accountInfo.ram_info.total * 100) : 0
 
         this.setState({
@@ -168,10 +168,6 @@ class RightNavbar extends Component {
                                         </div>
                                     </div>
                                 </div>
-
-                                {value.author !== this.props.myAddress && <div>
-                                    <button className="btn-general-2" onClick={() => this.onFollow(value.author)}>{Utils.renderFollow(value.author, this.props.listFollow)}</button>
-                                </div>}
                             </div>
 
                             <div className="content">
@@ -239,6 +235,5 @@ class RightNavbar extends Component {
 export default connect(state => ({
     myAddress: state.app.myAddress,
     myAccountInfo: state.app.myAccountInfo,
-    listFollow: state.app.listFollow
 }), ({
 }))(RightNavbar)

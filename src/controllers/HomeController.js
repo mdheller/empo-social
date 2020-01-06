@@ -162,9 +162,40 @@ class HomeController extends Component {
 
     handleKeyDownComment = (e, post) => {
         if (e.key === 'Enter') {
+            var data = {
+                postId: post.postId,
+                content: post.commentText,
+            }
+
             const tx = window.empow.callABI("social.empow", "comment", [this.props.myAddress, post.postId.toString(), "comment", "0", post.commentText])
-            this.action(tx);
+            this.action(tx, "comment", data);
         }
+    }
+
+    onCommentSuccess = (commentId, obj) => {
+        const cmt = {
+            commentId: commentId,
+            postId: obj.postId,
+            address: this.props.myAccountInfo,
+            content: obj.content,
+            parentId: -1,
+            totalReply: 0,
+            type: "comment",
+            time: new Date().getTime() * 10 ** 6,
+        }
+
+        var data = this.state.data;
+        for (let i = 0; i < data.length; i++) {
+            if (data[i].postId === obj.postId) {
+                data[i].comment.unshift(cmt)
+                data[i].commentText = ''
+                break;
+            }
+        }
+
+        this.setState({
+            data
+        })
     }
 
     handleKeyDownReply = (e, comment) => {
@@ -232,6 +263,20 @@ class HomeController extends Component {
 
             if (actionName === "post") {
                 this.onPostSuccess(JSON.parse(res.transaction.tx_receipt.receipts[0].content)[0], data);
+            }
+
+            if (actionName === "follow") {
+                this.resetContent()
+                this.onFollowSuccess(data)
+            }
+
+            if (actionName === "unfollow") {
+                this.resetContent()
+                this.onUnfollowSuccess(data)
+            }
+
+            if (actionName === 'comment') {
+                this.onCommentSuccess(JSON.parse(res.transaction.tx_receipt.receipts[0].content)[1], data)
             }
         })
     }
@@ -380,12 +425,38 @@ class HomeController extends Component {
             return;
         }
         const tx = window.empow.callABI("social.empow", "follow", [this.props.myAddress, address])
-        this.action(tx)
+        this.action(tx, 'follow', address)
+    }
+
+    onFollowSuccess = (address) => {
+        var data = this.state.data
+        for (let i = 0; i < data.length; i++) {
+            if (data[i].author === address) {
+                data[i].isFollowed = true
+            }
+        }
+
+        this.setState({
+            data
+        })
     }
 
     onUnfollow = (address) => {
         const tx = window.empow.callABI("social.empow", "unfollow", [this.props.myAddress, address])
-        this.action(tx)
+        this.action(tx, 'unfollow', address)
+    }
+
+    onUnfollowSuccess = (address) => {
+        var data = this.state.data
+        for (let i = 0; i < data.length; i++) {
+            if (data[i].author === address) {
+                data[i].isFollowed = false
+            }
+        }
+
+        this.setState({
+            data
+        })
     }
 
     onClickTitle = (postId) => {
@@ -432,7 +503,7 @@ class HomeController extends Component {
         var accountInfoSharePost = this.state.accountInfoSharePost
         var address = value.address || {}
         var profile = accountInfoSharePost && accountInfoSharePost.profile ? accountInfoSharePost.profile : []
-        var follow = Utils.renderFollow(value.author, this.props.listFollow)
+        var follow = value.isFollowed ? 'Unfollow' : 'Follow'
         return (
             <div className="overlay">
                 <div className="waper">
@@ -549,7 +620,7 @@ class HomeController extends Component {
     }
 
     renderPost() {
-        var { myAccountInfo, myAddress, listFollow } = this.props;
+        var { myAccountInfo, myAddress } = this.props;
         var { isLoadingFollow } = this.state
         var profile = myAccountInfo.profile || {}
 
@@ -559,7 +630,7 @@ class HomeController extends Component {
                     var comment = value.comment || []
                     var address = value.address || {}
                     var pro55 = address.profile || {}
-                    var follow = Utils.renderFollow(value.author, listFollow)
+                    var follow = value.isFollowed ? 'Unfollow' : 'Follow'
                     return (
                         <li className="post-detail" style={{ marginBottom: '50px' }}>
                             <div className="info">
@@ -712,6 +783,5 @@ class HomeController extends Component {
 export default connect(state => ({
     myAddress: state.app.myAddress,
     myAccountInfo: state.app.myAccountInfo,
-    listFollow: state.app.listFollow,
 }), ({
 }))(HomeController)

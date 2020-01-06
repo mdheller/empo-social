@@ -71,10 +71,34 @@ class PostDetailController extends Component {
 
     handleKeyDownComment = (e) => {
         var { postId, textComment } = this.state
+
         if (e.key === 'Enter') {
             const tx = window.empow.callABI("social.empow", "comment", [this.props.myAddress, postId.toString(), "comment", "0", textComment])
-            this.action(tx);
+            this.action(tx, 'comment');
         }
+    }
+
+    onCommentSuccess = (commentId) => {
+        var { postId, textComment } = this.state
+
+        const cmt = {
+            commentId: commentId,
+            postId: postId,
+            address: this.props.myAccountInfo,
+            content: textComment,
+            parentId: -1,
+            totalReply: 0,
+            type: "comment",
+            time: new Date().getTime() * 10 ** 6,
+        }
+
+        var postDetail = this.state.postDetail;
+        postDetail.comment.unshift(cmt)
+        postDetail.commentText = ''
+
+        this.setState({
+            postDetail
+        })
     }
 
     handleChangeTextReply = (event, indexx) => {
@@ -118,6 +142,20 @@ class PostDetailController extends Component {
             if (actionName === "like") {
                 this.onLikeSuccess(data)
             }
+
+            if (actionName === "follow") {
+                this.resetContent()
+                this.onFollowSuccess()
+            }
+
+            if (actionName === "unfollow") {
+                this.resetContent()
+                this.onUnfollowSuccess()
+            }
+
+            if (actionName === 'comment') {
+                this.onCommentSuccess(JSON.parse(res.transaction.tx_receipt.receipts[0].content)[1])
+            }
         })
     }
 
@@ -136,7 +174,16 @@ class PostDetailController extends Component {
 
     onUnfollow = (address) => {
         const tx = window.empow.callABI("social.empow", "unfollow", [this.props.myAddress, address])
-        this.action(tx)
+        this.action(tx, 'unfollow')
+    }
+
+    onUnfollowSuccess = () => {
+        var postDetail = this.state.postDetail
+        postDetail.isFollowed = false
+
+        this.setState({
+            postDetail
+        })
     }
 
     onFollow = (address, follow) => {
@@ -149,7 +196,16 @@ class PostDetailController extends Component {
             return;
         }
         const tx = window.empow.callABI("social.empow", "follow", [this.props.myAddress, address])
-        this.action(tx)
+        this.action(tx, 'follow')
+    }
+
+    onFollowSuccess = (address) => {
+        var postDetail = this.state.postDetail
+        postDetail.isFollowed = true
+
+        this.setState({
+            postDetail
+        })
     }
 
     onLikePost = async (post) => {
@@ -163,7 +219,7 @@ class PostDetailController extends Component {
     onLikeSuccess = (post) => {
         post.isLiked = true;
         post.totalLike = post.totalLike + 1
-       
+
         this.setState({
             postDetail: post
         })
@@ -223,7 +279,7 @@ class PostDetailController extends Component {
         var accountInfoSharePost = this.state.accountInfoSharePost
         var address = value.address || {}
         var profile = accountInfoSharePost && accountInfoSharePost.profile ? accountInfoSharePost.profile : []
-        var follow = Utils.renderFollow(value.author, this.props.listFollow)
+        var follow = 'Follow'
         return (
             <div className="overlay">
                 <div className="waper">
@@ -301,7 +357,7 @@ class PostDetailController extends Component {
         var comment = postDetail.comment || []
         var address = postDetail.address || {}
         var pro5 = address.profile || {}
-        var follow = Utils.renderFollow(postDetail.author, this.props.listFollow)
+        var follow = postDetail.isFollowed ? 'Unfollow' : 'Follow'
         return (
             <div className="post-detail">
                 <div className="info">
@@ -452,6 +508,5 @@ class PostDetailController extends Component {
 export default connect(state => ({
     myAddress: state.app.myAddress,
     myAccountInfo: state.app.myAccountInfo,
-    listFollow: state.app.listFollow,
 }), ({
 }))(PostDetailController)

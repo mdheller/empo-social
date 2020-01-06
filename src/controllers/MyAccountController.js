@@ -99,7 +99,7 @@ class MyAccountController extends Component {
 
     }
 
-    action = (tx) => {
+    action = (tx, actionName = false, data = false) => {
         tx.addApprove("*", "unlimited")
 
         const handler = window.empow.signAndSend(tx)
@@ -119,6 +119,10 @@ class MyAccountController extends Component {
         handler.on("success", (res) => {
             console.log(res)
             this.resetContent()
+
+            if (actionName === 'comment') {
+                this.onCommentSuccess(JSON.parse(res.transaction.tx_receipt.receipts[0].content)[1], data)
+            }
         })
     }
 
@@ -131,9 +135,14 @@ class MyAccountController extends Component {
     }
 
     onUpdateProfile = async (index) => {
-        const { accountInfo } = this.state
-        const _self = this;
+        const { myAccountInfo, myAddress } = this.props
 
+        if (!myAccountInfo || !myAddress) {
+            return;
+        }
+
+        const _self = this;
+        const profile = myAccountInfo.profile || {}
         const reader = new FileReader();
         reader.onloadend = async function () {
             const ipfs = ipfsAPI({ host: 'ipfs.infura.io', port: '5001', protocol: 'https' })
@@ -150,11 +159,11 @@ class MyAccountController extends Component {
                 console.log(`Url --> ${url}`)
 
                 var info = {
-                    avatar: index === 1 ? url : accountInfo.profile.avatar,
-                    cover: index === 2 ? url : accountInfo.profile.cover
+                    avatar: index === 1 ? url : profile.avatar,
+                    cover: index === 2 ? url : profile.cover
                 }
 
-                const tx = window.empow.callABI("social.empow", "updateProfile", [this.props.myAddress, info])
+                const tx = window.empow.callABI("social.empow", "updateProfile", [myAddress, info])
                 _self.action(tx)
 
             })
@@ -224,9 +233,40 @@ class MyAccountController extends Component {
 
     handleKeyDownComment = (e, post) => {
         if (e.key === 'Enter') {
+            var data = {
+                postId: post.postId,
+                content: post.commentText,
+            }
+
             const tx = window.empow.callABI("social.empow", "comment", [this.props.myAddress, post.postId.toString(), "comment", "0", post.commentText])
-            this.action(tx);
+            this.action(tx, "comment", data);
         }
+    }
+
+    onCommentSuccess = (commentId, obj) => {
+        const cmt = {
+            commentId: commentId,
+            postId: obj.postId,
+            address: this.props.myAccountInfo,
+            content: obj.content,
+            parentId: -1,
+            totalReply: 0,
+            type: "comment",
+            time: new Date().getTime() * 10 ** 6,
+        }
+
+        var data = this.state.data;
+        for (let i = 0; i < data.length; i++) {
+            if (data[i].postId === obj.postId) {
+                data[i].comment.unshift(cmt)
+                data[i].commentText = ''
+                break;
+            }
+        }
+
+        this.setState({
+            data
+        })
     }
 
     handleChangeTextReply = (event, indexx, index) => {

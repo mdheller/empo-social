@@ -50,14 +50,6 @@ const ServerAPI = {
         })
     },
 
-    getListFollow(address) {
-        return new Promise ( (resolve,reject) => {
-            Axios.get(`${API_ENDPOINT}/getListFollow/${address}`)
-            .then(res => (resolve(res.data)))
-            .catch(error => (reject(error.response.data)))
-        })
-    },
-
     getAddressByKey(key, page = 1, pageSize = 20) {
         return new Promise ( (resolve,reject) => {
             Axios.get(`${API_ENDPOINT}/getAddressByKey/${key}?page=${page}&pageSize=${pageSize}`)
@@ -109,6 +101,14 @@ const ServerAPI = {
     getPostRightNavbar() {
         return new Promise ( (resolve,reject) => {
             Axios.get(`${API_ENDPOINT}/getPostRightNavbar`)
+            .then(res => (resolve(res.data)))
+            .catch(error => (reject(error.response.data)))
+        })
+    },
+
+    checkFollowed(address, target) {
+        return new Promise ( (resolve,reject) => {
+            Axios.get(`${API_ENDPOINT}/checkFollowed/${address}/${target}`)
             .then(res => (resolve(res.data)))
             .catch(error => (reject(error.response.data)))
         })

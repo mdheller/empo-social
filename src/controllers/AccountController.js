@@ -47,6 +47,7 @@ class AccountController extends Component {
     };
 
     async componentDidMount() {
+
         var addressAccount = this.props.match.params.address
 
         var accountInfo = await ServerAPI.getAddress(addressAccount)
@@ -55,6 +56,8 @@ class AccountController extends Component {
 
         var follow = await ServerAPI.getMyFollow(addressAccount);
         var follower = await ServerAPI.getMyFollower(addressAccount);
+
+        var isFollowed = await ServerAPI.checkFollowed(this.props.myAddress, addressAccount)
 
         var totalMoney = 0
         data.forEach(post => {
@@ -70,6 +73,7 @@ class AccountController extends Component {
             totalMoney,
             follow,
             follower,
+            isFollowed
         })
     }
 
@@ -121,6 +125,22 @@ class AccountController extends Component {
 
             if (actionName === "like") {
                 this.onLikeSuccess(data)
+            }
+
+            if (actionName === 'follow') {
+                this.setState({
+                    isFollowed: true
+                })
+            }
+
+            if (actionName === 'unfollow') {
+                this.setState({
+                    isFollowed: false
+                })
+            }
+
+            if (actionName === 'comment') {
+                this.onCommentSuccess(JSON.parse(res.transaction.tx_receipt.receipts[0].content)[1], data)
             }
         })
     }
@@ -195,12 +215,12 @@ class AccountController extends Component {
             return;
         }
         const tx = window.empow.callABI("social.empow", "follow", [this.props.myAddress, address])
-        this.action(tx)
+        this.action(tx, 'follow')
     }
 
     onUnfollow = (address) => {
         const tx = window.empow.callABI("social.empow", "unfollow", [this.props.myAddress, address])
-        this.action(tx)
+        this.action(tx, 'unfollow')
     }
 
     handleChangeTextComment = (event, index) => {
@@ -213,9 +233,40 @@ class AccountController extends Component {
 
     handleKeyDownComment = (e, post) => {
         if (e.key === 'Enter') {
+            var data = {
+                postId: post.postId,
+                content: post.commentText,
+            }
+
             const tx = window.empow.callABI("social.empow", "comment", [this.props.myAddress, post.postId.toString(), "comment", "0", post.commentText])
-            this.action(tx);
+            this.action(tx, "comment", data);
         }
+    }
+
+    onCommentSuccess = (commentId, obj) => {
+        const cmt = {
+            commentId: commentId,
+            postId: obj.postId,
+            address: this.props.myAccountInfo,
+            content: obj.content,
+            parentId: -1,
+            totalReply: 0,
+            type: "comment",
+            time: new Date().getTime() * 10 ** 6,
+        }
+
+        var data = this.state.data;
+        for (let i = 0; i < data.length; i++) {
+            if (data[i].postId === obj.postId) {
+                data[i].comment.unshift(cmt)
+                data[i].commentText = ''
+                break;
+            }
+        }
+
+        this.setState({
+            data
+        })
     }
 
     handleChangeTextReply = (event, indexx, index) => {
@@ -234,9 +285,9 @@ class AccountController extends Component {
     }
 
     renderInfo() {
-        var { addressAccount, follow, follower, totalMoney, accountInfo, isLoadingFollow } = this.state
+        var { addressAccount, follow, follower, totalMoney, accountInfo, isLoadingFollow, isFollowed } = this.state
         var profile = accountInfo.profile || {}
-        var followText = Utils.renderFollow(addressAccount, this.props.listFollow)
+        var followText = isFollowed ? 'Unfollow' : 'Follow'
         return (
             <div className="waper-info">
                 <div className="waper-cover">
@@ -254,7 +305,7 @@ class AccountController extends Component {
                         {(this.props.myAddress && addressAccount !== this.props.myAddress) && <div>
                             <button className={`btn-general-2 ${isLoadingFollow ? 'btn-loading' : ''}`} style={isLoadingFollow ? { backgroundColor: '#dd3468' } : {}} onClick={() => this.onFollow(addressAccount, followText)}>
                                 {isLoadingFollow && <img src={Loading} alt="photos"></img>}
-                                {!isLoadingFollow && <span>{follow}</span>}
+                                {!isLoadingFollow && <span>{followText}</span>}
                             </button>
                         </div>}
                     </div>
@@ -397,12 +448,12 @@ class AccountController extends Component {
     }
 
     renderSharePost() {
-        var { isLoadingFollow, isLoadingSharePost } = this.state
+        var { isLoadingFollow, isLoadingSharePost, isFollowed } = this.state
         var value = this.state.sharePostInfo
         var accountInfoSharePost = this.state.accountInfoSharePost
         var address = value.address || {}
         var profile = accountInfoSharePost && accountInfoSharePost.profile ? accountInfoSharePost.profile : []
-        var follow = Utils.renderFollow(value.author, this.props.listFollow)
+        var follow = isFollowed ? 'Unfollow' : 'Follow'
         return (
             <div className="overlay">
                 <div className="waper">
@@ -493,6 +544,5 @@ class AccountController extends Component {
 export default connect(state => ({
     myAddress: state.app.myAddress,
     myAccountInfo: state.app.myAccountInfo,
-    listFollow: state.app.listFollow,
 }), ({
 }))(AccountController)

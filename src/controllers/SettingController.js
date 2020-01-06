@@ -64,7 +64,6 @@ class SettingController extends Component {
     };
 
     componentDidMount() {
-        console.log(this.props.myAccountInfo)
         this.setState({
             selectUsername: this.props.myAccountInfo.selected_username || ''
         })
