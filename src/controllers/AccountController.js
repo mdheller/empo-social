@@ -8,18 +8,11 @@ import Fb from '../assets/images/Group 7450.svg'
 import Noti from '../assets/images/Group 704.svg'
 import CoverPhoto from '../assets/images/Rectangle 3121.svg'
 import Offline from '../assets/images/Ellipse 311.svg'
-import Heart from '../assets/images/Heart.svg'
-import Heart2 from '../assets/images/Heart2.svg'
-import Coment from '../assets/images/Path 1968.svg'
-import Upload from '../assets/images/Group 613.svg'
-import Gif from '../assets/images/Group 601.svg'
 import Icon from '../assets/images/Group 7447.svg'
-import Photo from '../assets/images/Path 953.svg'
-import Avatar3 from '../assets/images/avatar.svg'
 import Loading from '../assets/images/loading.svg'
 import Delete from '../assets/images/Union 28.svg'
 import EmojiPicker from 'emoji-picker-react';
-
+import Post from '../components/Post'
 import Utils from '../utils'
 import ServerAPI from '../ServerAPI';
 import { connect } from 'react-redux';
@@ -327,121 +320,23 @@ class AccountController extends Component {
 
     renderPost() {
         var { data } = this.state
-        var { myAccountInfo } = this.props
-        var myProfile = myAccountInfo.profile || {}
 
         return (
             <ul className="waper-data">
                 {data.map((value, index) => {
-                    var comment = value.comment || []
-                    return (
-                        <li style={{ marginBottom: '50px' }}>
-                            <div className="content">
-                                <h1 style={{ cursor: 'pointer' }} onClick={() => this.onClickTitle(value.postId)}>{value.title}</h1>
-                                <div className="time">
-                                    <p style={{ color: '#dd3468' }}>$ {value.realLike}</p>
-                                    <div className="time">
-                                        <p>{Utils.convertDate(value.time)}</p>
-                                        <img src={Offline} alt="photos"></img>
-                                    </div>
-                                </div>
-                                <img className="waper-img" src={value.content.data} alt="photos"></img>
-                            </div>
-
-                            <div className="reaction">
-                                {!value.isLiked && <div onClick={() => this.onLikePost(value)}>
-                                    <img src={Heart} alt="photos"></img>
-                                    <p>{value.totalLike}</p>
-                                </div>}
-
-                                {value.isLiked && <div>
-                                    <img src={Heart2} alt="photos"></img>
-                                    <p>{value.totalLike}</p>
-                                </div>}
-
-                                <div>
-                                    <img src={Coment} alt="photos"></img>
-                                    <p>{value.totalComment}</p>
-                                </div>
-
-                                <div onClick={() => this.togglePopup(value)}>
-                                    <img src={Upload} alt="photos"></img>
-                                    <p>{value.totalReport}</p>
-                                </div>
-                            </div>
-
-                            {this.props.myAddress && <div style={{ display: 'flex', paddingLeft: '20px', paddingRight: '20px' }}>
-                                <div className="waper-avatar">
-                                    <img src={myProfile.avatar ? myProfile.avatar : Avatar3} alt="photos"></img>
-                                </div>
-
-                                <div className="waper-cmt">
-                                    <input value={value.commentText}
-                                        placeholder="Coment"
-                                        onChange={(e) => this.handleChangeTextComment(e, index)}
-                                        onKeyDown={(e) => this.handleKeyDownComment(e, value)}></input>
-                                    <div>
-                                        <img src={Photo} alt="photos"></img>
-                                        <img src={Gif} alt="photos"></img>
-                                        <img src={Icon} alt="photos"></img>
-                                    </div>
-                                </div>
-                            </div>}
-
-                            {(comment && comment.length > 0) && <ul className="coment scroll">
-                                {comment.map((detail, indexx) => {
-                                    var addressComment = detail.address || [];
-                                    var pro5 = addressComment.profile || {}
-                                    return (
-                                        <li>
-                                            <div className="info">
-                                                <div className="group">
-                                                    <div className="waper-avatar" style={{ marginRight: '10px', cursor: 'pointer' }} onClick={() => this.onClickAddress(addressComment.address)}>
-                                                        <img src={pro5.avatar ? pro5.avatar : Avatar3} alt="photos"></img>
-                                                    </div>
-
-                                                    <div>
-                                                        <p onClick={() => this.onClickAddress(addressComment.address)} style={{ fontWeight: 'bold', cursor: 'pointer' }}>{addressComment.selected_username ? addressComment.selected_username : addressComment.address}</p>
-                                                        <div className="title">
-                                                            <p>{Utils.convertLevel(addressComment.level)}</p>
-                                                            <img src={Offline} alt="photos"></img>
-                                                            <p>{Utils.convertDate(detail.time)} hour</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <p style={{ marginLeft: '45px' }}>{detail.content}</p>
-
-                                            <div className="reaction">
-                                                <p onClick={() => this.onClickReply(index, indexx)} style={{ cursor: 'pointer' }}>Reply</p>
-                                            </div>
-
-                                            {(this.props.myAddress && detail.showReply) && <div style={{ display: 'flex', paddingLeft: '20px', paddingRight: '20px' }}>
-                                                <div className="waper-avatar">
-                                                    <img src={myProfile.avatar ? myProfile.avatar : Avatar3} alt="photos"></img>
-                                                </div>
-                                                <div className="waper-cmt">
-                                                    <input value={detail.replyText}
-                                                        placeholder="Coment"
-                                                        onChange={(e) => this.handleChangeTextReply(e, indexx, index)}
-                                                        onKeyDown={(e) => this.handleKeyDownReply(e, detail)}></input>
-                                                    <div>
-                                                        <img src={Photo} alt="photos"></img>
-                                                        <img src={Gif} alt="photos"></img>
-                                                        <img src={Icon} alt="photos"></img>
-                                                    </div>
-                                                </div>
-                                            </div>}
-
-                                        </li>
-                                    )
-                                })}
-
-                            </ul>}
-
-                        </li>
-                    )
+                    return <Post value={value}
+                    index={index}
+                    isLoadingFollow={this.state.isLoadingFollow}
+                    onClickAddress={this.onClickAddress}
+                    onFollow={this.onFollow}
+                    onClickTitle={this.onClickTitle}
+                    onLikePost={this.onLikePost}
+                    togglePopup={this.togglePopup}
+                    handleChangeTextComment={this.handleChangeTextComment}
+                    handleKeyDownComment={this.handleKeyDownComment}
+                    onClickReply={this.onClickReply}
+                    handleChangeTextReply={this.handleChangeTextReply}
+                    handleKeyDownReply={this.handleKeyDownReply}></Post>
                 })}
             </ul>
         )

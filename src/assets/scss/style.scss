@@ -953,6 +953,62 @@ a {
     }
 }
 
+.waper-content-share {
+    overflow: auto;
+    border: 1px solid #e6e6e6;
+    border-radius: 4px;
+    margin-top: 20px;
+    padding: 20px;
+    height: 70%;
+    margin-bottom: 30px;
+    .info {
+        justify-content: space-between;
+        display: flex;
+        .btn-general-2 {
+            width: 54px;
+            height: 19px;
+        }
+        .title {
+            display: flex;
+            margin-top: 5px;
+            p{
+                color: #676f75;
+            }
+
+            img {
+                margin-left: 10px;
+                margin-right: 10px;
+            }
+        }
+
+        .group {
+            display: flex;
+            .waper-ava {
+                cursor: pointer;
+                width: 28px !important;
+                height: 28px;
+                border-radius: 50%;
+            }
+        }
+    }
+    .content {
+        margin-top: 10px;
+        p {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+    }
+    .time {
+        display: flex;
+        margin: 10px;
+        img {
+            margin-left: 5px;
+            margin-right: 5px;
+        }
+    }
+}
+
 /*#endregion */
 #home, #post-detail, #account {
     flex: 1;

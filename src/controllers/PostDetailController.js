@@ -8,18 +8,12 @@ import Utils from '../utils'
 
 import Avatar from '../assets/images/avatar.svg'
 import Offline from '../assets/images/Ellipse 311.svg'
-import Heart from '../assets/images/Heart.svg'
-import Heart2 from '../assets/images/Heart2.svg'
-import Coment from '../assets/images/Path 1968.svg'
-import Upload from '../assets/images/Group 613.svg'
-import Photo from '../assets/images/Path 953.svg'
-import Gif from '../assets/images/Group 601.svg'
 import Icon from '../assets/images/Group 7447.svg'
 import Delete from '../assets/images/Union 28.svg'
 import EmojiPicker from 'emoji-picker-react';
 import Loading from '../assets/images/loading.svg'
 import { connect } from 'react-redux';
-
+import Post from '../components/Post'
 import Alert from 'react-s-alert';
 import 'react-s-alert/dist/s-alert-default.css';
 import 'react-s-alert/dist/s-alert-css-effects/slide.css';
@@ -273,6 +267,10 @@ class PostDetailController extends Component {
 
     }
 
+    onClickTitle = (postId) => {
+        window.location = '/post-detail/' + postId
+    }
+
     renderSharePost() {
         var { isLoadingFollow, isLoadingSharePost } = this.state
         var value = this.state.sharePostInfo
@@ -349,151 +347,34 @@ class PostDetailController extends Component {
         )
     }
 
-    renderPostDetail() {
-        var { postDetail, isLoadingFollow } = this.state
-        var { myAccountInfo, myAddress } = this.props;
-
-        var profile = myAccountInfo.profile || {}
-        var comment = postDetail.comment || []
-        var address = postDetail.address || {}
-        var pro5 = address.profile || {}
-        var follow = postDetail.isFollowed ? 'Unfollow' : 'Follow'
-        return (
-            <div className="post-detail">
-                <div className="info">
-                    <div className="group">
-                        <div onClick={() => this.onClickAddress(postDetail.author)} style={{ marginRight: '10px', cursor: 'pointer' }}>
-                            <img src={pro5.avatar ? pro5.avatar : Avatar} alt="photos" style={{ width: '40px', height: '40px', borderRadius: '50%' }}></img>
-                        </div>
-                        <div>
-                            <p onClick={() => this.onClickAddress(postDetail.author)} style={{ fontWeight: 'bold', fontSize: '20px', cursor: 'pointer' }}>{address.selected_username ? address.selected_username : (postDetail && postDetail.author ? postDetail.author.substr(0, 20) + '...' : '')}</p>
-                            <div className="title">
-                                <p style={{ color: '#dd3468' }}>$ {postDetail.realLike}</p>
-                                <p>{Utils.convertLevel(address.level)}</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    {(myAddress && postDetail.author !== myAddress) && <div>
-                        <button className={`btn-general-2 ${isLoadingFollow ? 'btn-loading' : ''}`} style={isLoadingFollow ? { backgroundColor: '#dd3468' } : {}} onClick={() => this.onFollow(postDetail.author, follow)}>
-                            {isLoadingFollow && <img src={Loading} alt="photos"></img>}
-                            {!isLoadingFollow && <span>{follow}</span>}
-                        </button>
-                    </div>}
-                </div>
-
-                <div className="content">
-                    <p>{postDetail.title}</p>
-                    <img src={postDetail && postDetail.content ? postDetail.content.data : ''} alt="photos"></img>
-                </div>
-
-                <div className="time">
-                    <p>{Utils.convertDate(postDetail.time)}</p>
-                    <img src={Offline} alt="photos"></img>
-                </div>
-
-                <div className="reaction">
-                    {!postDetail.isLiked && <div onClick={() => this.onLikePost(postDetail)}>
-                        <img src={Heart} alt="photos"></img>
-                        <p>{postDetail.totalLike}</p>
-                    </div>}
-
-                    {postDetail.isLiked && <div>
-                        <img src={Heart2} alt="photos"></img>
-                        <p>{postDetail.totalLike}</p>
-                    </div>}
-
-                    <div>
-                        <img src={Coment} alt="photos"></img>
-                        <p>{postDetail.totalComment}</p>
-                    </div>
-
-                    <div onClick={() => this.togglePopup(postDetail)}>
-                        <img src={Upload} alt="photos"></img>
-                        <p>{postDetail.totalReport}</p>
-                    </div>
-
-
-                </div>
-
-                {myAddress && <div style={{ display: 'flex', paddingLeft: '20px', paddingRight: '20px' }}>
-                    <div>
-                        <img src={profile.avatar ? profile.avatar : Avatar} style={{ width: '40px', height: '40px', borderRadius: '50%' }} alt="photos"></img>
-                    </div>
-                    <div className="waper-cmt">
-                        <input value={postDetail.commentText}
-                            placeholder="Coment"
-                            onChange={(e) => this.handleChangeTextComment(e)}
-                            onKeyDown={(e) => this.handleKeyDownComment(e)}></input>
-                        <div>
-                            <img src={Photo} alt="photos"></img>
-                            <img src={Gif} alt="photos"></img>
-                            <img src={Icon} alt="photos"></img>
-                        </div>
-                    </div>
-                </div>}
-                <div className="coment scroll">
-                    {comment.map((detail, indexx) => {
-                        var addressComment = detail.address || [];
-                        var pro5 = addressComment.profile || {}
-                        return (
-                            <li>
-                                <div className="info">
-                                    <div className="group">
-                                        <div onClick={() => this.onClickAddress(addressComment.address)} className="waper-avatar" style={{ marginRight: '10px', cursor: 'pointer' }}>
-                                            <img src={pro5.avatar ? pro5.avatar : Avatar} alt="photos"></img>
-                                        </div>
-                                        <div>
-                                            <p onClick={() => this.onClickAddress(addressComment.address)} style={{ fontWeight: 'bold', cursor: 'pointer' }}>{addressComment.selected_username ? addressComment.selected_username : addressComment.address}</p>
-                                            <div className="title">
-                                                <p>{Utils.convertLevel(addressComment.level)}</p>
-                                                <img src={Offline} alt="photos"></img>
-                                                <p>{Utils.convertDate(detail.time)}</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <p style={{ marginLeft: '45px' }}>{detail.content}</p>
-
-                                <div className="reaction">
-                                    <p onClick={() => this.onClickReply(indexx)} style={{ cursor: 'pointer' }}>Reply</p>
-                                </div>
-
-                                {(myAddress && detail.showReply) && <div style={{ display: 'flex', paddingLeft: '20px', paddingRight: '20px' }}>
-                                    <div>
-                                        <img src={profile.avatar ? profile.avatar : Avatar} style={{ width: '40px', height: '40px', borderRadius: '50%' }} alt="photos"></img>
-                                    </div>
-                                    <div className="waper-cmt">
-                                        <input value={detail.replyText}
-                                            placeholder="Coment"
-                                            onChange={(e) => this.handleChangeTextReply(e, indexx)}
-                                            onKeyDown={(e) => this.handleKeyDownReply(e, detail)}></input>
-                                        <div>
-                                            <img src={Photo} alt="photos"></img>
-                                            <img src={Gif} alt="photos"></img>
-                                            <img src={Icon} alt="photos"></img>
-                                        </div>
-                                    </div>
-                                </div>}
-
-                            </li>
-                        )
-                    })}
-                </div>
-            </div>
-        )
+    renderDetail() {
+        var {postDetail} = this.state;
+        if (!postDetail.author) {
+            return <div></div>
+        }
+        return <Post value={postDetail}
+        index={0}
+        isLoadingFollow={this.state.isLoadingFollow}
+        onClickAddress={this.onClickAddress}
+        onFollow={this.onFollow}
+        onClickTitle={this.onClickTitle}
+        onLikePost={this.onLikePost}
+        togglePopup={this.togglePopup}
+        handleChangeTextComment={this.handleChangeTextComment}
+        handleKeyDownComment={this.handleKeyDownComment}
+        onClickReply={this.onClickReply}
+        handleChangeTextReply={this.handleChangeTextReply}
+        handleKeyDownReply={this.handleKeyDownReply}></Post>
     }
 
     render() {
-
         return (
             <div>
                 <Headers />
                 <div className="container wrapper" style={{ marginTop: '20px' }}>
                     <Navbar></Navbar>
                     <div id="post-detail">
-                        {this.renderPostDetail()}
+                        {this.renderDetail()}
                         {(this.state.showShare && this.state.sharePostInfo && this.props.myAddress) && this.renderSharePost()}
                     </div>
                     <RightNavbar></RightNavbar>
