@@ -18,7 +18,7 @@ import Buffer from 'buffer'
 import ipfsAPI from 'ipfs-http-client'
 import ServerAPI from '../ServerAPI';
 import { connect } from 'react-redux';
-
+import _ from 'lodash'
 import Alert from 'react-s-alert';
 import 'react-s-alert/dist/s-alert-default.css';
 import 'react-s-alert/dist/s-alert-css-effects/slide.css';
@@ -40,12 +40,13 @@ class MyAccountController extends Component {
             statusShare: '',
             accountInfoSharePost: false,
             isLoadingSharePost: false,
+            fileAva: false,
+            fileCove: false
         };
     };
 
-    async componentDidUpdate(pre, next) {
-        if (pre.myAddress === this.props.myAddress
-            && pre.myAccountInfo === this.props.myAccountInfo) {
+    async componentDidUpdate(pre) {
+        if (_.isEqual(pre, this.props)) {
             return;
         }
 
@@ -111,6 +112,7 @@ class MyAccountController extends Component {
 
         handler.on("success", (res) => {
             console.log(res)
+            console.log(actionName)
 
             if (!actionName) {
                 this.resetContent()
@@ -122,6 +124,18 @@ class MyAccountController extends Component {
 
             if (actionName === "share") {
                 this.onShareSuccess(JSON.parse(res.transaction.tx_receipt.receipts[0].content)[0], data);
+            }
+
+            if (actionName === 'updateAva') {
+                this.setState({
+                    fileAva: data
+                })
+            }
+
+            if (actionName === 'updateCover') {
+                this.setState({
+                    fileCove: data
+                })
             }
         })
     }
@@ -164,8 +178,14 @@ class MyAccountController extends Component {
                 }
 
                 const tx = window.empow.callABI("social.empow", "updateProfile", [myAddress, info])
-                _self.action(tx)
+                if (index === 1) {
+                    _self.action(tx, 'updateAva', url)
+                }
 
+                if (index === 2) {
+                    console.log(index)
+                    _self.action(tx, 'updateCover', url)
+                }
             })
         }
 
@@ -174,9 +194,18 @@ class MyAccountController extends Component {
     }
 
     handleChange = (event) => {
-        if (event.target.files[0]) {
-            this.onUpdateProfile(this.state.index);
-        }
+        console.log(this.state.index)
+        // if (event.target.files[0]) {
+        //     this.onUpdateProfile(index);
+        // }
+    }
+
+    handleChangeCover = (event) => {
+        console.log("Change cover")
+        console.log(this.state.index)
+        // if (event.target.files[0]) {
+        //     this.onUpdateProfile(index);
+        // }
     }
 
 
@@ -195,11 +224,11 @@ class MyAccountController extends Component {
         })
         var { sharePostInfo, statusShare } = this.state
         const tx = window.empow.callABI("social.empow", "share", [this.props.myAddress, sharePostInfo.postId, statusShare])
-        this.action(tx, "share", {type: "share", data: sharePostInfo.postId.toString()});
+        this.action(tx, "share", { type: "share", data: sharePostInfo.postId.toString() });
     }
 
     onShareSuccess = (postId, content) => {
-        var {sharePostInfo} = this.state
+        var { sharePostInfo } = this.state
         var post = {
             postId,
             content,
@@ -230,13 +259,7 @@ class MyAccountController extends Component {
         this.setState({
             index
         })
-
-        if (index === 1) {
-            this.refs.fileUploader.click();
-        } else {
-            this.refs.fileUploaderr.click();
-        }
-
+        this.refs.fileUploader.click();
     }
 
     onClickAddress = (address) => {
@@ -323,19 +346,19 @@ class MyAccountController extends Component {
     }
 
     renderInfo() {
-        var { follow, follower, totalMoney } = this.state
+        var { follow, follower, totalMoney, fileAva, fileCove } = this.state
         var { myAccountInfo, myAddress } = this.props
         var profile = myAccountInfo.profile || {}
         return (
             <div className="waper-info">
                 <div className="waper-cover" onClick={() => this.onClickImg(2)}>
-                    <img src={profile.cover ? profile.cover : CoverPhoto} alt="photos"></img>
-                    <input type="file" id="filee" ref="fileUploaderr" name="photo" style={{ display: "none" }} onChange={(event) => this.handleChange(event)} />
+                    <img src={fileCove ? fileCove : (profile.cover ? profile.cover : CoverPhoto)} alt="photos"></img>
+                    <input type="file" id="filee" ref="fileUploaderr" name="photo" style={{ display: "none" }} onChange={(event) => this.handleChangeCover(event, 2)} />
                 </div>
                 <div className="group1">
                     <div onClick={() => this.onClickImg(1)} className="avatar">
-                        <img src={profile.avatar ? profile.avatar : Avatar} alt="photos"></img>
-                        <input type="file" id="file" ref="fileUploader" name="photo" style={{ display: "none" }} onChange={(event) => this.handleChange(event)} />
+                        <img src={fileAva ? fileAva : (profile.avatar ? profile.avatar : Avatar)} alt="photos"></img>
+                        <input type="file" id="file" ref="fileUploader" name="photo" style={{ display: "none" }} onChange={(event) => this.handleChange(event, 1)} />
                     </div>
 
                     <div className="child">

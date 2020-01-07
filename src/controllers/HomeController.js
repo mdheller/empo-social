@@ -25,6 +25,8 @@ import 'react-s-alert/dist/s-alert-default.css';
 import 'react-s-alert/dist/s-alert-css-effects/slide.css';
 import Post from '../components/Post'
 
+import _ from 'lodash'
+
 class HomeController extends Component {
 
     constructor(props) {
@@ -49,9 +51,7 @@ class HomeController extends Component {
     };
 
     componentDidUpdate(pre) {
-        if (pre.myAddress === this.props.myAddress
-            && pre.myAccountInfo === this.props.myAccountInfo
-            && pre.typeNewFeed === this.props.typeNewFeed) {
+        if(_.isEqual(pre, this.props)) {
             return;
         }
         this.getData()

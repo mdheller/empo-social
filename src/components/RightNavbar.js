@@ -6,7 +6,7 @@ import Coment from '../assets/images/Path 1968.svg'
 import Heart from '../assets/images/Heart.svg'
 import Share from '../assets/images/Group 779.svg'
 import Chat from '../components/Chat'
-
+import _ from 'lodash'
 import ServerAPI from '../ServerAPI';
 import { connect } from 'react-redux';
 import Utils from '../utils'
@@ -49,7 +49,7 @@ class RightNavbar extends Component {
 
 
     async componentDidUpdate(pre) {
-        if (pre.myAddress === this.props.myAddress && pre.myAccountInfo === this.props.myAccountInfo) {
+        if(_.isEqual(pre, this.props)) {
             return;
         }
 

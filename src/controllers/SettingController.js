@@ -6,12 +6,13 @@ import Facebook from '../assets/images/facebook.svg'
 import Twitt from '../assets/images/twitt.svg'
 import IconAva from '../assets/images/avatar.svg'
 import Select from 'react-select'
-
 import { connect } from 'react-redux';
 
 import Alert from 'react-s-alert';
 import 'react-s-alert/dist/s-alert-default.css';
 import 'react-s-alert/dist/s-alert-css-effects/slide.css';
+
+import _ from 'lodash'
 
 class SettingController extends Component {
 
@@ -20,20 +21,6 @@ class SettingController extends Component {
 
         this.state = {
             index: 'username',
-            account: [
-                {
-                    name: 'vbnbná111',
-                    checked: true
-                },
-                {
-                    name: '0q34ff14',
-                    checked: false
-                },
-                {
-                    name: '1233334',
-                    checked: false
-                },
-            ],
             blockList: [
                 {
                     ava: IconAva,
@@ -60,12 +47,18 @@ class SettingController extends Component {
             option: 0,
             usernameText: '',
             selectUsername: '',
+            username: []
         };
     };
 
-    componentDidMount() {
+    componentDidUpdate(pre) {
+        if(_.isEqual(pre, this.props)) {
+            return;
+        }
+
         this.setState({
-            selectUsername: this.props.myAccountInfo.selected_username || ''
+            selectUsername: this.props.myAccountInfo.selected_username || '',
+            username: this.props.myAccountInfo.username || []
         })
     }
     handleChangeSelect = (value) => {
@@ -97,14 +90,30 @@ class SettingController extends Component {
         if (option === 0) {
             const tx = window.empow.callABI("auth.empow", "addNormalUsername", [myAddress, usernameText])
 
-            this.action(tx);
+            this.action(tx, 'addNormal');
         }
 
         if (option === 1) {
             const tx = window.empow.callABI("auth.empow", "addPremiumUsername", [myAddress, usernameText])
 
-            this.action(tx);
+            this.action(tx, 'addPremium');
         }
+    }
+
+    onBuySuccess = (type) => {
+        var { username } = this.state
+        var usernameText = ''
+        if (type === 'normal') {
+            usernameText = 'newbie.' + this.state.usernameText
+        } else {
+            usernameText = this.state.usernameText
+        }
+
+        username.push(usernameText)
+        this.setState({
+            username,
+            usernameText: ''
+        })
     }
 
     onSelectUsername = () => {
@@ -113,7 +122,7 @@ class SettingController extends Component {
         this.action(tx);
     }
 
-    action = (tx) => {
+    action = (tx, actionName = false) => {
         tx.addApprove("*", "unlimited")
 
         const handler = window.empow.signAndSend(tx)
@@ -133,20 +142,26 @@ class SettingController extends Component {
 
         handler.on("success", (res) => {
             console.log(res)
+
+            if (actionName === 'addNormal') {
+                this.onBuySuccess('normal')
+            }
+
+            if (actionName === 'addPremium') {
+                this.onBuySuccess('premium')
+            }
         })
     }
 
 
     renderUsername() {
-        var { option, selectUsername } = this.state
+        var { option, selectUsername, username } = this.state
         var { myAccountInfo } = this.props;
-        var account = myAccountInfo.usename || []
         return (
             <div className="username">
                 <p className="title">Account</p>
                 <ul>
-                    {account.map((value, index) => {
-                        
+                    {username.map((value, index) => {
                         return (
                             <li>
                                 <p>{value}</p>
