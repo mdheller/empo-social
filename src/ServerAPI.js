@@ -10,7 +10,7 @@ const ServerAPI = {
         })
     },
 
-    getNewFeed(myAddress, typeNewFeed = 'all', page = 1, pageSize = 20) {
+    getNewFeed(myAddress, typeNewFeed = 'trending', page = 1, pageSize = 20) {
         return new Promise((resolve, reject) => {
             Axios.get(`${API_ENDPOINT}/getNewFeed?page=${page}&pageSize=${pageSize}&address=${myAddress}&type=${typeNewFeed}`)
                 .then(res => (resolve(res.data)))

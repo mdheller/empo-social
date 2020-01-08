@@ -154,7 +154,7 @@ class Header extends Component {
                     <ul className="menu">
                         <li onClick={() => this.onChangeTypeNewFeed('trending')} style={typeNewFeed === 'trending' ? {color: '#ff6a7e'} : {}}>Trending</li>
                         <li onClick={() => this.onChangeTypeNewFeed('follow')} style={typeNewFeed === 'follow' ? {color: '#ff6a7e'} : {}}>Follow</li>
-                        <li onClick={() => this.onChangeTypeNewFeed('all')} style={typeNewFeed === 'all' ? {color: '#ff6a7e'} : {}}>All</li>
+                        <li onClick={() => this.onChangeTypeNewFeed('all')} style={typeNewFeed === 'all' ? {color: '#ff6a7e'} : {}}>Newest</li>
                     </ul>
                     {myAddress && <div className="waper-account">
                         <a href="/my-account"><img src={profile.avatar ? profile.avatar : IconAva} alt="photos" className="waper-ava"></img></a>

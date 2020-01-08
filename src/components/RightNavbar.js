@@ -190,7 +190,7 @@ class RightNavbar extends Component {
 
                                 <div>
                                     <img src={Share} alt="photos"></img>
-                                    <p>{value.totalReport}</p>
+                                    <p>{value.totalShare}</p>
                                 </div>
                             </div>
                         </li>

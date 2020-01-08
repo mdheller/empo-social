@@ -204,7 +204,7 @@ class HomeController extends Component {
             totalComment: 0,
             totalCommentAndReply: 0,
             totalLike: 0,
-            totalReport: 0,
+            totalShare: 0,
             showContent: true,
             author: this.props.myAddress,
             postShare: sharePostInfo,
@@ -278,7 +278,7 @@ class HomeController extends Component {
             totalComment: 0,
             totalCommentAndReply: 0,
             totalLike: 0,
-            totalReport: 0,
+            totalShare: 0,
             showContent: true,
             author: this.props.myAddress,
             address: this.props.myAccountInfo
@@ -349,7 +349,7 @@ class HomeController extends Component {
         return (
             <div className="waper-content-photo">
                 {this.state.typeFile !== 'video/mp4' && <img style={{ marginRight: '10px' }} src={this.state.file} alt="photos"></img>}
-                {this.state.typeFile === 'video/mp4' && <video src={this.state.file} autoPlay></video>}
+                {this.state.typeFile === 'video/mp4' && <video src={this.state.file} controls></video>}
 
             </div>
         )

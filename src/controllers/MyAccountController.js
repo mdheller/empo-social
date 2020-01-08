@@ -209,7 +209,7 @@ class MyAccountController extends Component {
             totalComment: 0,
             totalCommentAndReply: 0,
             totalLike: 0,
-            totalReport: 0,
+            totalShare: 0,
             showContent: true,
             author: this.props.myAddress,
             postShare: sharePostInfo

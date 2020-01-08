@@ -29,7 +29,7 @@ class Post extends Component {
     };
 
     componentDidUpdate(pre) {
-        if(_.isEqual(pre, this.props)) {
+        if (_.isEqual(pre, this.props)) {
             return;
         }
 
@@ -244,7 +244,7 @@ class Post extends Component {
         }
 
         var value = this.state.value;
-        
+
         value.comment[obj.index].replyText = ''
         value.comment.unshift(reply)
 
@@ -305,6 +305,8 @@ class Post extends Component {
                             <div className="title">
                                 <p style={{ color: '#dd3468' }}>$ {value.realLike}</p>
                                 <p>{Utils.convertLevel(address.level)}</p>
+                                <img src={Offline} alt="photos"></img>
+                                <p style={{marginLeft: '5px'}}>{Utils.convertDate(value.time)}</p>
                             </div>
                         </div>
                     </div>
@@ -323,13 +325,10 @@ class Post extends Component {
                 </div>}
                 {value.content.type === 'video' && <div className="content">
                     <p style={{ cursor: 'pointer' }} onClick={() => this.onClickTitle(value.postId)}>{value.title}</p>
-                    <video src={value.content.data} autoPlay></video>
+                    <video src={value.content.data} controls></video>
                 </div>}
 
-                <div className="time">
-                    <p>{Utils.convertDate(value.time)}</p>
-                    <img src={Offline} alt="photos"></img>
-                </div>
+
 
                 <div className="reaction">
                     {!value.isLiked && <div onClick={() => this.onLikePost(value)}>
@@ -349,7 +348,7 @@ class Post extends Component {
 
                     <div onClick={() => this.props.togglePopup(value)}>
                         <img src={Upload} alt="photos"></img>
-                        <p>{value.totalReport}</p>
+                        <p>{value.totalShare}</p>
                     </div>
 
 
@@ -375,7 +374,7 @@ class Post extends Component {
                     {comment.map((detail, indexx) => {
                         var addressComment = detail.address || [];
                         var pro5 = addressComment.profile || {};
-                        
+
                         var reply = comment.filter(x => x.type === 'reply' && x.parentId === detail.commentId.toString())
                         if (detail.type === 'reply') {
                             return <div></div>

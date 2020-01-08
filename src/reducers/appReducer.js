@@ -7,7 +7,7 @@ export const setTypeNewFeed = createAction('setTypeNewFeed');
 export const appReducer = createReducer({
     myAddress: false,
     myAccountInfo: false,
-    typeNewFeed: 'all'
+    typeNewFeed: 'trending'
 }, {
     [setMyAddress]: (state, {payload}) => {
         state.myAddress = payload;
