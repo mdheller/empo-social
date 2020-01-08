@@ -18,6 +18,8 @@ import Alert from 'react-s-alert';
 import 'react-s-alert/dist/s-alert-default.css';
 import 'react-s-alert/dist/s-alert-css-effects/slide.css';
 
+import _ from 'lodash'
+
 class PostDetailController extends Component {
 
     constructor(props) {
@@ -30,13 +32,16 @@ class PostDetailController extends Component {
             showShare: false,
             sharePostInfo: false,
             statusShare: '',
-            accountInfoSharePost: false,
             isLoadingSharePost: false,
             isLoadingFollow: false
         };
     };
 
-    async componentDidMount() {
+    async componentDidUpdate(pre) {
+        if (_.isEqual(pre, this.props)) {
+            return;
+        }
+
         var { postId } = this.state
 
         if (!postId || postId === "" || postId === null) {
@@ -55,60 +60,6 @@ class PostDetailController extends Component {
         }
 
         return '';
-    }
-
-    handleChangeTextComment = (event) => {
-        this.setState({
-            textComment: event.target.value
-        });
-    }
-
-    handleKeyDownComment = (e) => {
-        var { postId, textComment } = this.state
-
-        if (e.key === 'Enter') {
-            const tx = window.empow.callABI("social.empow", "comment", [this.props.myAddress, postId.toString(), "comment", "0", textComment])
-            this.action(tx, 'comment');
-        }
-    }
-
-    onCommentSuccess = (commentId) => {
-        var { postId, textComment } = this.state
-
-        const cmt = {
-            commentId: commentId,
-            postId: postId,
-            address: this.props.myAccountInfo,
-            content: textComment,
-            parentId: -1,
-            totalReply: 0,
-            type: "comment",
-            time: new Date().getTime() * 10 ** 6,
-        }
-
-        var postDetail = this.state.postDetail;
-        postDetail.comment.unshift(cmt)
-        postDetail.commentText = ''
-
-        this.setState({
-            postDetail
-        })
-    }
-
-    handleChangeTextReply = (event, indexx) => {
-        var postDetail = this.state.postDetail;
-        postDetail.comment[indexx].replyText = event.target.value
-        this.setState({
-            postDetail
-        });
-    }
-
-    handleKeyDownReply = (e, comment) => {
-        var { postId } = this.state
-        if (e.key === 'Enter') {
-            const tx = window.empow.callABI("social.empow", "comment", [this.props.myAddress, postId, "reply", comment.commentId.toString(), comment.replyText])
-            this.action(tx);
-        }
     }
 
     action = (tx, actionName = false, data = false) => {
@@ -132,24 +83,6 @@ class PostDetailController extends Component {
         handler.on("success", (res) => {
             console.log(res)
             this.resetContent()
-
-            if (actionName === "like") {
-                this.onLikeSuccess(data)
-            }
-
-            if (actionName === "follow") {
-                this.resetContent()
-                this.onFollowSuccess()
-            }
-
-            if (actionName === "unfollow") {
-                this.resetContent()
-                this.onUnfollowSuccess()
-            }
-
-            if (actionName === 'comment') {
-                this.onCommentSuccess(JSON.parse(res.transaction.tx_receipt.receipts[0].content)[1])
-            }
         })
     }
 
@@ -162,72 +95,6 @@ class PostDetailController extends Component {
             isLoadingFollow: false
         })
     }
-    onClickAddress = (address) => {
-        window.location = '/account/' + address
-    }
-
-    onUnfollow = (address) => {
-        const tx = window.empow.callABI("social.empow", "unfollow", [this.props.myAddress, address])
-        this.action(tx, 'unfollow')
-    }
-
-    onUnfollowSuccess = () => {
-        var postDetail = this.state.postDetail
-        postDetail.isFollowed = false
-
-        this.setState({
-            postDetail
-        })
-    }
-
-    onFollow = (address, follow) => {
-        this.setState({
-            isLoadingFollow: true
-        })
-
-        if (follow === 'Unfollow') {
-            this.onUnfollow(address)
-            return;
-        }
-        const tx = window.empow.callABI("social.empow", "follow", [this.props.myAddress, address])
-        this.action(tx, 'follow')
-    }
-
-    onFollowSuccess = (address) => {
-        var postDetail = this.state.postDetail
-        postDetail.isFollowed = true
-
-        this.setState({
-            postDetail
-        })
-    }
-
-    onLikePost = async (post) => {
-        if (!this.props.myAddress) {
-            return;
-        }
-        const tx = window.empow.callABI("social.empow", "like", [this.props.myAddress, post.postId])
-        this.action(tx, 'like', post);
-    }
-
-    onLikeSuccess = (post) => {
-        post.isLiked = true;
-        post.totalLike = post.totalLike + 1
-
-        this.setState({
-            postDetail: post
-        })
-
-    }
-
-    onClickReply = (indexx) => {
-        var postDetail = this.state.postDetail;
-        postDetail.comment[indexx].showReply = !postDetail.comment[indexx].showReply
-        this.setState({
-            postDetail
-        });
-    }
-
 
     onSharePost = async () => {
         this.setState({
@@ -239,19 +106,13 @@ class PostDetailController extends Component {
         this.action(tx);
     }
 
-    upLoadPhoto = () => {
-        this.refs.fileUploader.click();
-    }
-
     togglePopup = async (post) => {
         if (!this.state.showShare) {
-            var accountInfoSharePost = await ServerAPI.getAddress(post.author)
 
             this.setState({
                 showShare: true,
                 sharePostInfo: post,
                 statusShare: '',
-                accountInfoSharePost
             })
         } else {
             this.setState({
@@ -261,23 +122,36 @@ class PostDetailController extends Component {
                 color: false,
                 file: [],
                 status: '',
-                accountInfoSharePost: false
             })
         }
 
     }
 
-    onClickTitle = (postId) => {
-        window.location = '/post-detail/' + postId
-    }
-
     renderSharePost() {
-        var { isLoadingFollow, isLoadingSharePost } = this.state
+        var { isLoadingSharePost } = this.state
         var value = this.state.sharePostInfo
-        var accountInfoSharePost = this.state.accountInfoSharePost
-        var address = value.address || {}
-        var profile = accountInfoSharePost && accountInfoSharePost.profile ? accountInfoSharePost.profile : []
-        var follow = 'Follow'
+
+        var postShare = value.content.type === 'share' ? value.postShare : false;
+
+        var address = {}
+        var profile = {}
+        var author = value.author
+        var time = value.time
+        var title = value.title
+        var content = value.content.data
+
+        if (postShare) {
+            address = postShare.addressPostShare || {}
+            profile = postShare.addressPostShare && postShare.addressPostShare.profile ? postShare.addressPostShare.profile : {}
+            author = postShare.author;
+            time = postShare.time
+            title = postShare.title
+            content = postShare.content.data
+        } else {
+            address = value.address || {}
+            profile = value.address && value.address.profile ? value.address.profile : {}
+        }
+       
         return (
             <div className="overlay">
                 <div className="waper">
@@ -299,29 +173,24 @@ class PostDetailController extends Component {
                         <div className="group2 scroll">
                             <div className="info">
                                 <div className="group">
-                                    <div style={{ marginRight: '10px' }} onClick={() => this.onClickAddress(value.author)} >
+                                    <div style={{ marginRight: '10px' }} onClick={() => this.onClickAddress(author)} >
                                         <img className="waper-ava" src={profile.avatar ? profile.avatar : Avatar} alt="photos"></img>
                                     </div>
                                     <div>
-                                        <p onClick={() => this.onClickAddress(value.author)} style={{ fontWeight: 'bold', fontSize: '20px' }}>{address.selected_username ? address.selected_username : value.author.substr(0, 20) + '...'}</p>
+                                        <p onClick={() => this.onClickAddress(author)} style={{ fontWeight: 'bold', fontSize: '20px' }}>{address.selected_username ? address.selected_username : author.substr(0, 20) + '...'}</p>
                                         <div className="title">
                                             <p>{Utils.convertLevel(address.level)}</p>
                                             <img src={Offline} alt="photos"></img>
-                                            <p>{Utils.convertDate(value.time)}</p>
+                                            <p>{Utils.convertDate(time)}</p>
                                         </div>
                                     </div>
                                 </div>
-                                {(this.props.myAddress && value.author !== this.props.myAddress) && <div>
-                                    <button className={`btn-general-2 ${isLoadingFollow ? 'btn-loading' : ''}`} style={isLoadingFollow ? { backgroundColor: '#dd3468' } : {}} onClick={() => this.onFollow(value.author, follow)}>
-                                        {isLoadingFollow && <img src={Loading} alt="photos"></img>}
-                                        {!isLoadingFollow && <span>{follow}</span>}
-                                    </button>
-                                </div>}
+                                
                             </div>
 
                             <div className="content">
-                                <p>{value.title}</p>
-                                <img src={value.content.data} style={{ width: '100%' }} alt="photos"></img>
+                                <p>{title}</p>
+                                <img src={content} style={{ width: '100%' }} alt="photos"></img>
                             </div>
                         </div>
                         <div className="waper-button">
@@ -353,18 +222,7 @@ class PostDetailController extends Component {
             return <div></div>
         }
         return <Post value={postDetail}
-        index={0}
-        isLoadingFollow={this.state.isLoadingFollow}
-        onClickAddress={this.onClickAddress}
-        onFollow={this.onFollow}
-        onClickTitle={this.onClickTitle}
-        onLikePost={this.onLikePost}
-        togglePopup={this.togglePopup}
-        handleChangeTextComment={this.handleChangeTextComment}
-        handleKeyDownComment={this.handleKeyDownComment}
-        onClickReply={this.onClickReply}
-        handleChangeTextReply={this.handleChangeTextReply}
-        handleKeyDownReply={this.handleKeyDownReply}></Post>
+        togglePopup={this.togglePopup}></Post>
     }
 
     render() {

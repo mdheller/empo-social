@@ -38,7 +38,6 @@ class MyAccountController extends Component {
             showShare: false,
             sharePostInfo: false,
             statusShare: '',
-            accountInfoSharePost: false,
             isLoadingSharePost: false,
             fileAva: false,
             fileCove: false
@@ -50,7 +49,7 @@ class MyAccountController extends Component {
             return;
         }
 
-        var data = await ServerAPI.getMyPost(this.props.myAddress);
+        var data = await ServerAPI.getMyPost(this.props.myAddress, this.props.myAddress);
 
         var follow = await ServerAPI.getMyFollow(this.props.myAddress);
         var follower = await ServerAPI.getMyFollower(this.props.myAddress);
@@ -71,13 +70,10 @@ class MyAccountController extends Component {
 
     togglePopup = async (post) => {
         if (!this.state.showShare) {
-            var accountInfoSharePost = await ServerAPI.getAddress(post.author)
-
             this.setState({
                 showShare: true,
                 sharePostInfo: post,
                 statusShare: '',
-                accountInfoSharePost
             })
         } else {
             this.setState({
@@ -87,7 +83,6 @@ class MyAccountController extends Component {
                 color: false,
                 file: [],
                 status: '',
-                accountInfoSharePost: false
             })
         }
 
@@ -112,14 +107,9 @@ class MyAccountController extends Component {
 
         handler.on("success", (res) => {
             console.log(res)
-            console.log(actionName)
 
             if (!actionName) {
                 this.resetContent()
-            }
-
-            if (actionName === 'comment') {
-                this.onCommentSuccess(JSON.parse(res.transaction.tx_receipt.receipts[0].content)[1], data)
             }
 
             if (actionName === "share") {
@@ -194,29 +184,10 @@ class MyAccountController extends Component {
     }
 
     handleChange = (event) => {
-        console.log(this.state.index)
-        // if (event.target.files[0]) {
-        //     this.onUpdateProfile(index);
-        // }
-    }
-
-    handleChangeCover = (event) => {
-        console.log("Change cover")
-        console.log(this.state.index)
-        // if (event.target.files[0]) {
-        //     this.onUpdateProfile(index);
-        // }
-    }
-
-
-    onLikePost = async (post) => {
-        if (!this.props.myAddress) {
-            return;
+        if (event.target.files[0]) {
+            this.onUpdateProfile(this.state.index);
         }
-        const tx = window.empow.callABI("social.empow", "like", [this.props.myAddress, post.postId])
-        this.action(tx);
     }
-
 
     onSharePost = async () => {
         this.setState({
@@ -259,90 +230,17 @@ class MyAccountController extends Component {
         this.setState({
             index
         })
-        this.refs.fileUploader.click();
+
+        this.upLoadPhoto(index)
     }
 
-    onClickAddress = (address) => {
-        window.location = '/account/' + address
-    }
-
-    onClickReply = (index, indexx) => {
-        var data = this.state.data;
-        data[index].comment[indexx].showReply = !data[index].comment[indexx].showReply
-        this.setState({
-            data
-        });
-    }
-
-    handleChangeTextComment = (event, index) => {
-        var data = this.state.data;
-        data[index].commentText = event.target.value
-        this.setState({
-            data
-        });
-    }
-
-    handleKeyDownComment = (e, post) => {
-        if (e.key === 'Enter') {
-            var data = {
-                postId: post.postId,
-                content: post.commentText,
-            }
-
-            const tx = window.empow.callABI("social.empow", "comment", [this.props.myAddress, post.postId.toString(), "comment", "0", post.commentText])
-            this.action(tx, "comment", data);
+  
+    upLoadPhoto = (index) => {
+        if (index === 1) {
+            this.refs.fileUploader.click();
+        } else {
+            this.refs.fileUploaderr.click();
         }
-    }
-
-    onCommentSuccess = (commentId, obj) => {
-        const cmt = {
-            commentId: commentId,
-            postId: obj.postId,
-            address: this.props.myAccountInfo,
-            content: obj.content,
-            parentId: -1,
-            totalReply: 0,
-            type: "comment",
-            time: new Date().getTime() * 10 ** 6,
-        }
-
-        var data = this.state.data;
-        for (let i = 0; i < data.length; i++) {
-            if (data[i].postId === obj.postId) {
-                data[i].comment.unshift(cmt)
-                data[i].commentText = ''
-                break;
-            }
-        }
-
-        this.setState({
-            data
-        })
-
-        this.resetContent()
-    }
-
-    handleChangeTextReply = (event, indexx, index) => {
-        var data = this.state.data;
-        data[index].comment[indexx].replyText = event.target.value
-        this.setState({
-            data
-        });
-    }
-
-    handleKeyDownReply = (e, comment) => {
-        if (e.key === 'Enter') {
-            const tx = window.empow.callABI("social.empow", "comment", [this.props.myAddress, comment.postId, "reply", comment.commentId.toString(), comment.replyText])
-            this.action(tx);
-        }
-    }
-
-    onClickTitle = (postId) => {
-        window.location = '/post-detail/' + postId
-    }
-
-    upLoadPhoto = () => {
-        this.refs.fileUploader.click();
     }
 
     renderInfo() {
@@ -353,7 +251,7 @@ class MyAccountController extends Component {
             <div className="waper-info">
                 <div className="waper-cover" onClick={() => this.onClickImg(2)}>
                     <img src={fileCove ? fileCove : (profile.cover ? profile.cover : CoverPhoto)} alt="photos"></img>
-                    <input type="file" id="filee" ref="fileUploaderr" name="photo" style={{ display: "none" }} onChange={(event) => this.handleChangeCover(event, 2)} />
+                    <input type="file" id="filee" ref="fileUploaderr" name="photo" style={{ display: "none" }} onChange={(event) => this.handleChange(event, 2)} />
                 </div>
                 <div className="group1">
                     <div onClick={() => this.onClickImg(1)} className="avatar">
@@ -389,18 +287,8 @@ class MyAccountController extends Component {
             <ul className="waper-data">
                 {data.map((value, index) => {
                     return <Post value={value}
-                        index={index}
-                        isLoadingFollow={this.state.isLoadingFollow}
-                        onClickAddress={this.onClickAddress}
-                        onFollow={this.onFollow}
-                        onClickTitle={this.onClickTitle}
-                        onLikePost={this.onLikePost}
                         togglePopup={this.togglePopup}
-                        handleChangeTextComment={this.handleChangeTextComment}
-                        handleKeyDownComment={this.handleKeyDownComment}
-                        onClickReply={this.onClickReply}
-                        handleChangeTextReply={this.handleChangeTextReply}
-                        handleKeyDownReply={this.handleKeyDownReply}></Post>
+                        isHideFollow={true}></Post>
                 })}
             </ul>
         )
@@ -409,9 +297,27 @@ class MyAccountController extends Component {
     renderSharePost() {
         var { isLoadingSharePost } = this.state
         var value = this.state.sharePostInfo
-        var accountInfoSharePost = this.state.accountInfoSharePost
-        var address = value.address || {}
-        var profile = accountInfoSharePost && accountInfoSharePost.profile ? accountInfoSharePost.profile : []
+        var postShare = value.content.type === 'share' ? value.postShare : false;
+
+        var address = {}
+        var profile = {}
+        var author = value.author
+        var time = value.time
+        var title = value.title
+        var content = value.content.data
+
+        if (postShare) {
+            address = postShare.addressPostShare || {}
+            profile = postShare.addressPostShare && postShare.addressPostShare.profile ? postShare.addressPostShare.profile : {}
+            author = postShare.author;
+            time = postShare.time
+            title = postShare.title
+            content = postShare.content.data
+        } else {
+            address = value.address || {}
+            profile = value.address && value.address.profile ? value.address.profile : {}
+        }
+
         return (
             <div className="overlay">
                 <div className="waper">
@@ -433,23 +339,23 @@ class MyAccountController extends Component {
                         <div className="group2 scroll">
                             <div className="info">
                                 <div className="group">
-                                    <div style={{ marginRight: '10px' }} onClick={() => this.onClickAddress(value.author)} >
+                                    <div style={{ marginRight: '10px' }} onClick={() => this.onClickAddress(author)} >
                                         <img className="waper-ava" src={profile.avatar ? profile.avatar : Avatar} alt="photos"></img>
                                     </div>
                                     <div>
-                                        <p onClick={() => this.onClickAddress(value.author)} style={{ fontWeight: 'bold', fontSize: '20px' }}>{address.selected_username ? address.selected_username : value.author.substr(0, 20) + '...'}</p>
+                                        <p onClick={() => this.onClickAddress(author)} style={{ fontWeight: 'bold', fontSize: '20px' }}>{address.selected_username ? address.selected_username : author.substr(0, 20) + '...'}</p>
                                         <div className="title">
                                             <p>{Utils.convertLevel(address.level)}</p>
                                             <img src={Offline} alt="photos"></img>
-                                            <p>{Utils.convertDate(value.time)}</p>
+                                            <p>{Utils.convertDate(time)}</p>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
                             <div className="content">
-                                <p>{value.title}</p>
-                                <img src={value.content.data} style={{ width: '100%' }} alt="photos"></img>
+                                <p>{title}</p>
+                                <img src={content} style={{ width: '100%' }} alt="photos"></img>
                             </div>
                         </div>
                         <div className="waper-button">

@@ -43,7 +43,6 @@ class HomeController extends Component {
             sharePostInfo: false,
             statusShare: '',
             tags: [],
-            accountInfoSharePost: false,
             isLoadingPost: false,
             isLoadingSharePost: false,
             isLoadingFollow: false
@@ -51,7 +50,7 @@ class HomeController extends Component {
     };
 
     componentDidUpdate(pre) {
-        if(_.isEqual(pre, this.props)) {
+        if (_.isEqual(pre, this.props)) {
             return;
         }
         this.getData()
@@ -89,7 +88,8 @@ class HomeController extends Component {
         if (event.target.files[0]) {
             var file = URL.createObjectURL(event.target.files[0]);
             this.setState({
-                file
+                file,
+                typeFile: event.target.files[0].type
             })
         }
     }
@@ -114,14 +114,6 @@ class HomeController extends Component {
         })
     }
 
-    onClickReply = (index, indexx) => {
-        var data = this.state.data;
-        data[index].comment[indexx].showReply = !data[index].comment[indexx].showReply
-        this.setState({
-            data
-        });
-    }
-
     handleChangeText = (event) => {
         this.setState({
             status: event.target.value
@@ -134,77 +126,12 @@ class HomeController extends Component {
         });
     }
 
-    handleChangeTextComment = (event, index) => {
-        var data = this.state.data;
-        data[index].commentText = event.target.value
-        this.setState({
-            data
-        });
-    }
-
-    handleChangeTextReply = (event, indexx, index) => {
-        var data = this.state.data;
-        data[index].comment[indexx].replyText = event.target.value
-        this.setState({
-            data
-        });
-    }
-
-
-    handleKeyDownComment = (e, post) => {
-        if (e.key === 'Enter') {
-            var data = {
-                postId: post.postId,
-                content: post.commentText,
-            }
-
-            const tx = window.empow.callABI("social.empow", "comment", [this.props.myAddress, post.postId.toString(), "comment", "0", post.commentText])
-            this.action(tx, "comment", data);
-        }
-    }
-
-    onCommentSuccess = (commentId, obj) => {
-        const cmt = {
-            commentId: commentId,
-            postId: obj.postId,
-            address: this.props.myAccountInfo,
-            content: obj.content,
-            parentId: -1,
-            totalReply: 0,
-            type: "comment",
-            time: new Date().getTime() * 10 ** 6,
-        }
-
-        var data = this.state.data;
-        for (let i = 0; i < data.length; i++) {
-            if (data[i].postId === obj.postId) {
-                data[i].comment.unshift(cmt)
-                data[i].commentText = ''
-                break;
-            }
-        }
-
-        this.setState({
-            data
-        })
-    }
-
-    handleKeyDownReply = (e, comment) => {
-        if (e.key === 'Enter') {
-            const tx = window.empow.callABI("social.empow", "comment", [this.props.myAddress, comment.postId, "reply", comment.commentId.toString(), comment.replyText])
-            this.action(tx);
-        }
-    }
-
     togglePopup = async (post) => {
         if (!this.state.showShare) {
-            var accountInfoSharePost = await ServerAPI.getAddress(post.author)
-
             this.setState({
                 showShare: true,
                 sharePostInfo: post,
                 statusShare: '',
-                accountInfoSharePost
             })
         } else {
             this.setState({
@@ -214,7 +141,6 @@ class HomeController extends Component {
                 color: false,
                 file: [],
                 status: '',
-                accountInfoSharePost: false
             })
         }
 
@@ -248,26 +174,8 @@ class HomeController extends Component {
                 this.resetContent()
             }
 
-            if (actionName === "like") {
-                this.onLikeSuccess(data)
-            }
-
             if (actionName === "post") {
                 this.onPostSuccess(JSON.parse(res.transaction.tx_receipt.receipts[0].content)[0], data);
-            }
-
-            if (actionName === "follow") {
-                this.resetContent()
-                this.onFollowSuccess(data)
-            }
-
-            if (actionName === "unfollow") {
-                this.resetContent()
-                this.onUnfollowSuccess(data)
-            }
-
-            if (actionName === 'comment') {
-                this.onCommentSuccess(JSON.parse(res.transaction.tx_receipt.receipts[0].content)[1], data)
             }
 
             if (actionName === "share") {
@@ -276,42 +184,17 @@ class HomeController extends Component {
         })
     }
 
-    onLikePost = async (post) => {
-        if (!this.props.myAddress) {
-            return;
-        }
-        const tx = window.empow.callABI("social.empow", "like", [this.props.myAddress, post.postId])
-        this.action(tx, 'like', post);
-    }
-
-    onLikeSuccess = (post) => {
-        post.isLiked = true;
-        post.totalLike = post.totalLike + 1
-        var data = this.state.data;
-        for (let i = 0; i < data.length; i++) {
-            if (data[i].postId === post.postId) {
-                data[i] = post;
-                break;
-            }
-        }
-
-        this.setState({
-            data
-        })
-
-    }
-
     onSharePost = async () => {
         this.setState({
             isLoadingSharePost: true
         })
         var { sharePostInfo, statusShare } = this.state
         const tx = window.empow.callABI("social.empow", "share", [this.props.myAddress, sharePostInfo.postId, statusShare])
-        this.action(tx, "share", {type: "share", data: sharePostInfo.postId.toString()});
+        this.action(tx, "share", { type: "share", data: sharePostInfo.postId.toString() });
     }
 
     onShareSuccess = (postId, content) => {
-        var {sharePostInfo} = this.state
+        var { sharePostInfo } = this.state
         var post = {
             postId,
             content,
@@ -324,12 +207,13 @@ class HomeController extends Component {
             totalReport: 0,
             showContent: true,
             author: this.props.myAddress,
-            postShare: sharePostInfo
+            postShare: sharePostInfo,
+            address: this.props.myAccountInfo
         }
 
         post.postShare.addressPostShare = post.postShare.address
 
-        var data = this.state.data;
+        var data = [...this.state.data]
         data.unshift(post);
         this.setState({
             data
@@ -343,7 +227,7 @@ class HomeController extends Component {
             isLoadingPost: true
         })
 
-        const { status, country } = this.state
+        const { status, country, typeFile } = this.state
         const _self = this;
 
         var tagContent = $('input[type="tags"]')[0].value;
@@ -370,7 +254,7 @@ class HomeController extends Component {
                 console.log(`Url --> ${url}`)
 
                 const content = {
-                    type: "photo",
+                    type: typeFile === 'video/mp4' ? "video" : "photo",
                     data: url,
                     country: country.country_name,
                     city: country.city
@@ -396,7 +280,8 @@ class HomeController extends Component {
             totalLike: 0,
             totalReport: 0,
             showContent: true,
-            author: this.props.myAddress
+            author: this.props.myAddress,
+            address: this.props.myAccountInfo
         }
 
         var data = this.state.data;
@@ -434,58 +319,6 @@ class HomeController extends Component {
         });
     }
 
-    onClickAddress = (address) => {
-        window.location = '/account/' + address
-    }
-
-    onFollow = (address, follow) => {
-        this.setState({
-            isLoadingFollow: true
-        })
-
-        if (follow === 'Unfollow') {
-            this.onUnfollow(address)
-            return;
-        }
-        const tx = window.empow.callABI("social.empow", "follow", [this.props.myAddress, address])
-        this.action(tx, 'follow', address)
-    }
-
-    onFollowSuccess = (address) => {
-        var data = this.state.data
-        for (let i = 0; i < data.length; i++) {
-            if (data[i].author === address) {
-                data[i].isFollowed = true
-            }
-        }
-
-        this.setState({
-            data
-        })
-    }
-
-    onUnfollow = (address) => {
-        const tx = window.empow.callABI("social.empow", "unfollow", [this.props.myAddress, address])
-        this.action(tx, 'unfollow', address)
-    }
-
-    onUnfollowSuccess = (address) => {
-        var data = this.state.data
-        for (let i = 0; i < data.length; i++) {
-            if (data[i].author === address) {
-                data[i].isFollowed = false
-            }
-        }
-
-        this.setState({
-            data
-        })
-    }
-
-    onClickTitle = (postId) => {
-        window.location = '/post-detail/' + postId
-    }
-
     renderMoreStatus() {
         return (
             <div className="waper-more-status">
@@ -515,18 +348,37 @@ class HomeController extends Component {
     renderPhotos() {
         return (
             <div className="waper-content-photo">
-                <img style={{ marginRight: '10px' }} src={this.state.file} alt="photos"></img>
+                {this.state.typeFile !== 'video/mp4' && <img style={{ marginRight: '10px' }} src={this.state.file} alt="photos"></img>}
+                {this.state.typeFile === 'video/mp4' && <video src={this.state.file} autoPlay></video>}
+
             </div>
         )
     }
 
     renderSharePost() {
-        var { isLoadingSharePost, isLoadingFollow } = this.state
+        var { isLoadingSharePost } = this.state
         var value = this.state.sharePostInfo
-        var accountInfoSharePost = this.state.accountInfoSharePost
-        var address = value.address || {}
-        var profile = accountInfoSharePost && accountInfoSharePost.profile ? accountInfoSharePost.profile : []
-        var follow = value.isFollowed ? 'Unfollow' : 'Follow'
+
+        var postShare = value.content.type === 'share' ? value.postShare : false;
+
+        var address = {}
+        var profile = {}
+        var author = value.author
+        var time = value.time
+        var title = value.title
+        var content = value.content.data
+        if (postShare) {
+            address = postShare.addressPostShare || {}
+            profile = postShare.addressPostShare && postShare.addressPostShare.profile ? postShare.addressPostShare.profile : {}
+            author = postShare.author;
+            time = postShare.time
+            title = postShare.title
+            content = postShare.content.data
+        } else {
+            address = value.address || {}
+            profile = value.address && value.address.profile ? value.address.profile : {}
+        }
+
         return (
             <div className="overlay">
                 <div className="waper">
@@ -548,30 +400,23 @@ class HomeController extends Component {
                         <div className="group2 scroll">
                             <div className="info">
                                 <div className="group">
-                                    <div style={{ marginRight: '10px' }} onClick={() => this.onClickAddress(value.author)} >
+                                    <div style={{ marginRight: '10px' }} onClick={() => this.onClickAddress(author)} >
                                         <img className="waper-ava" src={profile.avatar ? profile.avatar : Avatar} alt="photos"></img>
                                     </div>
                                     <div>
-                                        <p onClick={() => this.onClickAddress(value.author)} style={{ fontWeight: 'bold', fontSize: '20px' }}>{address.selected_username ? address.selected_username : value.author.substr(0, 20) + '...'}</p>
+                                        <p onClick={() => this.onClickAddress(author)} style={{ fontWeight: 'bold', fontSize: '20px' }}>{address.selected_username ? address.selected_username : author.substr(0, 20) + '...'}</p>
                                         <div className="title">
                                             <p>{Utils.convertLevel(address.level)}</p>
                                             <img src={Offline} alt="photos"></img>
-                                            <p>{Utils.convertDate(value.time)}</p>
+                                            <p>{Utils.convertDate(time)}</p>
                                         </div>
                                     </div>
                                 </div>
-                                {(this.props.myAddress && value.author !== this.props.myAddress) && <div>
-                                    <button className={`btn-general-2 ${isLoadingFollow ? 'btn-loading' : ''}`} style={isLoadingFollow ? { backgroundColor: '#dd3468' } : {}} onClick={() => this.onFollow(value.author, follow)}>
-                                        {isLoadingFollow && <img src={Loading} alt="photos"></img>}
-                                        {!isLoadingFollow && <span>{follow}</span>}
-                                    </button>
-                                </div>}
-
                             </div>
 
                             <div className="content">
-                                <p>{value.title}</p>
-                                <img src={value.content.data} style={{ width: '100%' }} alt="photos"></img>
+                                <p>{title}</p>
+                                <img src={content} style={{ width: '100%' }} alt="photos"></img>
                             </div>
                         </div>
                         <div className="waper-button">
@@ -647,18 +492,7 @@ class HomeController extends Component {
             <ul>
                 {this.state.data.map((value, index) => {
                     return <Post value={value}
-                        index={index}
-                        isLoadingFollow={this.state.isLoadingFollow}
-                        onClickAddress={this.onClickAddress}
-                        onFollow={this.onFollow}
-                        onClickTitle={this.onClickTitle}
-                        onLikePost={this.onLikePost}
-                        togglePopup={this.togglePopup}
-                        handleChangeTextComment={this.handleChangeTextComment}
-                        handleKeyDownComment={this.handleKeyDownComment}
-                        onClickReply={this.onClickReply}
-                        handleChangeTextReply={this.handleChangeTextReply}
-                        handleKeyDownReply={this.handleKeyDownReply}></Post>
+                        togglePopup={this.togglePopup}></Post>
                 })}
             </ul>
         )

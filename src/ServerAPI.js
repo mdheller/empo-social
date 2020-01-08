@@ -26,9 +26,9 @@ const ServerAPI = {
         })
     },
 
-    getMyPost(address, page = 1, pageSize = 20) {
+    getMyPost(address, myAddress, page = 1, pageSize = 20) {
         return new Promise((resolve, reject) => {
-            Axios.get(`${API_ENDPOINT}/getMyPost/${address}?page=${page}&pageSize=${pageSize}`)
+            Axios.get(`${API_ENDPOINT}/getMyPost/${address}/${myAddress}?page=${page}&pageSize=${pageSize}`)
                 .then(res => (resolve(res.data)))
                 .catch(error => (reject(error.response.data)))
         })
