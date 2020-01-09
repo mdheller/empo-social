@@ -1088,7 +1088,7 @@ a {
         border-radius: 4px;
         background-color: #f8f8f8;
         display: flex;
-       justify-content: space-between;
+        justify-content: space-between;
         .waper-content {
             flex: 1;
             margin-left: 10px;
@@ -1137,6 +1137,8 @@ a {
 
     .post-detail {
         margin-top: 20px;
+        height: 600px;
+        overflow: auto;
         .info {
             position: relative;
             justify-content: space-between;

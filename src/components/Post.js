@@ -340,7 +340,7 @@ class Post extends Component {
         var pro55 = address.profile || {}
         var follow = value.isFollowed ? 'Unfollow' : 'Follow'
         return (
-            <li className="post-detail" style={{ marginBottom: '50px' }}>
+            <li className="post-detail scroll" style={{ marginBottom: '50px' }}>
                 <div className="info">
                     <div className="group">
                         <div onClick={() => this.onClickAddress(value.author)} style={{ marginRight: '10px', cursor: 'pointer' }}>

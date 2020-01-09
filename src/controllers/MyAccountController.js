@@ -289,8 +289,7 @@ class MyAccountController extends Component {
                 {data.map((value, index) => {
                     return <Post value={value}
                         togglePopup={this.togglePopup}
-                        isHideFollow={true}
-                        isNotCheckShowContent={true}></Post>
+                        isHideFollow={true}></Post>
                 })}
             </ul>
         )
