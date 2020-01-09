@@ -14,9 +14,9 @@ import Loading from '../assets/images/loading.svg'
 import Alert from 'react-s-alert';
 import 'react-s-alert/dist/s-alert-default.css';
 import 'react-s-alert/dist/s-alert-css-effects/slide.css';
-
+import Report from '../assets/images/Group 1450.svg'
 import _ from 'lodash'
-
+import moment from 'moment'
 class Post extends Component {
 
     constructor(props) {
@@ -24,7 +24,26 @@ class Post extends Component {
 
         this.state = {
             isLoadingFollow: false,
-            value: this.props.value
+            value: this.props.value,
+            showReport: false,
+            reports: [
+                {
+                    name: 'Đồi trụy',
+                    checked: false
+                },
+                {
+                    name: 'Politics',
+                    checked: false
+                },
+                {
+                    name: 'Religion',
+                    checked: false
+                },
+                {
+                    name: 'Bạo lực',
+                    checked: false
+                }
+            ]
         }
     };
 
@@ -98,6 +117,14 @@ class Post extends Component {
 
             if (actionName === 'reply') {
                 this.onReplySuccess(JSON.parse(res.transaction.tx_receipt.receipts[0].content)[2], data)
+            }
+
+            if (actionName === 'report') {
+                var value = this.state.value;
+                value.showReport = false
+                this.setState({
+                    value
+                })
             }
         })
     }
@@ -190,7 +217,7 @@ class Post extends Component {
             parentId: -1,
             totalReply: 0,
             type: "comment",
-            time: new Date().getTime() * 10 ** 6,
+            time: moment(new Date().getTime() * 10 ** 6 / 10 ** 6).fromNow()
         }
 
         var value = this.state.value;
@@ -240,7 +267,7 @@ class Post extends Component {
             content: obj.content,
             parentId: obj.parentId,
             type: "reply",
-            time: new Date().getTime() * 10 ** 6,
+            time: moment(new Date().getTime() * 10 ** 6 / 10 ** 6).fromNow()
         }
 
         var value = this.state.value;
@@ -250,6 +277,26 @@ class Post extends Component {
 
         this.setState({
             value
+        })
+    }
+
+    onToggeReport = () => {
+        var value = this.state.value
+        value.showReport = !value.showReport
+        this.setState({
+            value
+        })
+    }
+
+    onChangeCheckbox = (index) => {
+        var reports = this.state.reports;
+        reports[index].checked = !reports[index].checked
+        if (reports[index].checked) {
+            const tx = window.empow.callABI("social.empow", "report", [this.props.myAddress, this.state.value.postId.toString(), reports[index].name])
+            this.action(tx, 'report');
+        }
+        this.setState({
+            reports
         })
     }
 
@@ -269,7 +316,7 @@ class Post extends Component {
                                 <div className="title">
                                     <p>{Utils.convertLevel(value.postShare.addressPostShare.level)}</p>
                                     <img src={Offline} alt="photos"></img>
-                                    <p>{Utils.convertDate(value.postShare.time)}</p>
+                                    <p>{moment(value.postShare.time / 10 ** 6).fromNow()}</p>
                                 </div>
                             </div>
                         </div>
@@ -286,13 +333,12 @@ class Post extends Component {
 
     render() {
         var { myAccountInfo, myAddress, isHideFollow } = this.props;
-        var { isLoadingFollow, value } = this.state;
+        var { isLoadingFollow, value, reports } = this.state;
         var profile = myAccountInfo.profile || {}
         var comment = value.comment || []
         var address = value.address || {}
         var pro55 = address.profile || {}
         var follow = value.isFollowed ? 'Unfollow' : 'Follow'
-        console.log(value)
         return (
             <li className="post-detail" style={{ marginBottom: '50px' }}>
                 <div className="info">
@@ -306,16 +352,39 @@ class Post extends Component {
                                 <p style={{ color: '#dd3468' }}>$ {value.realLike}</p>
                                 <p>{Utils.convertLevel(address.level)}</p>
                                 <img src={Offline} alt="photos"></img>
-                                <p style={{marginLeft: '5px'}}>{Utils.convertDate(value.time)}</p>
+                                <p style={{ marginLeft: '5px' }}>{moment(value.time / 10 ** 6).fromNow()}</p>
                             </div>
                         </div>
                     </div>
-                    {(value.author !== myAddress && !isHideFollow) && <div>
-                        <button className={`btn-general-2 ${isLoadingFollow ? 'btn-loading' : ''}`} style={isLoadingFollow ? { backgroundColor: '#dd3468' } : {}} onClick={() => this.onFollow(value.author, follow)}>
+                    <div style={{ display: 'flex' }} >
+                        {(value.author !== myAddress && !isHideFollow) && <button className={`btn-general-2 ${isLoadingFollow ? 'btn-loading' : ''}`} style={isLoadingFollow ? { backgroundColor: '#dd3468' } : {}} onClick={() => this.onFollow(value.author, follow)}>
                             {isLoadingFollow && <img src={Loading} alt="photos"></img>}
                             {!isLoadingFollow && <span>{follow}</span>}
-                        </button>
+                        </button>}
+
+                        <div style={{ marginLeft: '10px', cursor: 'pointer' }} onClick={() => this.onToggeReport()}>
+                            <img src={Report} alt="photos"></img>
+                        </div>
+                    </div>
+
+                    {value.showReport && <div className="waper-report">
+                        <p>#Report</p>
+                        <ul>
+                            {reports.map((value, index) => {
+                                return (
+                                    <li>
+                                        <p>{value.name}</p>
+                                        <label className="checkbox">
+                                            <input type="checkbox" name="radio" checked={value.checked} onChange={() => this.onChangeCheckbox(index)} />
+                                            <span className="checkmark"></span>
+                                        </label>
+                                    </li>
+                                )
+                            })}
+                        </ul>
                     </div>}
+
+
                 </div>
 
                 {value.content.type === 'share' && this.renderPostShare(value)}
@@ -391,7 +460,7 @@ class Post extends Component {
                                             <div className="title">
                                                 <p>{Utils.convertLevel(addressComment.level)}</p>
                                                 <img src={Offline} alt="photos"></img>
-                                                <p>{Utils.convertDate(detail.time)}</p>
+                                                <p>{moment(detail.time / 10 ** 6).fromNow()}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -420,13 +489,13 @@ class Post extends Component {
                                     </div>
                                 </div>}
 
-                                {(reply && reply.length > 0) && <ul className="coment scroll">
+                                {(reply && reply.length > 0) && <ul className="coment scroll" style={{height: '200px'}}>
                                     {reply.map((detailReply) => {
                                         var addressReply = detailReply.address || [];
                                         var pro5Reply = addressReply.profile || {}
 
                                         return (
-                                            <li>
+                                            <li style={{borderBottomWidth: '0px'}}>
                                                 <div className="info">
                                                     <div className="group">
                                                         <div onClick={() => this.onClickAddress(addressReply.address)} className="waper-avatar" style={{ marginRight: '10px', cursor: 'pointer' }}>
@@ -437,7 +506,7 @@ class Post extends Component {
                                                             <div className="title">
                                                                 <p>{Utils.convertLevel(addressReply.level)}</p>
                                                                 <img src={Offline} alt="photos"></img>
-                                                                <p>{Utils.convertDate(detailReply.time)}</p>
+                                                                <p>{moment(detailReply.time / 10 ** 6).fromNow()}</p>
                                                             </div>
                                                         </div>
                                                     </div>

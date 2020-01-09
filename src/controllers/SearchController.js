@@ -31,10 +31,25 @@ class SearchController extends Component {
         var posts = await ServerAPI.getPostByKey(key)
         var postsOfTag = await ServerAPI.getPostByTag(key)
 
+        var index = 0;
+
+        if (postsOfTag.length > 0) {
+            index = 2
+        }
+
+        if (posts.length > 0) {
+            index = 1;
+        }
+
+        if (addresses.length > 0) {
+            index = 0;
+        }
+
         this.setState({
             addresses,
             posts,
-            postsOfTag
+            postsOfTag,
+            index
         })
     }
 
@@ -46,6 +61,14 @@ class SearchController extends Component {
         return '';
     }
 
+    onClickAddress = (address) => {
+        window.location = '/account/' + address
+    }
+
+    onClickTitle = (postId) => {
+        window.location = '/post-detail/' + postId
+    }
+
     renderPeople() {
         var { addresses } = this.state
         return (
@@ -53,8 +76,8 @@ class SearchController extends Component {
                 {addresses.map((value, index) => {
                     return (
                         <li>
-                            <div className="content">
-                                <p>{value.address.substr(0, 20) + '...'}</p>
+                            <div className="content" onClick={() => this.onClickAddress(value.address)}>
+                                <p>{value.selected_username ? value.selected_username : value.address.substr(0, 20) + '...'}</p>
                             </div>
                         </li>
                     )
@@ -69,7 +92,7 @@ class SearchController extends Component {
             <ul className="people">
                 {posts.map((value, index) => {
                     return (
-                        <li>
+                        <li onClick={() => this.onClickTitle(value.postId)}>
                             <div className="content">
                                 <p>{value.author.substr(0, 20) + '...'}</p>
                                 <p style={{ color: '#676f75', fontSize: '16px', fontWeight: 'normal' }}>{Utils.convertDate(value.time)}</p>
@@ -89,7 +112,7 @@ class SearchController extends Component {
             <ul className="people">
                 {postsOfTag.map((value, index) => {
                     return (
-                        <li>
+                        <li onClick={() => this.onClickTitle(value.postId)}>
                             <div className="content">
                                 <p>{value.author.substr(0, 20) + '...'}</p>
                                 <p style={{ color: '#676f75', fontSize: '16px', fontWeight: 'normal' }}>{Utils.convertDate(value.time)}</p>

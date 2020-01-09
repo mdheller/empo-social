@@ -160,11 +160,9 @@ class RightNavbar extends Component {
                                         <img src={pro55.avatar ? pro55.avatar : Avatar} alt="photos" style={{ width: '40px', height: '40px', borderRadius: '50%' }}></img>
                                     </div>
                                     <div>
-                                        <p onClick={() => this.onClickAddress(value.author)} style={{ fontWeight: 'bold', fontSize: '20px', cursor: 'pointer' }}>{value.author.substr(0, 15) + '...'}</p>
+                                        <p onClick={() => this.onClickAddress(value.author)} style={{ fontWeight: 'bold', fontSize: '20px', cursor: 'pointer' }}>{address.selected_username ? address.selected_username : (value.author ? value.author.substr(0, 20) + '...' : '')}</p>
                                         <div className="title">
                                             <p>{Utils.convertLevel(value.level)}</p>
-                                            <img src={Offline} alt="photos"></img>
-                                            <p>{Utils.convertDate(value.time)} hour</p>
                                         </div>
                                     </div>
                                 </div>

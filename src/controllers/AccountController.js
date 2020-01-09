@@ -19,7 +19,7 @@ import { connect } from 'react-redux';
 import Alert from 'react-s-alert';
 import 'react-s-alert/dist/s-alert-default.css';
 import 'react-s-alert/dist/s-alert-css-effects/slide.css';
-
+import moment from 'moment'
 import _ from 'lodash'
 class AccountController extends Component {
 
@@ -49,6 +49,11 @@ class AccountController extends Component {
         var addressAccount = this.props.match.params.address
 
         var accountInfo = await ServerAPI.getAddress(addressAccount)
+
+        if (accountInfo.code === 404) {
+            accountInfo = await ServerAPI.getAddressByUsername(addressAccount)
+            addressAccount = accountInfo.address
+        }
 
         var data = await ServerAPI.getMyPost(addressAccount, this.props.myAddress);
 
@@ -169,7 +174,7 @@ class AccountController extends Component {
         this.action(tx, 'unfollow')
     }
 
-   
+
     renderInfo() {
         var { addressAccount, follow, follower, totalMoney, accountInfo, isLoadingFollow, isFollowed } = this.state
         var profile = accountInfo.profile || {}
@@ -218,8 +223,8 @@ class AccountController extends Component {
             <ul className="waper-data">
                 {data.map((value, index) => {
                     return <Post value={value}
-                    togglePopup={this.togglePopup}
-                    isHideFollow={true}></Post>
+                        togglePopup={this.togglePopup}
+                        isHideFollow={true}></Post>
                 })}
             </ul>
         )
@@ -236,7 +241,7 @@ class AccountController extends Component {
         var time = value.time
         var title = value.title
         var content = value.content.data
-
+        var type = value.content.type
         if (postShare) {
             address = postShare.addressPostShare || {}
             profile = postShare.addressPostShare && postShare.addressPostShare.profile ? postShare.addressPostShare.profile : {}
@@ -244,6 +249,7 @@ class AccountController extends Component {
             time = postShare.time
             title = postShare.title
             content = postShare.content.data
+            type = postShare.content.type
         } else {
             address = value.address || {}
             profile = value.address && value.address.profile ? value.address.profile : {}
@@ -278,7 +284,7 @@ class AccountController extends Component {
                                         <div className="title">
                                             <p>{Utils.convertLevel(address.level)}</p>
                                             <img src={Offline} alt="photos"></img>
-                                            <p>{Utils.convertDate(time)}</p>
+                                            <p>{moment(time / 10**6).fromNow()}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -286,7 +292,8 @@ class AccountController extends Component {
 
                             <div className="content">
                                 <p>{title}</p>
-                                <img src={content} alt="photos" style={{ width: '100%' }}></img>
+                                {type === 'video' && <video src={content} controls></video>}
+                                {type === 'photo' && <img src={content} style={{ width: '100%' }} alt="photos"></img>}
                             </div>
                         </div>
                         <div className="waper-button">

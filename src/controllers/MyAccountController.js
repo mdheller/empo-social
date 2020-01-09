@@ -22,6 +22,7 @@ import _ from 'lodash'
 import Alert from 'react-s-alert';
 import 'react-s-alert/dist/s-alert-default.css';
 import 'react-s-alert/dist/s-alert-css-effects/slide.css';
+import moment from 'moment'
 
 class MyAccountController extends Component {
 
@@ -288,7 +289,8 @@ class MyAccountController extends Component {
                 {data.map((value, index) => {
                     return <Post value={value}
                         togglePopup={this.togglePopup}
-                        isHideFollow={true}></Post>
+                        isHideFollow={true}
+                        isNotCheckShowContent={true}></Post>
                 })}
             </ul>
         )
@@ -305,7 +307,7 @@ class MyAccountController extends Component {
         var time = value.time
         var title = value.title
         var content = value.content.data
-
+        var type = value.content.type
         if (postShare) {
             address = postShare.addressPostShare || {}
             profile = postShare.addressPostShare && postShare.addressPostShare.profile ? postShare.addressPostShare.profile : {}
@@ -313,6 +315,7 @@ class MyAccountController extends Component {
             time = postShare.time
             title = postShare.title
             content = postShare.content.data
+            type = postShare.content.type
         } else {
             address = value.address || {}
             profile = value.address && value.address.profile ? value.address.profile : {}
@@ -347,7 +350,7 @@ class MyAccountController extends Component {
                                         <div className="title">
                                             <p>{Utils.convertLevel(address.level)}</p>
                                             <img src={Offline} alt="photos"></img>
-                                            <p>{Utils.convertDate(time)}</p>
+                                            <p>{moment(time / 10**6).fromNow()}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -355,7 +358,8 @@ class MyAccountController extends Component {
 
                             <div className="content">
                                 <p>{title}</p>
-                                <img src={content} style={{ width: '100%' }} alt="photos"></img>
+                                {type === 'video' && <video src={content} controls></video>}
+                                {type === 'photo' && <img src={content} style={{ width: '100%' }} alt="photos"></img>}
                             </div>
                         </div>
                         <div className="waper-button">

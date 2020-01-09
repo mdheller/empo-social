@@ -3,8 +3,7 @@ import Headers from '../components/Header';
 import Navbar from '../components/Navbar';
 import Avatar from '../assets/images/avatar.svg'
 import Photo from '../assets/images/Path 953.svg'
-import Chart from '../assets/images/Group 599.svg'
-import Gif from '../assets/images/Group 601.svg'
+import Video from '../assets/images/multimedia.svg'
 import Icon from '../assets/images/Group 7447.svg'
 import RightNavbar from '../components/RightNavbar';
 import Delete from '../assets/images/Union 28.svg'
@@ -24,7 +23,7 @@ import Alert from 'react-s-alert';
 import 'react-s-alert/dist/s-alert-default.css';
 import 'react-s-alert/dist/s-alert-css-effects/slide.css';
 import Post from '../components/Post'
-
+import moment from 'moment'
 import _ from 'lodash'
 
 class HomeController extends Component {
@@ -45,7 +44,8 @@ class HomeController extends Component {
             tags: [],
             isLoadingPost: false,
             isLoadingSharePost: false,
-            isLoadingFollow: false
+            isLoadingFollow: false,
+            pageSize: 10
         };
     };
 
@@ -53,19 +53,26 @@ class HomeController extends Component {
         if (_.isEqual(pre, this.props)) {
             return;
         }
-        this.getData()
+        this.getData(this.state.pageSize)
     }
 
-    getData = async () => {
+    getData = async (pageSize) => {
         if (!this.props.myAddress) {
             return;
         }
 
-        var data = await ServerAPI.getNewFeed(this.props.myAddress, this.props.typeNewFeed);
+        var data = await ServerAPI.getNewFeed(this.props.myAddress, this.props.typeNewFeed, pageSize);
         var country = await ServerAPI.getCountry()
         this.setState({
             data,
             country
+        })
+    }
+
+    onLoadMore = () => {
+        this.getData(this.state.pageSize + 10)
+        this.setState({
+            pageSize: this.state.pageSize + 10
         })
     }
 
@@ -80,8 +87,13 @@ class HomeController extends Component {
     }
 
 
-    upLoadPhoto = () => {
-        this.refs.fileUploader.click();
+    upLoadPhoto = (index) => {
+        if (index === 1) {
+            this.refs.fileUploader.click();
+        } else {
+            this.refs.fileUploaderr.click();
+        }
+        
     }
 
     handleChange = (event) => {
@@ -200,7 +212,7 @@ class HomeController extends Component {
             content,
             realLike: 0,
             title: this.state.statusShare,
-            time: new Date().getTime() * 10 ** 6,
+            time: moment(new Date().getTime() * 10 ** 6 / 10 ** 6).fromNow(),
             totalComment: 0,
             totalCommentAndReply: 0,
             totalLike: 0,
@@ -274,7 +286,7 @@ class HomeController extends Component {
             content,
             realLike: 0,
             title: this.state.status,
-            time: new Date().getTime() * 10 ** 6,
+            time: moment(new Date().getTime() * 10 ** 6 / 10 ** 6).fromNow(),
             totalComment: 0,
             totalCommentAndReply: 0,
             totalLike: 0,
@@ -367,6 +379,7 @@ class HomeController extends Component {
         var time = value.time
         var title = value.title
         var content = value.content.data
+        var type = value.content.type
         if (postShare) {
             address = postShare.addressPostShare || {}
             profile = postShare.addressPostShare && postShare.addressPostShare.profile ? postShare.addressPostShare.profile : {}
@@ -374,6 +387,7 @@ class HomeController extends Component {
             time = postShare.time
             title = postShare.title
             content = postShare.content.data
+            type = postShare.content.type
         } else {
             address = value.address || {}
             profile = value.address && value.address.profile ? value.address.profile : {}
@@ -408,7 +422,7 @@ class HomeController extends Component {
                                         <div className="title">
                                             <p>{Utils.convertLevel(address.level)}</p>
                                             <img src={Offline} alt="photos"></img>
-                                            <p>{Utils.convertDate(time)}</p>
+                                            <p>{moment(time / 10 ** 6).fromNow()}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -416,7 +430,8 @@ class HomeController extends Component {
 
                             <div className="content">
                                 <p>{title}</p>
-                                <img src={content} style={{ width: '100%' }} alt="photos"></img>
+                                {type === 'video' && <video src={content} controls></video>}
+                                {type === 'photo' && <img src={content} style={{ width: '100%' }} alt="photos"></img>}
                             </div>
                         </div>
                         <div className="waper-button">
@@ -462,12 +477,14 @@ class HomeController extends Component {
                     {this.state.showMoreStatus && this.renderMoreStatus()}
                     <div className="waper-button">
                         <div style={{ display: 'flex', alignItems: 'center' }}>
-                            <div onClick={() => this.upLoadPhoto()} style={{ display: 'flex', alignItems: 'center' }}>
+                            <div onClick={() => this.upLoadPhoto(1)} style={{ display: 'flex', alignItems: 'center' }}>
                                 <img src={Photo} alt="photos"></img>
-                                <input type="file" id="file" ref="fileUploader" name="photo" style={{ display: "none" }} onChange={(event) => this.handleChange(event)} />
+                                <input accept="image/*" type="file" id="file" ref="fileUploader" name="photo" style={{ display: "none" }} onChange={(event) => this.handleChange(event)} />
                             </div>
-                            <img src={Chart} alt="photos"></img>
-                            <img src={Gif} alt="photos"></img>
+                            <div onClick={() => this.upLoadPhoto(2)} style={{ display: 'flex', alignItems: 'center' }}>
+                                <img src={Video} alt="photos" style={{width: '25px', height: '25px'}}></img>
+                                <input accept="video/*" type="file" id="filee" ref="fileUploaderr" name="photo" style={{ display: "none" }} onChange={(event) => this.handleChange(event)} />
+                            </div>
                             <div className="waper-emoji">
                                 <img onClick={() => { this.setState({ showEmoji: !this.state.showEmoji }) }} src={Icon} alt="photos"></img>
                                 {this.state.showEmoji && <div className="emoji-icon">
@@ -494,6 +511,10 @@ class HomeController extends Component {
                     return <Post value={value}
                         togglePopup={this.togglePopup}></Post>
                 })}
+                <div className="load-more" onClick={() => this.onLoadMore()}>
+                    <p>Load More</p>
+                </div>
+
             </ul>
         )
     }
