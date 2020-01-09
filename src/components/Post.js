@@ -26,6 +26,7 @@ class Post extends Component {
             isLoadingFollow: false,
             value: this.props.value,
             showReport: false,
+            widthObject: {},
             reports: [
                 {
                     name: 'Đồi trụy',
@@ -331,9 +332,21 @@ class Post extends Component {
         )
     }
 
+    scaleVideo(e, postId) {
+        const maxHeight = 600
+        if(e.target.videoHeight > maxHeight) {
+            const ratio = e.target.videoHeight / e.target.videoWidth
+            const newWidth = maxHeight / ratio
+            // save new width
+            let widthObject = Object.assign({}, this.state.widthObject)
+            widthObject[postId] = newWidth
+            this.setState({widthObject})
+        }
+    }
+
     render() {
         var { myAccountInfo, myAddress, isHideFollow } = this.props;
-        var { isLoadingFollow, value, reports } = this.state;
+        var { isLoadingFollow, value, reports,widthObject } = this.state;
         var profile = myAccountInfo.profile || {}
         var comment = value.comment || []
         var address = value.address || {}
@@ -394,7 +407,7 @@ class Post extends Component {
                 </div>}
                 {value.content.type === 'video' && <div className="content">
                     <p style={{ cursor: 'pointer' }} onClick={() => this.onClickTitle(value.postId)}>{value.title}</p>
-                    <video src={value.content.data} controls></video>
+                    <video onLoadedMetadata={(e) => this.scaleVideo(e, value.postId)} style={{width: widthObject.hasOwnProperty(value.postId) ? widthObject[value.postId] : '100%'}} src={value.content.data} controls></video>
                 </div>}
 
 

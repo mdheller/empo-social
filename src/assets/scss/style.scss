@@ -1137,8 +1137,6 @@ a {
 
     .post-detail {
         margin-top: 20px;
-        height: 600px;
-        overflow: auto;
         .info {
             position: relative;
             justify-content: space-between;
@@ -1180,7 +1178,9 @@ a {
 
         .content {
             margin-top: 10px;
+            text-align: center;
             p {
+                text-align: left;
                 font-size: 20px;
                 font-weight: bold;
                 margin-bottom: 10px;
