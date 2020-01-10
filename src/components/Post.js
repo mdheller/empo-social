@@ -17,6 +17,8 @@ import 'react-s-alert/dist/s-alert-css-effects/slide.css';
 import Report from '../assets/images/Group 1450.svg'
 import _ from 'lodash'
 import moment from 'moment'
+import YouTube from 'react-youtube';
+
 class Post extends Component {
 
     constructor(props) {
@@ -408,6 +410,13 @@ class Post extends Component {
                 {value.content.type === 'video' && <div className="content">
                     <p style={{ cursor: 'pointer' }} onClick={() => this.onClickTitle(value.postId)}>{value.title}</p>
                     <video onLoadedMetadata={(e) => this.scaleVideo(e, value.postId)} style={{width: widthObject.hasOwnProperty(value.postId) ? widthObject[value.postId] : '100%'}} src={value.content.data} controls></video>
+                </div>}
+                {value.content.type === 'youtube' && <div className="content">
+                    <p style={{ cursor: 'pointer' }} onClick={() => this.onClickTitle(value.postId)}>{value.title}</p>
+                    <YouTube
+                        videoId={Utils.getVideoIdYoutube(value.content.data)}
+                        opts={{width: '100%'}}
+                    />
                 </div>}
 
 

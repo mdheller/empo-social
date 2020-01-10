@@ -19,6 +19,7 @@ import 'react-s-alert/dist/s-alert-default.css';
 import 'react-s-alert/dist/s-alert-css-effects/slide.css';
 import moment from 'moment'
 import _ from 'lodash'
+import YouTube from 'react-youtube';
 
 class PostDetailController extends Component {
 
@@ -193,6 +194,10 @@ class PostDetailController extends Component {
                                 <p>{title}</p>
                                 {type === 'video' && <video src={content} controls></video>}
                                 {type === 'photo' && <img src={content} style={{ width: '100%' }} alt="photos"></img>}
+                                {type === 'youtube' && <YouTube
+                                    videoId={Utils.getVideoIdYoutube(content)}
+                                    opts={{ width: '100%' }}
+                                />}
                             </div>
                         </div>
                         <div className="waper-button">

@@ -1132,6 +1132,22 @@ a {
                     width: 100%;
                 }
             }
+
+            .waper-input-youtube {
+                display: flex;
+                input {
+                    width: 200px;
+                    background-color: #9ed1e0;
+                    border-radius: 4px;
+                    height: 25px;
+                    padding: 5px 10px;
+                }
+
+                p{
+                    cursor: pointer;
+                    color: #ff6a7e;
+                }
+            }
         }
     }
 

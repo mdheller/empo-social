@@ -58,6 +58,28 @@ const Utils = {
 
         return 'New members'
     },
+
+    validateYouTubeUrl(url) {
+        if (url !== undefined || url !== '') {
+            var regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=|\?v=)([^#\&\?]*).*/;
+            var match = url.match(regExp);
+            if (match && match[2].length === 11) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+    },
+
+    getVideoIdYoutube(link) {
+        var video_id = link.split('v=')[1];
+        var ampersandPosition = video_id.indexOf('&');
+        if (ampersandPosition !== -1) {
+            video_id = video_id.substring(0, ampersandPosition);
+        }
+
+        return video_id
+    }
 }
 
 export default Utils

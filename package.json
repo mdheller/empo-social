@@ -23,6 +23,7 @@
     "react-scripts": "^3.3.0",
     "react-select": "^3.0.8",
     "react-svg-piechart": "^2.4.1",
+    "react-youtube": "^7.9.0",
     "redux-starter-kit": "^0.6.3",
     "socket.io-client": "^2.3.0",
     "tags-input": "^1.1.1"

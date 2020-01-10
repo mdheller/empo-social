@@ -4,6 +4,7 @@ import Navbar from '../components/Navbar';
 import Avatar from '../assets/images/avatar.svg'
 import Photo from '../assets/images/Path 953.svg'
 import Video from '../assets/images/multimedia.svg'
+import Logo from '../assets/images/logo.svg'
 import Icon from '../assets/images/Group 7447.svg'
 import RightNavbar from '../components/RightNavbar';
 import Delete from '../assets/images/Union 28.svg'
@@ -25,6 +26,10 @@ import 'react-s-alert/dist/s-alert-css-effects/slide.css';
 import Post from '../components/Post'
 import moment from 'moment'
 import _ from 'lodash'
+import YouTube from 'react-youtube';
+import io from 'socket.io-client';
+import { SOCKET } from '../constants/index'
+const socket = io(SOCKET);
 
 class HomeController extends Component {
 
@@ -44,8 +49,10 @@ class HomeController extends Component {
             tags: [],
             isLoadingPost: false,
             isLoadingSharePost: false,
-            isLoadingFollow: false,
-            pageSize: 10
+            pageSize: 10,
+            showInputYoutube: false,
+            linkYoutube: '',
+            showVideoYoutube: false
         };
     };
 
@@ -54,6 +61,24 @@ class HomeController extends Component {
             return;
         }
         this.getData(this.state.pageSize)
+
+        socket.on("res_new_post", (post) => {
+            this.updateData(post)
+        });
+    }
+
+    updateData = (post) => {
+        var data = this.state.data;
+        for (let i = 0; i < data.length; i++) {
+            if (data[i].postId === post.postId) {
+                data[i] = post
+                break;
+            }
+        }
+
+        this.setState({
+            data
+        })
     }
 
     getData = async (pageSize) => {
@@ -62,6 +87,13 @@ class HomeController extends Component {
         }
 
         var data = await ServerAPI.getNewFeed(this.props.myAddress, this.props.typeNewFeed, pageSize);
+
+        var listPostId = []
+        data.forEach(post => {
+            listPostId.push(post.postId)
+        });
+        socket.emit("get_new_post", listPostId)
+        
         var country = await ServerAPI.getCountry()
         this.setState({
             data,
@@ -93,7 +125,7 @@ class HomeController extends Component {
         } else {
             this.refs.fileUploaderr.click();
         }
-        
+
     }
 
     handleChange = (event) => {
@@ -101,7 +133,9 @@ class HomeController extends Component {
             var file = URL.createObjectURL(event.target.files[0]);
             this.setState({
                 file,
-                typeFile: event.target.files[0].type
+                typeFile: event.target.files[0].type,
+                showVideoYoutube: false,
+                linkYoutube: ''
             })
         }
     }
@@ -138,6 +172,12 @@ class HomeController extends Component {
         });
     }
 
+    handleChangeLinkYoutube = (event) => {
+        this.setState({
+            linkYoutube: event.target.value
+        });
+    }
+
     togglePopup = async (post) => {
         if (!this.state.showShare) {
             this.setState({
@@ -170,7 +210,6 @@ class HomeController extends Component {
             this.setState({
                 isLoadingPost: false,
                 isLoadingSharePost: false,
-                isLoadingFollow: false
             })
 
             Alert.error(text, {
@@ -212,7 +251,7 @@ class HomeController extends Component {
             content,
             realLike: 0,
             title: this.state.statusShare,
-            time: moment(new Date().getTime() * 10 ** 6 / 10 ** 6).fromNow(),
+            time: moment(new Date().getTime()).fromNow(),
             totalComment: 0,
             totalCommentAndReply: 0,
             totalLike: 0,
@@ -239,7 +278,7 @@ class HomeController extends Component {
             isLoadingPost: true
         })
 
-        const { status, country, typeFile } = this.state
+        const { status, country, typeFile, showVideoYoutube, linkYoutube } = this.state
         const _self = this;
 
         var tagContent = $('input[type="tags"]')[0].value;
@@ -248,6 +287,19 @@ class HomeController extends Component {
         var tag = []
         for (let j = 0; j < tagContent.length; j++) {
             tag.push(tagContent[j].trim())
+        }
+
+        if (showVideoYoutube) {
+            const content = {
+                type: 'youtube',
+                data: linkYoutube,
+                country: country.country_name,
+                city: country.city
+            }
+
+            const tx = window.empow.callABI("social.empow", "post", [this.props.myAddress, status, content, tag])
+            this.action(tx, "post", content)
+            return;
         }
 
         const reader = new FileReader();
@@ -286,7 +338,7 @@ class HomeController extends Component {
             content,
             realLike: 0,
             title: this.state.status,
-            time: moment(new Date().getTime() * 10 ** 6 / 10 ** 6).fromNow(),
+            time: moment(new Date().getTime()).fromNow(),
             totalComment: 0,
             totalCommentAndReply: 0,
             totalLike: 0,
@@ -314,7 +366,9 @@ class HomeController extends Component {
             tags: [],
             isLoadingPost: false,
             isLoadingSharePost: false,
-            isLoadingFollow: false
+            showInputYoutube: false,
+            linkYoutube: '',
+            showVideoYoutube: false
         })
     }
 
@@ -329,6 +383,16 @@ class HomeController extends Component {
         $('.tag').click(function () {
             $(this).remove()
         });
+    }
+
+    onCheckLinkYoutube = () => {
+        if (Utils.validateYouTubeUrl(this.state.linkYoutube)) {
+            this.setState({
+                showVideoYoutube: true,
+                showInputYoutube: false,
+                file: false
+            })
+        }
     }
 
     renderMoreStatus() {
@@ -432,6 +496,10 @@ class HomeController extends Component {
                                 <p>{title}</p>
                                 {type === 'video' && <video src={content} controls></video>}
                                 {type === 'photo' && <img src={content} style={{ width: '100%' }} alt="photos"></img>}
+                                {type === 'youtube' && <YouTube
+                                    videoId={Utils.getVideoIdYoutube(content)}
+                                    opts={{ width: '100%' }}
+                                />}
                             </div>
                         </div>
                         <div className="waper-button">
@@ -459,22 +527,30 @@ class HomeController extends Component {
 
     renderStatus() {
         var { myAccountInfo } = this.props;
-        var { isLoadingPost } = this.state
+        var { isLoadingPost, file, showMoreStatus, status, color, showEmoji, showInputYoutube, linkYoutube, showVideoYoutube } = this.state
         var profile = myAccountInfo.profile || {}
         return (
-            <div className="post" style={{ backgroundColor: this.state.color ? this.state.color : '' }}>
+            <div className="post" style={{ backgroundColor: color ? color : '' }}>
                 <div style={{ flex: 0.1 }}>
                     <img src={profile.avatar ? profile.avatar : Avatar} alt="photos" style={{ width: '36px', height: '36px', borderRadius: '50%' }}></img>
                 </div>
                 <div className="waper-content">
                     <textarea
-                        value={this.state.status}
+                        value={status}
                         onClick={() => { this.setState({ showMoreStatus: true }) }}
                         onChange={this.handleChangeText}
                         placeholder="What are you thinking?"
-                        style={{ backgroundColor: this.state.color ? this.state.color : '' }}></textarea>
-                    {this.state.file && this.renderPhotos()}
-                    {this.state.showMoreStatus && this.renderMoreStatus()}
+                        style={{ backgroundColor: color ? color : '' }}></textarea>
+                    {file && this.renderPhotos()}
+                    {showVideoYoutube && <YouTube
+                        videoId={Utils.getVideoIdYoutube(linkYoutube)}
+                        opts={{ width: '100%' }}
+                    />}
+                    {showInputYoutube && <div className="waper-input-youtube">
+                        <input value={linkYoutube} onChange={this.handleChangeLinkYoutube} placeholder="Link youtube"></input>
+                        <p onClick={() => this.onCheckLinkYoutube()}>Upload</p>
+                    </div>}
+                    {showMoreStatus && this.renderMoreStatus()}
                     <div className="waper-button">
                         <div style={{ display: 'flex', alignItems: 'center' }}>
                             <div onClick={() => this.upLoadPhoto(1)} style={{ display: 'flex', alignItems: 'center' }}>
@@ -482,12 +558,13 @@ class HomeController extends Component {
                                 <input accept="image/*" type="file" id="file" ref="fileUploader" name="photo" style={{ display: "none" }} onChange={(event) => this.handleChange(event)} />
                             </div>
                             <div onClick={() => this.upLoadPhoto(2)} style={{ display: 'flex', alignItems: 'center' }}>
-                                <img src={Video} alt="photos" style={{width: '25px', height: '25px'}}></img>
+                                <img src={Video} alt="photos" style={{ width: '25px', height: '25px' }}></img>
                                 <input accept="video/*" type="file" id="filee" ref="fileUploaderr" name="photo" style={{ display: "none" }} onChange={(event) => this.handleChange(event)} />
                             </div>
+                            <img onClick={() => { this.setState({ showInputYoutube: !showInputYoutube }) }} src={Logo} alt="photos" style={{ width: '28px', height: '30px' }}></img>
                             <div className="waper-emoji">
-                                <img onClick={() => { this.setState({ showEmoji: !this.state.showEmoji }) }} src={Icon} alt="photos"></img>
-                                {this.state.showEmoji && <div className="emoji-icon">
+                                <img onClick={() => { this.setState({ showEmoji: !showEmoji }) }} src={Icon} alt="photos"></img>
+                                {showEmoji && <div className="emoji-icon">
                                     <EmojiPicker onEmojiClick={this.onEmojiClick} />
                                 </div>}
                             </div>

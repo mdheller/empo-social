@@ -122,7 +122,7 @@ class Header extends Component {
             <ul className="waper-noti scroll">
                 {listNoti.map((value, index) => {
                     return (
-                        <li onClick={() => this.onClickNoti(value)}>
+                        <li onClick={() => this.onClickNoti(value)} style={{ cursor: 'pointer' }}>
                             <p>{value.target} đã {value.action} bài viết của bạn</p>
                         </li>
                     )
@@ -152,9 +152,9 @@ class Header extends Component {
                             onKeyDown={this.handleKeyDownSearch}></input>
                     </div>
                     <ul className="menu">
-                        <li onClick={() => this.onChangeTypeNewFeed('trending')} style={typeNewFeed === 'trending' ? {color: '#ff6a7e'} : {}}>Trending</li>
-                        <li onClick={() => this.onChangeTypeNewFeed('follow')} style={typeNewFeed === 'follow' ? {color: '#ff6a7e'} : {}}>Follow</li>
-                        <li onClick={() => this.onChangeTypeNewFeed('all')} style={typeNewFeed === 'all' ? {color: '#ff6a7e'} : {}}>Newest</li>
+                        <li onClick={() => this.onChangeTypeNewFeed('trending')} style={typeNewFeed === 'trending' ? { color: '#ff6a7e' } : {}}>Trending</li>
+                        <li onClick={() => this.onChangeTypeNewFeed('follow')} style={typeNewFeed === 'follow' ? { color: '#ff6a7e' } : {}}>Follow</li>
+                        <li onClick={() => this.onChangeTypeNewFeed('all')} style={typeNewFeed === 'all' ? { color: '#ff6a7e' } : {}}>Newest</li>
                     </ul>
                     {myAddress && <div className="waper-account">
                         <a href="/my-account"><img src={profile.avatar ? profile.avatar : IconAva} alt="photos" className="waper-ava"></img></a>
