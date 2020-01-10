@@ -65,13 +65,14 @@ class HomeController extends Component {
         socket.on("res_new_post", (post) => {
             this.updateData(post)
         });
+
     }
 
     updateData = (post) => {
         var data = this.state.data;
         for (let i = 0; i < data.length; i++) {
             if (data[i].postId === post.postId) {
-                data[i] = post
+                data[i] = { ...data[i], ...post };
                 break;
             }
         }
@@ -82,10 +83,6 @@ class HomeController extends Component {
     }
 
     getData = async (pageSize) => {
-        if (!this.props.myAddress) {
-            return;
-        }
-
         var data = await ServerAPI.getNewFeed(this.props.myAddress, this.props.typeNewFeed, pageSize);
 
         var listPostId = []
@@ -93,7 +90,7 @@ class HomeController extends Component {
             listPostId.push(post.postId)
         });
         socket.emit("get_new_post", listPostId)
-        
+
         var country = await ServerAPI.getCountry()
         this.setState({
             data,
